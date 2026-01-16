@@ -1,0 +1,229 @@
+import * as React from "react"
+import { ChevronDown, RotateCcw } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { type Wallpaper } from "./WallpaperCard"
+
+interface WallpaperPropertiesProps {
+    wallpaper: Wallpaper
+}
+
+// Mock properties based on linux-wallpaperengine --list-properties output
+interface PropertySlider {
+    type: "slider"
+    name: string
+    label: string
+    value: number
+    min: number
+    max: number
+    step: number
+}
+
+interface PropertyBoolean {
+    type: "boolean"
+    name: string
+    label: string
+    value: boolean
+}
+
+interface PropertyColor {
+    type: "color"
+    name: string
+    label: string
+    value: { r: number; g: number; b: number; a: number }
+}
+
+interface PropertyCombolist {
+    type: "combolist"
+    name: string
+    label: string
+    value: string
+    options: { label: string; value: string }[]
+}
+
+type WallpaperProperty =
+    | PropertySlider
+    | PropertyBoolean
+    | PropertyColor
+    | PropertyCombolist
+
+const mockProperties: WallpaperProperty[] = [
+    {
+        type: "slider",
+        name: "brightness",
+        label: "Brightness",
+        value: 1,
+        min: 0,
+        max: 2,
+        step: 0.1,
+    },
+    {
+        type: "slider",
+        name: "speed",
+        label: "Animation Speed",
+        value: 1,
+        min: 0.1,
+        max: 3,
+        step: 0.1,
+    },
+    {
+        type: "boolean",
+        name: "bloom",
+        label: "Bloom Effect",
+        value: true,
+    },
+    {
+        type: "boolean",
+        name: "parallax",
+        label: "Mouse Parallax",
+        value: true,
+    },
+    {
+        type: "color",
+        name: "schemecolor",
+        label: "Scheme Color",
+        value: { r: 0.15, g: 0.23, b: 0.4, a: 1 },
+    },
+    {
+        type: "combolist",
+        name: "quality",
+        label: "Quality",
+        value: "high",
+        options: [
+            { label: "Low", value: "low" },
+            { label: "Medium", value: "medium" },
+            { label: "High", value: "high" },
+            { label: "Ultra", value: "ultra" },
+        ],
+    },
+]
+
+export function WallpaperProperties({ wallpaper }: WallpaperPropertiesProps) {
+    const [isExpanded, setIsExpanded] = React.useState(true)
+    const [properties, setProperties] =
+        React.useState<WallpaperProperty[]>(mockProperties)
+
+    const updateProperty = (name: string, value: unknown) => {
+        setProperties((prev) =>
+            prev.map((p) => (p.name === name ? { ...p, value } : p))
+        )
+    }
+
+    const resetProperties = () => {
+        setProperties(mockProperties)
+    }
+
+    return (
+        <div className="mt-4 border-t border-border pt-4">
+            <button
+                className="flex w-full items-center justify-between text-sm font-medium"
+                onClick={() => setIsExpanded(!isExpanded)}
+            >
+                <span>Properties</span>
+                <ChevronDown
+                    className={`size-4 text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""
+                        }`}
+                />
+            </button>
+
+            {isExpanded && (
+                <div className="mt-3 space-y-4">
+                    {properties.map((property) => (
+                        <div key={property.name}>
+                            <label className="mb-1.5 block text-xs text-muted-foreground">
+                                {property.label}
+                            </label>
+
+                            {property.type === "slider" && (
+                                <div className="flex items-center gap-3">
+                                    <input
+                                        type="range"
+                                        min={property.min}
+                                        max={property.max}
+                                        step={property.step}
+                                        value={property.value}
+                                        onChange={(e) =>
+                                            updateProperty(property.name, parseFloat(e.target.value))
+                                        }
+                                        className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-secondary [&::-webkit-slider-thumb]:size-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary"
+                                    />
+                                    <span className="w-10 text-right text-xs text-muted-foreground">
+                                        {property.value.toFixed(1)}
+                                    </span>
+                                </div>
+                            )}
+
+                            {property.type === "boolean" && (
+                                <button
+                                    onClick={() => updateProperty(property.name, !property.value)}
+                                    className={`relative h-5 w-9 rounded-full transition-colors ${property.value ? "bg-primary" : "bg-secondary"
+                                        }`}
+                                >
+                                    <span
+                                        className={`absolute top-0.5 size-4 rounded-full bg-white shadow-sm transition-all ${property.value ? "left-4" : "left-0.5"
+                                            }`}
+                                    />
+                                </button>
+                            )}
+
+                            {property.type === "color" && (
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="color"
+                                        value={`#${Math.round(property.value.r * 255)
+                                            .toString(16)
+                                            .padStart(2, "0")}${Math.round(property.value.g * 255)
+                                                .toString(16)
+                                                .padStart(2, "0")}${Math.round(property.value.b * 255)
+                                                    .toString(16)
+                                                    .padStart(2, "0")}`}
+                                        onChange={(e) => {
+                                            const hex = e.target.value
+                                            updateProperty(property.name, {
+                                                r: parseInt(hex.slice(1, 3), 16) / 255,
+                                                g: parseInt(hex.slice(3, 5), 16) / 255,
+                                                b: parseInt(hex.slice(5, 7), 16) / 255,
+                                                a: 1,
+                                            })
+                                        }}
+                                        className="size-8 cursor-pointer rounded border border-border bg-transparent"
+                                    />
+                                    <span className="text-xs text-muted-foreground">
+                                        RGB({Math.round(property.value.r * 255)},{" "}
+                                        {Math.round(property.value.g * 255)},{" "}
+                                        {Math.round(property.value.b * 255)})
+                                    </span>
+                                </div>
+                            )}
+
+                            {property.type === "combolist" && (
+                                <select
+                                    value={property.value}
+                                    onChange={(e) =>
+                                        updateProperty(property.name, e.target.value)
+                                    }
+                                    className="h-8 w-full rounded-md border border-input bg-secondary/50 px-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
+                                >
+                                    {property.options.map((option) => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            )}
+                        </div>
+                    ))}
+
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full gap-2 text-muted-foreground"
+                        onClick={resetProperties}
+                    >
+                        <RotateCcw className="size-3.5" />
+                        Reset to Defaults
+                    </Button>
+                </div>
+            )}
+        </div>
+    )
+}
