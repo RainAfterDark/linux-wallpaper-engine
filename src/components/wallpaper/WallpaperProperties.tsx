@@ -7,7 +7,7 @@ interface WallpaperPropertiesProps {
     wallpaper: Wallpaper
 }
 
-// Mock properties based on linux-wallpaperengine --list-properties output
+// Property types based on linux-wallpaperengine --list-properties output
 interface PropertySlider {
     type: "slider"
     name: string
@@ -46,61 +46,13 @@ type WallpaperProperty =
     | PropertyColor
     | PropertyCombolist
 
-const mockProperties: WallpaperProperty[] = [
-    {
-        type: "slider",
-        name: "brightness",
-        label: "Brightness",
-        value: 1,
-        min: 0,
-        max: 2,
-        step: 0.1,
-    },
-    {
-        type: "slider",
-        name: "speed",
-        label: "Animation Speed",
-        value: 1,
-        min: 0.1,
-        max: 3,
-        step: 0.1,
-    },
-    {
-        type: "boolean",
-        name: "bloom",
-        label: "Bloom Effect",
-        value: true,
-    },
-    {
-        type: "boolean",
-        name: "parallax",
-        label: "Mouse Parallax",
-        value: true,
-    },
-    {
-        type: "color",
-        name: "schemecolor",
-        label: "Scheme Color",
-        value: { r: 0.15, g: 0.23, b: 0.4, a: 1 },
-    },
-    {
-        type: "combolist",
-        name: "quality",
-        label: "Quality",
-        value: "high",
-        options: [
-            { label: "Low", value: "low" },
-            { label: "Medium", value: "medium" },
-            { label: "High", value: "high" },
-            { label: "Ultra", value: "ultra" },
-        ],
-    },
-]
+// TODO: Replace with real properties from linux-wallpaperengine --list-properties
+const defaultProperties: WallpaperProperty[] = []
 
 export function WallpaperProperties({ wallpaper }: WallpaperPropertiesProps) {
     const [isExpanded, setIsExpanded] = React.useState(true)
     const [properties, setProperties] =
-        React.useState<WallpaperProperty[]>(mockProperties)
+        React.useState<WallpaperProperty[]>(defaultProperties)
 
     const updateProperty = (name: string, value: unknown) => {
         setProperties((prev) =>
@@ -109,7 +61,7 @@ export function WallpaperProperties({ wallpaper }: WallpaperPropertiesProps) {
     }
 
     const resetProperties = () => {
-        setProperties(mockProperties)
+        setProperties(defaultProperties)
     }
 
     return (

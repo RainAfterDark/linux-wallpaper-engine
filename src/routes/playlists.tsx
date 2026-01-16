@@ -6,29 +6,14 @@ export const Route = createFileRoute("/playlists")({
     component: PlaylistsPage,
 })
 
-const mockPlaylists = [
-    {
-        id: "1",
-        name: "Nature Scenes",
-        wallpaperCount: 12,
-        interval: "30 min",
-        thumbnail: "https://picsum.photos/seed/nature/400/225",
-    },
-    {
-        id: "2",
-        name: "Cyberpunk",
-        wallpaperCount: 8,
-        interval: "1 hour",
-        thumbnail: "https://picsum.photos/seed/cyber/400/225",
-    },
-    {
-        id: "3",
-        name: "Minimal",
-        wallpaperCount: 15,
-        interval: "2 hours",
-        thumbnail: "https://picsum.photos/seed/minimal/400/225",
-    },
-]
+// TODO: Replace with real playlist data
+const playlists: {
+    id: string
+    name: string
+    wallpaperCount: number
+    interval: string
+    thumbnail: string
+}[] = []
 
 function PlaylistsPage() {
     return (
@@ -47,7 +32,7 @@ function PlaylistsPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {mockPlaylists.map((playlist) => (
+                {playlists.map((playlist) => (
                     <div
                         key={playlist.id}
                         className="group relative overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-ring/50 hover:shadow-lg"

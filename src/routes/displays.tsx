@@ -6,27 +6,15 @@ export const Route = createFileRoute("/displays")({
     component: DisplaysPage,
 })
 
-const mockMonitors = [
-    {
-        id: "eDP-1",
-        name: "Built-in Display",
-        resolution: "1920x1080",
-        position: { x: 0, y: 0 },
-        wallpaper: {
-            name: "Mountain Sunset",
-            thumbnail: "https://picsum.photos/seed/mount/400/225",
-        },
-        scaling: "fill" as const,
-    },
-    {
-        id: "HDMI-1",
-        name: "External Monitor",
-        resolution: "2560x1440",
-        position: { x: 1920, y: 0 },
-        wallpaper: null,
-        scaling: "stretch" as const,
-    },
-]
+// TODO: Replace with real monitor data from linux-wallpaperengine
+const monitors: {
+    id: string
+    name: string
+    resolution: string
+    position: { x: number; y: number }
+    wallpaper: { name: string; thumbnail: string } | null
+    scaling: "fill" | "stretch" | "fit" | "default"
+}[] = []
 
 function DisplaysPage() {
     return (
@@ -51,7 +39,7 @@ function DisplaysPage() {
                     Monitor Layout
                 </h2>
                 <div className="flex items-center justify-center gap-4 py-8">
-                    {mockMonitors.map((monitor) => (
+                    {monitors.map((monitor) => (
                         <div
                             key={monitor.id}
                             className="group relative overflow-hidden rounded-lg border-2 border-border bg-secondary/50 transition-all hover:border-ring"
@@ -86,7 +74,7 @@ function DisplaysPage() {
 
             <div className="space-y-4">
                 <h2 className="text-lg font-semibold">Display Settings</h2>
-                {mockMonitors.map((monitor) => (
+                {monitors.map((monitor) => (
                     <div
                         key={monitor.id}
                         className="flex items-center justify-between rounded-lg border border-border bg-card p-4"
