@@ -1,8 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router"
 import {
-    Compass,
     Download,
-    Store,
     ListMusic,
     Monitor,
     Settings,
@@ -10,9 +8,7 @@ import {
 import { cn } from "@/lib/utils"
 
 const navItems = [
-    { to: "/", icon: Compass, label: "Discover" },
-    { to: "/installed", icon: Download, label: "Installed" },
-    { to: "/workshop", icon: Store, label: "Workshop" },
+    { to: "/", icon: Download, label: "Installed" },
     { to: "/playlists", icon: ListMusic, label: "Playlists" },
     { to: "/displays", icon: Monitor, label: "Displays" },
     { to: "/settings", icon: Settings, label: "Settings" },

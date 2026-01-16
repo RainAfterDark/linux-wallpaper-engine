@@ -9,18 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WorkshopRouteImport } from './routes/workshop'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as PlaylistsRouteImport } from './routes/playlists'
-import { Route as InstalledRouteImport } from './routes/installed'
 import { Route as DisplaysRouteImport } from './routes/displays'
 import { Route as IndexRouteImport } from './routes/index'
 
-const WorkshopRoute = WorkshopRouteImport.update({
-  id: '/workshop',
-  path: '/workshop',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -29,11 +22,6 @@ const SettingsRoute = SettingsRouteImport.update({
 const PlaylistsRoute = PlaylistsRouteImport.update({
   id: '/playlists',
   path: '/playlists',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InstalledRoute = InstalledRouteImport.update({
-  id: '/installed',
-  path: '/installed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DisplaysRoute = DisplaysRouteImport.update({
@@ -50,73 +38,39 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/displays': typeof DisplaysRoute
-  '/installed': typeof InstalledRoute
   '/playlists': typeof PlaylistsRoute
   '/settings': typeof SettingsRoute
-  '/workshop': typeof WorkshopRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/displays': typeof DisplaysRoute
-  '/installed': typeof InstalledRoute
   '/playlists': typeof PlaylistsRoute
   '/settings': typeof SettingsRoute
-  '/workshop': typeof WorkshopRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/displays': typeof DisplaysRoute
-  '/installed': typeof InstalledRoute
   '/playlists': typeof PlaylistsRoute
   '/settings': typeof SettingsRoute
-  '/workshop': typeof WorkshopRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/displays'
-    | '/installed'
-    | '/playlists'
-    | '/settings'
-    | '/workshop'
+  fullPaths: '/' | '/displays' | '/playlists' | '/settings'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/displays'
-    | '/installed'
-    | '/playlists'
-    | '/settings'
-    | '/workshop'
-  id:
-    | '__root__'
-    | '/'
-    | '/displays'
-    | '/installed'
-    | '/playlists'
-    | '/settings'
-    | '/workshop'
+  to: '/' | '/displays' | '/playlists' | '/settings'
+  id: '__root__' | '/' | '/displays' | '/playlists' | '/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DisplaysRoute: typeof DisplaysRoute
-  InstalledRoute: typeof InstalledRoute
   PlaylistsRoute: typeof PlaylistsRoute
   SettingsRoute: typeof SettingsRoute
-  WorkshopRoute: typeof WorkshopRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/workshop': {
-      id: '/workshop'
-      path: '/workshop'
-      fullPath: '/workshop'
-      preLoaderRoute: typeof WorkshopRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -129,13 +83,6 @@ declare module '@tanstack/react-router' {
       path: '/playlists'
       fullPath: '/playlists'
       preLoaderRoute: typeof PlaylistsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/installed': {
-      id: '/installed'
-      path: '/installed'
-      fullPath: '/installed'
-      preLoaderRoute: typeof InstalledRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/displays': {
@@ -158,10 +105,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DisplaysRoute: DisplaysRoute,
-  InstalledRoute: InstalledRoute,
   PlaylistsRoute: PlaylistsRoute,
   SettingsRoute: SettingsRoute,
-  WorkshopRoute: WorkshopRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

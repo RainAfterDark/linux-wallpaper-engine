@@ -2,12 +2,10 @@ import * as React from "react"
 import {
     X,
     Play,
-    Download,
     Star,
     Monitor,
     HardDrive,
     Layers,
-    ExternalLink,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { type Wallpaper } from "./WallpaperCard"
@@ -97,11 +95,6 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
                         <Monitor className="size-4" />
                         Apply
                     </Button>
-                    {!wallpaper.installed && (
-                        <Button variant="outline" className="gap-2">
-                            <Download className="size-4" />
-                        </Button>
-                    )}
                 </div>
 
                 {/* Details */}
@@ -132,16 +125,6 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
                         <span>{formatFileSize(wallpaper.fileSize)}</span>
                     </div>
 
-                    {wallpaper.workshopId && (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="mt-2 w-full gap-2 text-muted-foreground"
-                        >
-                            <ExternalLink className="size-4" />
-                            View in Workshop
-                        </Button>
-                    )}
                 </div>
 
                 {/* Tags */}
