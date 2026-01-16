@@ -77,40 +77,18 @@ export function WallpaperCard({
                     </span>
                 </div>
 
-                {/* Installed indicator */}
-                {wallpaper.installed && (
-                    <div className="absolute right-2 top-2">
-                        <div className="flex size-6 items-center justify-center rounded-full bg-green-500/90">
-                            <Download className="size-3 text-white" />
-                        </div>
-                    </div>
-                )}
-
-                {/* Hover overlay with play button */}
-                <div
-                    className={cn(
-                        "absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity duration-200",
-                        isHovering ? "opacity-100" : "opacity-0"
-                    )}
-                >
-                    <div className="flex size-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition-transform duration-200 hover:scale-110">
-                        <Play className="size-6 text-white" fill="white" />
-                    </div>
-                </div>
 
                 {/* Gradient overlay at bottom */}
                 <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/80 to-transparent" />
             </div>
 
-            <div className="p-3">
+            <div className="px-2 py-1">
                 <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
                         <h3 className="truncate font-medium text-card-foreground">
                             {wallpaper.title}
                         </h3>
-                        <p className="truncate text-sm text-muted-foreground">
-                            by {wallpaper.author}
-                        </p>
+       
                     </div>
                     <Button
                         variant="ghost"
@@ -125,17 +103,7 @@ export function WallpaperCard({
                     </Button>
                 </div>
 
-                <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
-                    <span>
-                        {wallpaper.resolution.width}x{wallpaper.resolution.height}
-                    </span>
-                    {wallpaper.rating && (
-                        <div className="flex items-center gap-1">
-                            <Star className="size-3 fill-yellow-400 text-yellow-400" />
-                            <span>{wallpaper.rating.toFixed(1)}</span>
-                        </div>
-                    )}
-                </div>
+
             </div>
         </div>
     )

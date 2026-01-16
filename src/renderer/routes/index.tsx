@@ -11,7 +11,6 @@ function InstalledPage() {
     console.log('tRPC health query:', { data, error, isLoading })
     return (
         <div className="p-6">
-            <h1 className="text-2xl font-bold">HealthCheck: {data?.status}</h1>
             <div className="mb-6">
                 <h1 className="text-2xl font-bold">Installed</h1>
                 <p className="text-muted-foreground">
