@@ -1,7 +1,9 @@
 import { StrictMode } from 'react'
+import { QueryClientProvider } from '@tanstack/react-query'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
+import { trpc, queryClient, trpcClient } from './lib/trpc'
 import './styles/global.css'
 
 const router = createRouter({
@@ -21,7 +23,11 @@ if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <trpc.Provider client={trpcClient} queryClient={queryClient}>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
+      </trpc.Provider>
     </StrictMode>,
   )
 }
