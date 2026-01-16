@@ -6,10 +6,13 @@ import {
     Monitor,
     HardDrive,
     Layers,
+    Square,
+    Loader2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { type Wallpaper } from "./WallpaperCard"
 import { WallpaperProperties } from "./WallpaperProperties"
+import { trpc } from "@/lib/trpc"
 
 interface WallpaperDetailsProps {
     wallpaper: Wallpaper
@@ -31,6 +34,26 @@ const typeLabels = {
 
 export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) {
     const [isHovering, setIsHovering] = React.useState(false)
+    const [isApplying, setIsApplying] = React.useState(false)
+
+    const applyMutation = trpc.wallpaper.set.useMutation()
+    const stopMutation = trpc.wallpaper.stop.useMutation()
+
+    const handleApply = async () => {
+        if (!wallpaper.path && !wallpaper.id) return
+        setIsApplying(true)
+        try {
+            await applyMutation.mutateAsync({
+                backgroundId: wallpaper.path || wallpaper.id,
+            })
+        } finally {
+            setIsApplying(false)
+        }
+    }
+
+    const handleStop = async () => {
+        await stopMutation.mutateAsync({})
+    }
 
     return (
         <div className="w-80 shrink-0 overflow-y-auto rounded-xl border border-border bg-card">
@@ -91,9 +114,26 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
 
                 {/* Action buttons */}
                 <div className="mt-4 flex gap-2">
-                    <Button className="flex-1 gap-2">
-                        <Monitor className="size-4" />
-                        Apply
+                    <Button
+                        className="flex-1 gap-2"
+                        onClick={handleApply}
+                        disabled={isApplying}
+                    >
+                        {isApplying ? (
+                            <Loader2 className="size-4 animate-spin" />
+                        ) : (
+                            <Monitor className="size-4" />
+                        )}
+                        {isApplying ? "Applying..." : "Apply"}
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleStop}
+                        disabled={stopMutation.isPending}
+                        title="Stop wallpaper"
+                    >
+                        <Square className="size-4" />
                     </Button>
                 </div>
 

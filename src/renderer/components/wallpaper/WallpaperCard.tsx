@@ -16,6 +16,7 @@ export interface Wallpaper {
     rating?: number
     tags: string[]
     installed: boolean
+    path?: string
 }
 
 interface WallpaperCardProps {
