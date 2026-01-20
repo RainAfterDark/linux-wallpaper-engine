@@ -5,7 +5,17 @@ import {
     Monitor,
     Settings,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import {
+    Sidebar as SidebarPrimitive,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+} from "@/components/ui/sidebar"
 
 const navItems = [
     { to: "/", icon: Download, label: "Installed" },
@@ -19,46 +29,51 @@ export function Sidebar() {
     const currentPath = router.location.pathname
 
     return (
-        <aside className="flex w-56 flex-col border-r border-sidebar-border bg-sidebar">
-            <div className="flex h-14 items-center gap-2 border-b border-sidebar-border px-4">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
-                    <Monitor className="size-4 text-white" />
+        <SidebarPrimitive collapsible="icon">
+            <SidebarHeader>
+                <div className="flex h-14 items-center gap-2 px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+                    <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
+                        <Monitor className="size-4 text-white" />
+                    </div>
+                    <div className="flex flex-col group-data-[collapsible=icon]:hidden">
+                        <span className="text-sm font-semibold text-sidebar-foreground">
+                            Wallpaper Engine
+                        </span>
+                        <span className="text-xs text-muted-foreground">for Linux</span>
+                    </div>
                 </div>
-                <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-sidebar-foreground">
-                        Wallpaper Engine
-                    </span>
-                    <span className="text-xs text-muted-foreground">for Linux</span>
-                </div>
-            </div>
+            </SidebarHeader>
 
-            <nav className="flex-1 space-y-1 p-2">
-                {navItems.map((item) => {
-                    const isActive = currentPath === item.to
-                    return (
-                        <Link
-                            key={item.to}
-                            to={item.to}
-                            className={cn(
-                                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                                isActive
-                                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-                            )}
-                        >
-                            <item.icon className="size-4" />
-                            {item.label}
-                        </Link>
-                    )
-                })}
-            </nav>
+            <SidebarContent>
+                <SidebarGroup>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            {navItems.map((item) => {
+                                const isActive = currentPath === item.to
+                                return (
+                                    <SidebarMenuItem key={item.to}>
+                                        <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
+                                            <Link to={item.to}>
+                                                <item.icon className="size-4" />
+                                                <span>{item.label}</span>
+                                            </Link>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                )
+                            })}
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+            </SidebarContent>
 
-            <div className="border-t border-sidebar-border p-4">
-                <div className="text-xs text-muted-foreground">
-                    <p>linux-wallpaperengine</p>
-                    <p className="mt-0.5 opacity-60">v1.0.0</p>
+            <SidebarFooter className="group-data-[collapsible=icon]:hidden">
+                <div className="p-2">
+                    <div className="text-xs text-muted-foreground">
+                        <p>linux-wallpaperengine</p>
+                        <p className="mt-0.5 opacity-60">v1.0.0</p>
+                    </div>
                 </div>
-            </div>
-        </aside>
+            </SidebarFooter>
+        </SidebarPrimitive>
     )
 }

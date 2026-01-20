@@ -1,7 +1,7 @@
 import { inferRouterInputs, inferRouterOutputs } from '@trpc/server'
 import { trpc } from './trpc'
-import { wallpaperRouter } from './routers/wallpaper'
-import { displayRouter } from './routers/display'
+import { wallpaperRouter } from './routes/wallpaper'
+import { displayRouter } from './routes/display'
 
 export const appRouter = trpc.router({
   health: trpc.procedure.query(() => ({ status: 'ok' })),
