@@ -3,6 +3,7 @@ import { promisify } from 'node:util'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import { glob } from 'glob'
+import { detectDisplays } from './display'
 
 const execAsync = promisify(exec)
 
@@ -285,12 +286,28 @@ export async function getWallpaperProperties(backgroundPath: string): Promise<Wa
 export async function applyWallpaper(options: ApplyWallpaperOptions): Promise<{ success: boolean; error?: string }> {
   const args: string[] = []
 
-  // Screen targeting
+  // Screen targeting - always require a screen for desktop background
+  let targetScreen = options.screen
   if (options.windowed) {
     const { x, y, width, height } = options.windowed
     args.push('--window', `${x}x${y}x${width}x${height}`)
-  } else if (options.screen) {
-    args.push('--screen-root', options.screen)
+  } else {
+    // If no screen specified, detect and use the primary/first display
+    if (!targetScreen) {
+      try {
+        const displays = await detectDisplays()
+        const primary = displays.find((d) => d.primary) || displays[0]
+        if (primary) {
+          targetScreen = primary.name
+        }
+      } catch {
+        // Fallback to common display name
+        targetScreen = 'eDP-1'
+      }
+    }
+    if (targetScreen) {
+      args.push('--screen-root', targetScreen)
+    }
   }
 
   // Background ID/path
@@ -342,7 +359,7 @@ export async function applyWallpaper(options: ApplyWallpaperOptions): Promise<{ 
 
   try {
     // Stop existing wallpaper for this screen if any
-    const screenKey = options.screen || 'default'
+    const screenKey = targetScreen || 'default'
     const existing = runningProcesses.get(screenKey)
     if (existing) {
       existing.kill()

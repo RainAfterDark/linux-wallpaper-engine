@@ -1,6 +1,7 @@
 import * as React from "react"
-import { ChevronDown, RotateCcw, Loader2 } from "lucide-react"
+import { ChevronDown, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import { type Wallpaper } from "./WallpaperCard"
 import { trpc } from "@/lib/trpc"
 
@@ -51,9 +52,9 @@ export function WallpaperProperties({ wallpaper }: WallpaperPropertiesProps) {
     const [isExpanded, setIsExpanded] = React.useState(true)
     const [properties, setProperties] = React.useState<WallpaperProperty[]>([])
 
-    const { data: fetchedProperties, isLoading, refetch } = trpc.wallpaper.getProperties.useQuery(
-        { path: wallpaper.path },
-        { enabled: !!wallpaper.path }
+    const { data: fetchedProperties, isLoading } = trpc.wallpaper.getProperties.useQuery(
+        { path: wallpaper.path ?? "" },
+        { enabled: Boolean(wallpaper.path) }
     )
 
     // Sync fetched properties to local state for editing
@@ -91,8 +92,13 @@ export function WallpaperProperties({ wallpaper }: WallpaperPropertiesProps) {
             {isExpanded && (
                 <div className="mt-3 space-y-4">
                     {isLoading && (
-                        <div className="flex items-center justify-center py-4">
-                            <Loader2 className="size-5 animate-spin text-muted-foreground" />
+                        <div className="space-y-4">
+                            {[1, 2, 3].map((i) => (
+                                <div key={i}>
+                                    <Skeleton className="mb-1.5 h-3 w-20" />
+                                    <Skeleton className="h-6 w-full" />
+                                </div>
+                            ))}
                         </div>
                     )}
                     {!isLoading && properties.length === 0 && (
