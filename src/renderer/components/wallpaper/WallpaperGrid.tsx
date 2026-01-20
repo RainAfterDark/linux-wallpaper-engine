@@ -24,8 +24,8 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
             title: w.title,
             author: w.author,
             type: w.type,
-            thumbnail: w.thumbnail ? `file://${w.thumbnail}` : '',
-            previewUrl: w.previewUrl ? `file://${w.previewUrl}` : undefined,
+            thumbnail: w.thumbnail ? `local-file://${w.thumbnail}` : '',
+            previewUrl: w.previewUrl ? `local-file://${w.previewUrl}` : undefined,
             resolution: w.resolution,
             fileSize: w.fileSize,
             tags: w.tags,
@@ -82,8 +82,8 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
         <div className="flex gap-6">
             <div
                 className={`grid flex-1 gap-4 ${selectedWallpaper
-                        ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
-                        : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                    ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
+                    : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                     }`}
             >
                 {filteredWallpapers.map((wallpaper) => (

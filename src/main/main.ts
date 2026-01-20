@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, protocol, net } from 'electron'
 import path from 'node:path'
 import started from 'electron-squirrel-startup'
 import { createIPCHandler } from 'trpc-electron/main'
@@ -10,11 +10,24 @@ if (started) {
   app.quit()
 }
 
+// Register the local-file protocol for serving local wallpaper images
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'local-file',
+    privileges: {
+      secure: true,
+      supportFetchAPI: true,
+      bypassCSP: true,
+      stream: true,
+    },
+  },
+])
+
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 800,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -41,6 +54,13 @@ const createWindow = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  // Register protocol handler for local files
+  protocol.handle('local-file', (request) => {
+    // URL format: local-file:///path/to/file
+    const filePath = decodeURIComponent(request.url.replace('local-file://', ''))
+    return net.fetch(`file://${filePath}`)
+  })
+
   const mainWindow = createWindow()
   createIPCHandler({
     router: appRouter,
@@ -68,3 +88,4 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
