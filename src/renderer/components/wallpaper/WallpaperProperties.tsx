@@ -1,7 +1,8 @@
 import * as React from "react"
-import { ChevronDown, RotateCcw } from "lucide-react"
+import { ChevronDown, RotateCcw, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { type Wallpaper } from "./WallpaperCard"
+import { trpc } from "@/lib/trpc"
 
 interface WallpaperPropertiesProps {
     wallpaper: Wallpaper
@@ -13,9 +14,9 @@ interface PropertySlider {
     name: string
     label: string
     value: number
-    min: number
-    max: number
-    step: number
+    min?: number
+    max?: number
+    step?: number
 }
 
 interface PropertyBoolean {
@@ -37,7 +38,7 @@ interface PropertyCombolist {
     name: string
     label: string
     value: string
-    options: { label: string; value: string }[]
+    options?: { label: string; value: string }[]
 }
 
 type WallpaperProperty =
@@ -46,13 +47,21 @@ type WallpaperProperty =
     | PropertyColor
     | PropertyCombolist
 
-// TODO: Replace with real properties from linux-wallpaperengine --list-properties
-const defaultProperties: WallpaperProperty[] = []
-
 export function WallpaperProperties({ wallpaper }: WallpaperPropertiesProps) {
     const [isExpanded, setIsExpanded] = React.useState(true)
-    const [properties, setProperties] =
-        React.useState<WallpaperProperty[]>(defaultProperties)
+    const [properties, setProperties] = React.useState<WallpaperProperty[]>([])
+
+    const { data: fetchedProperties, isLoading, refetch } = trpc.wallpaper.getProperties.useQuery(
+        { path: wallpaper.path },
+        { enabled: !!wallpaper.path }
+    )
+
+    // Sync fetched properties to local state for editing
+    React.useEffect(() => {
+        if (fetchedProperties) {
+            setProperties(fetchedProperties as WallpaperProperty[])
+        }
+    }, [fetchedProperties])
 
     const updateProperty = (name: string, value: unknown) => {
         setProperties((prev) =>
@@ -61,7 +70,9 @@ export function WallpaperProperties({ wallpaper }: WallpaperPropertiesProps) {
     }
 
     const resetProperties = () => {
-        setProperties(defaultProperties)
+        if (fetchedProperties) {
+            setProperties(fetchedProperties as WallpaperProperty[])
+        }
     }
 
     return (
@@ -79,6 +90,16 @@ export function WallpaperProperties({ wallpaper }: WallpaperPropertiesProps) {
 
             {isExpanded && (
                 <div className="mt-3 space-y-4">
+                    {isLoading && (
+                        <div className="flex items-center justify-center py-4">
+                            <Loader2 className="size-5 animate-spin text-muted-foreground" />
+                        </div>
+                    )}
+                    {!isLoading && properties.length === 0 && (
+                        <p className="text-center text-sm text-muted-foreground">
+                            No properties available
+                        </p>
+                    )}
                     {properties.map((property) => (
                         <div key={property.name}>
                             <label className="mb-1.5 block text-xs text-muted-foreground">
@@ -89,9 +110,9 @@ export function WallpaperProperties({ wallpaper }: WallpaperPropertiesProps) {
                                 <div className="flex items-center gap-3">
                                     <input
                                         type="range"
-                                        min={property.min}
-                                        max={property.max}
-                                        step={property.step}
+                                        min={property.min ?? 0}
+                                        max={property.max ?? 100}
+                                        step={property.step ?? 1}
                                         value={property.value}
                                         onChange={(e) =>
                                             updateProperty(property.name, parseFloat(e.target.value))
@@ -99,7 +120,7 @@ export function WallpaperProperties({ wallpaper }: WallpaperPropertiesProps) {
                                         className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-secondary [&::-webkit-slider-thumb]:size-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary"
                                     />
                                     <span className="w-10 text-right text-xs text-muted-foreground">
-                                        {property.value.toFixed(1)}
+                                        {typeof property.value === 'number' ? property.value.toFixed(1) : property.value}
                                     </span>
                                 </div>
                             )}
@@ -155,7 +176,7 @@ export function WallpaperProperties({ wallpaper }: WallpaperPropertiesProps) {
                                     }
                                     className="h-8 w-full rounded-md border border-input bg-secondary/50 px-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
                                 >
-                                    {property.options.map((option) => (
+                                    {property.options?.map((option) => (
                                         <option key={option.value} value={option.value}>
                                             {option.label}
                                         </option>

@@ -2,7 +2,6 @@ import * as React from "react"
 import {
     X,
     Play,
-    Star,
     Monitor,
     HardDrive,
     Layers,
@@ -56,7 +55,7 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
     }
 
     return (
-        <div className="w-80 shrink-0 overflow-y-auto rounded-xl border border-border bg-card">
+        <div className="sticky top-0 h-fit w-80 shrink-0 overflow-y-auto rounded-xl border border-border bg-card">
             {/* Preview */}
             <div
                 className="relative aspect-video overflow-hidden"
@@ -94,23 +93,6 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
             <div className="p-4">
                 <h2 className="text-lg font-semibold">{wallpaper.title}</h2>
                 <p className="text-sm text-muted-foreground">by {wallpaper.author}</p>
-
-                {wallpaper.rating && (
-                    <div className="mt-2 flex items-center gap-1">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                            <Star
-                                key={i}
-                                className={`size-4 ${i < Math.floor(wallpaper.rating!)
-                                        ? "fill-yellow-400 text-yellow-400"
-                                        : "text-muted-foreground/30"
-                                    }`}
-                            />
-                        ))}
-                        <span className="ml-1 text-sm text-muted-foreground">
-                            {wallpaper.rating.toFixed(1)}
-                        </span>
-                    </div>
-                )}
 
                 {/* Action buttons */}
                 <div className="mt-4 flex gap-2">

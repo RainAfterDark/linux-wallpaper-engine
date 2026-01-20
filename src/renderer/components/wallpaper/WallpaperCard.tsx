@@ -65,18 +65,6 @@ export function WallpaperCard({
                     className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
 
-                {/* Type badge */}
-                <div className="absolute left-2 top-2">
-                    <span
-                        className={cn(
-                            "rounded-md px-2 py-0.5 text-xs font-medium text-white",
-                            typeColors[wallpaper.type]
-                        )}
-                    >
-                        {typeLabels[wallpaper.type]}
-                    </span>
-                </div>
-
 
                 {/* Gradient overlay at bottom */}
                 <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/80 to-transparent" />
