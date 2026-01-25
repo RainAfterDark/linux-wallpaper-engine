@@ -5,6 +5,7 @@ import {
     Monitor,
     Settings,
 } from "lucide-react"
+import logoImage from "../../../../assests/transperent-logo.png"
 import {
     Sidebar as SidebarPrimitive,
     SidebarContent,
@@ -31,15 +32,19 @@ export function Sidebar() {
     return (
         <SidebarPrimitive collapsible="icon">
             <SidebarHeader>
-                <div className="flex h-14 items-center gap-2 px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
-                    <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
-                        <Monitor className="size-4 text-white" />
+                <div className="flex h-14 items-center gap-3 px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+                    <div className="flex items-center justify-center shrink-0">
+                        <img 
+                            src={logoImage} 
+                            alt="Wallpaper Engine Logo" 
+                            className="size-9 object-contain"
+                        />
                     </div>
-                    <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-                        <span className="text-sm font-semibold text-sidebar-foreground">
+                    <div className="flex flex-col justify-center group-data-[collapsible=icon]:hidden">
+                        <span className="text-sm font-semibold text-sidebar-foreground leading-tight">
                             Wallpaper Engine
                         </span>
-                        <span className="text-xs text-muted-foreground">for Linux</span>
+                        <span className="text-xs text-muted-foreground leading-tight">for Linux</span>
                     </div>
                 </div>
             </SidebarHeader>

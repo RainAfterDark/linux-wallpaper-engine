@@ -7,7 +7,9 @@ import {
   stopWallpaper,
   takeScreenshot,
   checkBackendInstalled,
+  type ApplyWallpaperOptions,
 } from '../../services/wallpaper'
+import { loadSettings } from '../../services/settings'
 
 export const wallpaperRouter = trpc.router({
   // Check if linux-wallpaperengine is installed
@@ -50,11 +52,31 @@ export const wallpaperRouter = trpc.router({
             height: z.number(),
           })
           .optional(),
-        properties: z.record(z.union([z.string(), z.number(), z.boolean()])).optional(),
+        properties: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
       }),
     )
     .mutation(async ({ input }) => {
-      return applyWallpaper(input)
+      // Load saved settings and merge with input (input takes priority)
+      const settings = await loadSettings()
+
+      const options: ApplyWallpaperOptions = {
+        backgroundId: input.backgroundId,
+        screen: input.screen,
+        // Use input values if provided, otherwise fall back to settings
+        scaling: input.scaling ?? settings.defaultScaling,
+        fps: input.fps ?? settings.fps,
+        volume: input.volume ?? settings.volume,
+        silent: input.silent ?? settings.silent,
+        noAutomute: input.noAutomute ?? settings.noAutomute,
+        noAudioProcessing: input.noAudioProcessing ?? !settings.audioProcessing,
+        disableMouse: input.disableMouse ?? settings.disableMouse,
+        disableParallax: input.disableParallax ?? settings.disableParallax,
+        noFullscreenPause: input.noFullscreenPause ?? !settings.pauseOnFullscreen,
+        windowed: input.windowed,
+        properties: input.properties as Record<string, string | number | boolean> | undefined,
+      }
+
+      return applyWallpaper(options)
     }),
 
   // Stop wallpaper(s)

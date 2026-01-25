@@ -10,13 +10,22 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses';
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    icon: './assests/transperent-logo',
   },
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({}),
     new MakerZIP({}, ['darwin']),
-    new MakerRpm({}),
-    new MakerDeb({}),
+    new MakerRpm({
+      options: {
+        icon: './assests/transperent-logo.png',
+      },
+    }),
+    new MakerDeb({
+      options: {
+        icon: './assests/transperent-logo.png',
+      },
+    }),
   ],
   plugins: [
     new VitePlugin({

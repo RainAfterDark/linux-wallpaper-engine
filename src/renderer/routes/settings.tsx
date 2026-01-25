@@ -1,149 +1,210 @@
 import { createFileRoute } from "@tanstack/react-router"
+import * as React from "react"
 import {
     Gauge,
     Volume2,
-    FolderOpen,
     Monitor,
-    Rocket,
+    Palette,
     Info,
+    RotateCcw,
+    Loader2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
+import { trpc } from "@/lib/trpc"
+import { useTheme } from "@/components/theme-provider"
 
 export const Route = createFileRoute("/settings")({
     component: SettingsPage,
 })
 
-const settingsSections = [
-    {
-        id: "performance",
-        icon: Gauge,
-        title: "Performance",
-        description: "FPS limits and power management",
-        settings: [
-            { label: "Maximum FPS", value: "60", type: "select" },
-            { label: "Pause on fullscreen", value: true, type: "switch" },
-            { label: "Pause on battery", value: true, type: "switch" },
-        ],
-    },
-    {
-        id: "audio",
-        icon: Volume2,
-        title: "Audio",
-        description: "Volume and audio processing",
-        settings: [
-            { label: "Master Volume", value: "80%", type: "slider" },
-            { label: "Mute on start", value: false, type: "switch" },
-            { label: "Audio visualization", value: true, type: "switch" },
-        ],
-    },
-    {
-        id: "paths",
-        icon: FolderOpen,
-        title: "Paths",
-        description: "Steam and asset locations",
-        settings: [
-            {
-                label: "Steam Directory",
-                value: "~/.steam/steam",
-                type: "path",
-            },
-            {
-                label: "Assets Directory",
-                value: "Auto-detected",
-                type: "path",
-            },
-        ],
-    },
-    {
-        id: "display",
-        icon: Monitor,
-        title: "Display",
-        description: "Default display behavior",
-        settings: [
-            { label: "Default Scaling", value: "Fill", type: "select" },
-            { label: "Multi-monitor mode", value: "Independent", type: "select" },
-        ],
-    },
-    {
-        id: "startup",
-        icon: Rocket,
-        title: "Startup",
-        description: "Application startup behavior",
-        settings: [
-            { label: "Launch on login", value: false, type: "switch" },
-            { label: "Start minimized", value: true, type: "switch" },
-            { label: "Restore last wallpaper", value: true, type: "switch" },
-        ],
-    },
-]
-
 function SettingsPage() {
+    const { data: settings, isLoading, error } = trpc.settings.get.useQuery()
+    const utils = trpc.useUtils()
+
+    const updateMutation = trpc.settings.update.useMutation({
+        onSuccess: () => {
+            utils.settings.get.invalidate()
+        },
+    })
+
+    const resetMutation = trpc.settings.reset.useMutation({
+        onSuccess: () => {
+            utils.settings.get.invalidate()
+        },
+    })
+
+    const { mode, setMode } = useTheme()
+
+    const updateSetting = (key: string, value: unknown) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        updateMutation.mutate({ [key]: value } as any)
+    }
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+                <Loader2 className="size-8 animate-spin mb-4" />
+                <p>Loading settings...</p>
+            </div>
+        )
+    }
+
+    if (error || !settings) {
+        return (
+            <div className="p-6">
+                <div className="text-destructive">
+                    Failed to load settings
+                    {error && <p className="text-sm mt-2">{error.message}</p>}
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="p-6">
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold">Settings</h1>
-                <p className="text-muted-foreground">
-                    Configure application preferences
-                </p>
+            <div className="mb-6 flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold">Settings</h1>
+                    <p className="text-muted-foreground">
+                        Configure application preferences
+                    </p>
+                </div>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => resetMutation.mutate()}
+                    disabled={resetMutation.isPending}
+                >
+                    <RotateCcw className="size-4 mr-2" />
+                    Reset to Defaults
+                </Button>
             </div>
 
             <div className="space-y-6">
-                {settingsSections.map((section) => (
-                    <div
-                        key={section.id}
-                        className="rounded-xl border border-border bg-card"
-                    >
-                        <div className="flex items-center gap-3 border-b border-border p-4">
-                            <div className="flex size-9 items-center justify-center rounded-lg bg-secondary">
-                                <section.icon className="size-4 text-muted-foreground" />
-                            </div>
-                            <div>
-                                <h2 className="font-semibold">{section.title}</h2>
-                                <p className="text-sm text-muted-foreground">
-                                    {section.description}
-                                </p>
-                            </div>
-                        </div>
+                {/* Performance Section */}
+                <SettingsSection
+                    icon={Gauge}
+                    title="Performance"
+                    description="FPS limits and power management"
+                >
+                    <SettingRow label="Maximum FPS">
+                        <select
+                            value={settings.fps}
+                            onChange={(e) => updateSetting("fps", Number(e.target.value))}
+                            className="h-8 rounded-md border border-input bg-background px-3 text-sm"
+                        >
+                            <option value={30}>30 FPS</option>
+                            <option value={60}>60 FPS</option>
+                            <option value={120}>120 FPS</option>
+                            <option value={144}>144 FPS</option>
+                        </select>
+                    </SettingRow>
+                    <SettingRow label="Pause on fullscreen apps">
+                        <Switch
+                            checked={settings.pauseOnFullscreen}
+                            onCheckedChange={(checked) => updateSetting("pauseOnFullscreen", checked)}
+                        />
+                    </SettingRow>
+                </SettingsSection>
 
-                        <div className="divide-y divide-border">
-                            {section.settings.map((setting, idx) => (
-                                <div
-                                    key={idx}
-                                    className="flex items-center justify-between px-4 py-3"
-                                >
-                                    <span className="text-sm">{setting.label}</span>
-                                    <div className="flex items-center gap-2">
-                                        {setting.type === "switch" ? (
-                                            <button
-                                                className={`relative h-5 w-9 rounded-full transition-colors ${setting.value ? "bg-primary" : "bg-secondary"
-                                                    }`}
-                                            >
-                                                <span
-                                                    className={`absolute top-0.5 size-4 rounded-full bg-white shadow-sm transition-all ${setting.value ? "left-4" : "left-0.5"
-                                                        }`}
-                                                />
-                                            </button>
-                                        ) : setting.type === "path" ? (
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-sm text-muted-foreground">
-                                                    {setting.value}
-                                                </span>
-                                                <Button variant="outline" size="sm">
-                                                    Browse
-                                                </Button>
-                                            </div>
-                                        ) : (
-                                            <span className="text-sm text-muted-foreground">
-                                                {setting.value}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
+                {/* Audio Section */}
+                <SettingsSection
+                    icon={Volume2}
+                    title="Audio"
+                    description="Volume and audio processing"
+                >
+                    <SettingRow label="Volume">
+                        <div className="flex items-center gap-3">
+                            <input
+                                type="range"
+                                min={0}
+                                max={100}
+                                value={settings.volume}
+                                onChange={(e) => updateSetting("volume", Number(e.target.value))}
+                                className="w-32 accent-primary"
+                            />
+                            <span className="text-sm text-muted-foreground w-10">
+                                {settings.volume}%
+                            </span>
                         </div>
-                    </div>
-                ))}
+                    </SettingRow>
+                    <SettingRow label="Mute audio">
+                        <Switch
+                            checked={settings.silent}
+                            onCheckedChange={(checked) => updateSetting("silent", checked)}
+                        />
+                    </SettingRow>
+                    <SettingRow label="Don't mute when other apps play audio">
+                        <Switch
+                            checked={settings.noAutomute}
+                            onCheckedChange={(checked) => updateSetting("noAutomute", checked)}
+                        />
+                    </SettingRow>
+                    <SettingRow label="Audio reactive effects">
+                        <Switch
+                            checked={settings.audioProcessing}
+                            onCheckedChange={(checked) => updateSetting("audioProcessing", checked)}
+                        />
+                    </SettingRow>
+                </SettingsSection>
 
+                {/* Display Section */}
+                <SettingsSection
+                    icon={Monitor}
+                    title="Display"
+                    description="Default display behavior"
+                >
+                    <SettingRow label="Default scaling">
+                        <select
+                            value={settings.defaultScaling}
+                            onChange={(e) => updateSetting("defaultScaling", e.target.value as typeof settings.defaultScaling)}
+                            className="h-8 rounded-md border border-input bg-background px-3 text-sm"
+                        >
+                            <option value="default">Default</option>
+                            <option value="fill">Fill</option>
+                            <option value="fit">Fit</option>
+                            <option value="stretch">Stretch</option>
+                        </select>
+                    </SettingRow>
+                    <SettingRow label="Disable mouse interaction">
+                        <Switch
+                            checked={settings.disableMouse}
+                            onCheckedChange={(checked) => updateSetting("disableMouse", checked)}
+                        />
+                    </SettingRow>
+                    <SettingRow label="Disable parallax effect">
+                        <Switch
+                            checked={settings.disableParallax}
+                            onCheckedChange={(checked) => updateSetting("disableParallax", checked)}
+                        />
+                    </SettingRow>
+                </SettingsSection>
+
+                {/* Appearance Section */}
+                <SettingsSection
+                    icon={Palette}
+                    title="Appearance"
+                    description="Theme and visual preferences"
+                >
+                    <SettingRow label="Theme">
+                        <select
+                            value={mode}
+                            onChange={(e) => {
+                                const newMode = e.target.value as "light" | "dark" | "system"
+                                setMode(newMode)
+                                updateSetting("theme", newMode)
+                            }}
+                            className="h-8 rounded-md border border-input bg-background px-3 text-sm"
+                        >
+                            <option value="system">System</option>
+                            <option value="light">Light</option>
+                            <option value="dark">Dark</option>
+                        </select>
+                    </SettingRow>
+                </SettingsSection>
+
+                {/* About Section */}
                 <div className="rounded-xl border border-border bg-card p-4">
                     <div className="flex items-center gap-3">
                         <div className="flex size-9 items-center justify-center rounded-lg bg-secondary">
@@ -155,12 +216,52 @@ function SettingsPage() {
                                 Linux Wallpaper Engine UI v1.0.0
                             </p>
                         </div>
-                        <Button variant="outline" size="sm">
-                            Check for Updates
-                        </Button>
                     </div>
                 </div>
             </div>
         </div>
     )
 }
+
+// Settings Section Component
+interface SettingsSectionProps {
+    icon: React.ElementType
+    title: string
+    description: string
+    children: React.ReactNode
+}
+
+function SettingsSection({ icon: Icon, title, description, children }: SettingsSectionProps) {
+    return (
+        <div className="rounded-xl border border-border bg-card">
+            <div className="flex items-center gap-3 border-b border-border p-4">
+                <div className="flex size-9 items-center justify-center rounded-lg bg-secondary">
+                    <Icon className="size-4 text-muted-foreground" />
+                </div>
+                <div>
+                    <h2 className="font-semibold">{title}</h2>
+                    <p className="text-sm text-muted-foreground">{description}</p>
+                </div>
+            </div>
+            <div className="divide-y divide-border">{children}</div>
+        </div>
+    )
+}
+
+// Setting Row Component
+interface SettingRowProps {
+    label: string
+    children: React.ReactNode
+}
+
+function SettingRow({ label, children }: SettingRowProps) {
+    return (
+        <div className="flex items-center justify-between px-4 py-3">
+            <span className="text-sm">{label}</span>
+            <div className="flex items-center gap-2">{children}</div>
+        </div>
+    )
+}
+
+
+

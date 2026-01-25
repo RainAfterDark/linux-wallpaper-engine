@@ -2,7 +2,8 @@ import * as React from "react"
 import { WallpaperCard, type Wallpaper } from "./WallpaperCard"
 import { WallpaperDetails } from "./WallpaperDetails"
 import { trpc } from "@/lib/trpc"
-import { Loader2, AlertCircle, FolderOpen } from "lucide-react"
+import { Loader2, AlertCircle, FolderOpen, RefreshCw } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface WallpaperGridProps {
     filter?: "installed" | "workshop" | "all"
@@ -13,7 +14,7 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
         React.useState<Wallpaper | null>(null)
 
     // Fetch wallpapers from backend
-    const { data: backendWallpapers, isLoading, error } = trpc.wallpaper.scan.useQuery()
+    const { data: backendWallpapers, isLoading, error, refetch, isFetching } = trpc.wallpaper.scan.useQuery()
 
     // Transform backend data to frontend Wallpaper type
     const wallpapers: Wallpaper[] = React.useMemo(() => {
@@ -68,18 +69,43 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
     // Empty state
     if (filteredWallpapers.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-                <FolderOpen className="size-12 mb-4 opacity-50" />
-                <p className="font-medium">No wallpapers found</p>
-                <p className="text-sm mt-1">
-                    Install wallpapers from Steam Workshop via Wallpaper Engine
-                </p>
-            </div>
+            <>
+                <div className="flex justify-end mb-4">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => refetch()}
+                        disabled={isFetching}
+                    >
+                        <RefreshCw className={`size-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
+                        Refresh
+                    </Button>
+                </div>
+                <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+                    <FolderOpen className="size-12 mb-4 opacity-50" />
+                    <p className="font-medium">No wallpapers found</p>
+                    <p className="text-sm mt-1">
+                        Install wallpapers from Steam Workshop via Wallpaper Engine
+                    </p>
+                </div>
+            </>
         )
     }
 
     return (
-        <div className="flex gap-6">
+        <>
+            <div className="flex justify-end mb-4">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => refetch()}
+                    disabled={isFetching}
+                >
+                    <RefreshCw className={`size-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
+                    Refresh
+                </Button>
+            </div>
+            <div className="flex gap-6">
             <div
                 className={`grid flex-1 gap-4 ${selectedWallpaper
                     ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
@@ -102,6 +128,7 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
                     onClose={() => setSelectedWallpaper(null)}
                 />
             )}
-        </div>
+            </div>
+        </>
     )
 }

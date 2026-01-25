@@ -1,6 +1,5 @@
 import { Search, SlidersHorizontal, Grid3X3 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 
@@ -30,7 +29,6 @@ export function TopBar() {
                 <Button variant="ghost" size="icon-sm">
                     <Grid3X3 className="size-4" />
                 </Button>
-                <ThemeToggle />
             </div>
         </header>
     )
