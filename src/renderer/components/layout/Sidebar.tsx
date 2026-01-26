@@ -20,7 +20,7 @@ import {
 
 const navItems = [
     { to: "/", icon: Download, label: "Installed" },
-    { to: "/playlists", icon: ListMusic, label: "Playlists" },
+    // { to: "/playlists", icon: ListMusic, label: "Playlists" },
     { to: "/displays", icon: Monitor, label: "Displays" },
     { to: "/settings", icon: Settings, label: "Settings" },
 ] as const
@@ -30,7 +30,7 @@ export function Sidebar() {
     const currentPath = router.location.pathname
 
     return (
-        <SidebarPrimitive collapsible="icon">
+        <SidebarPrimitive collapsible="icon" className="bg-red">
             <SidebarHeader>
                 <div className="flex h-14 items-center gap-3 px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
                     <div className="flex items-center justify-center shrink-0">
@@ -79,6 +79,7 @@ export function Sidebar() {
                     </div>
                 </div>
             </SidebarFooter>
+            {/* <SidebarRail /> */}
         </SidebarPrimitive>
     )
 }
