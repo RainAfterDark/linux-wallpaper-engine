@@ -66,7 +66,7 @@ export function WallpaperProperties({ wallpaper }: WallpaperPropertiesProps) {
 
     const updateProperty = (name: string, value: unknown) => {
         setProperties((prev) =>
-            prev.map((p) => (p.name === name ? { ...p, value } : p))
+            prev.map((p) => (p.name === name ? { ...p, value } as WallpaperProperty : p))
         )
     }
 
@@ -126,7 +126,7 @@ export function WallpaperProperties({ wallpaper }: WallpaperPropertiesProps) {
                                         className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-secondary [&::-webkit-slider-thumb]:size-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary"
                                     />
                                     <span className="w-10 text-right text-xs text-muted-foreground">
-                                        {typeof property.value === 'number' ? property.value.toFixed(1) : property.value}
+                                        {property.value.toFixed(1)}
                                     </span>
                                 </div>
                             )}

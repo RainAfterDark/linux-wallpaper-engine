@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router"
-import * as React from "react"
 import {
     Gauge,
     Volume2,
@@ -11,10 +10,18 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { SettingsSection } from "@/components/settings/SettingsSection"
 import { SettingRow } from "@/components/settings/SettingRow"
 import { trpc } from "@/lib/trpc"
 import { useTheme } from "@/components/theme-provider"
+import type { AppSettings } from "../../shared/constants"
 
 export const Route = createFileRoute("/settings")({
     component: SettingsPage,
@@ -38,9 +45,9 @@ function SettingsPage() {
 
     const { mode, setMode } = useTheme()
 
-    const updateSetting = (key: string, value: unknown) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        updateMutation.mutate({ [key]: value } as any)
+    // Update a single setting immediately
+    const updateSetting = <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
+        updateMutation.mutate({ [key]: value })
     }
 
     if (isLoading) {
@@ -91,16 +98,20 @@ function SettingsPage() {
                     description="FPS limits and power management"
                 >
                     <SettingRow label="Maximum FPS">
-                        <select
-                            value={settings.fps}
-                            onChange={(e) => updateSetting("fps", Number(e.target.value))}
-                            className="h-8 rounded-md border border-input bg-background px-3 text-sm"
+                        <Select
+                            value={String(settings.fps)}
+                            onValueChange={(value) => updateSetting("fps", Number(value))}
                         >
-                            <option value={30}>30 FPS</option>
-                            <option value={60}>60 FPS</option>
-                            <option value={120}>120 FPS</option>
-                            <option value={144}>144 FPS</option>
-                        </select>
+                            <SelectTrigger className="w-28">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="30">30 FPS</SelectItem>
+                                <SelectItem value="60">60 FPS</SelectItem>
+                                <SelectItem value="120">120 FPS</SelectItem>
+                                <SelectItem value="144">144 FPS</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </SettingRow>
                     <SettingRow label="Pause on fullscreen apps">
                         <Switch
@@ -158,16 +169,20 @@ function SettingsPage() {
                     description="Default display behavior"
                 >
                     <SettingRow label="Default scaling">
-                        <select
+                        <Select
                             value={settings.defaultScaling}
-                            onChange={(e) => updateSetting("defaultScaling", e.target.value as typeof settings.defaultScaling)}
-                            className="h-8 rounded-md border border-input bg-background px-3 text-sm"
+                            onValueChange={(value) => updateSetting("defaultScaling", value as AppSettings["defaultScaling"])}
                         >
-                            <option value="default">Default</option>
-                            <option value="fill">Fill</option>
-                            <option value="fit">Fit</option>
-                            <option value="stretch">Stretch</option>
-                        </select>
+                            <SelectTrigger className="w-28">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="default">Default</SelectItem>
+                                <SelectItem value="fill">Fill</SelectItem>
+                                <SelectItem value="fit">Fit</SelectItem>
+                                <SelectItem value="stretch">Stretch</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </SettingRow>
                     <SettingRow label="Disable mouse interaction">
                         <Switch
@@ -190,19 +205,23 @@ function SettingsPage() {
                     description="Theme and visual preferences"
                 >
                     <SettingRow label="Theme">
-                        <select
+                        <Select
                             value={mode}
-                            onChange={(e) => {
-                                const newMode = e.target.value as "light" | "dark" | "system"
-                                setMode(newMode)
+                            onValueChange={(value) => {
+                                const newMode = value as "light" | "dark" | "system"
+                                setMode(newMode) // Apply theme immediately
                                 updateSetting("theme", newMode)
                             }}
-                            className="h-8 rounded-md border border-input bg-background px-3 text-sm"
                         >
-                            <option value="system">System</option>
-                            <option value="light">Light</option>
-                            <option value="dark">Dark</option>
-                        </select>
+                            <SelectTrigger className="w-28">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="system">System</SelectItem>
+                                <SelectItem value="light">Light</SelectItem>
+                                <SelectItem value="dark">Dark</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </SettingRow>
                 </SettingsSection>
 

@@ -84,7 +84,13 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
 
     return (
         <>
-            <div className="flex justify-end mb-4">
+            <div className="mb-6 flex flex-row items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold">Installed</h1>
+                    <p className="text-muted-foreground">
+                        Wallpapers downloaded to your system
+                    </p>
+                </div>
                 <RefreshButton onClick={() => refetch()} isLoading={isFetching} />
             </div>
             <div className="flex gap-6">

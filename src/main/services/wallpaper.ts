@@ -4,6 +4,7 @@ import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import { glob } from 'glob'
 import { detectDisplays } from './display'
+import { loadSettings } from './settings'
 
 const execAsync = promisify(exec)
 
@@ -50,8 +51,9 @@ export interface ApplyWallpaperOptions {
   properties?: Record<string, string | number | boolean>
 }
 
-// Track running wallpaper processes
+// Track running wallpaper processes and their configs
 const runningProcesses: Map<string, ReturnType<typeof spawn>> = new Map()
+const activeWallpapers: Map<string, ApplyWallpaperOptions> = new Map()
 
 // Steam paths to search for wallpapers
 const STEAM_PATHS = [
@@ -374,6 +376,9 @@ export async function applyWallpaper(options: ApplyWallpaperOptions): Promise<{ 
 
     proc.unref()
     runningProcesses.set(screenKey, proc)
+    
+    // Store the wallpaper config for reapplying later
+    activeWallpapers.set(screenKey, options)
 
     return { success: true }
   } catch (error) {
@@ -391,15 +396,56 @@ export async function stopWallpaper(screen?: string): Promise<{ success: boolean
       if (proc) {
         proc.kill()
         runningProcesses.delete(screen)
+        activeWallpapers.delete(screen)
       }
     } else {
       // Stop all wallpapers
       await execAsync('pkill -f linux-wallpaperengine')
       runningProcesses.clear()
+      activeWallpapers.clear()
     }
     return { success: true }
   } catch {
     return { success: true } // pkill returns error if no process found, which is fine
+  }
+}
+
+// Get currently active wallpapers
+export function getActiveWallpapers(): Map<string, ApplyWallpaperOptions> {
+  return new Map(activeWallpapers)
+}
+
+// Reapply all active wallpapers with current global settings
+export async function reapplyActiveWallpapers(): Promise<{ success: boolean; errors?: string[] }> {
+  const errors: string[] = []
+
+  // Get current global settings
+  const settings = await loadSettings()
+
+  for (const [screenKey, baseOptions] of activeWallpapers.entries()) {
+    // Merge global settings into the wallpaper options
+    const options: ApplyWallpaperOptions = {
+      ...baseOptions,
+      fps: settings.fps,
+      volume: settings.volume,
+      silent: settings.silent,
+      noAutomute: settings.noAutomute,
+      noAudioProcessing: !settings.audioProcessing,
+      scaling: settings.defaultScaling,
+      disableMouse: settings.disableMouse,
+      disableParallax: settings.disableParallax,
+      noFullscreenPause: !settings.pauseOnFullscreen,
+    }
+
+    const result = await applyWallpaper(options)
+    if (!result.success && result.error) {
+      errors.push(`${screenKey}: ${result.error}`)
+    }
+  }
+
+  return {
+    success: errors.length === 0,
+    errors: errors.length > 0 ? errors : undefined,
   }
 }
 
