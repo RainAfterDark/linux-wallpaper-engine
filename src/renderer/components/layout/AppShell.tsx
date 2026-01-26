@@ -4,6 +4,7 @@ import { Sidebar } from "./Sidebar"
 import { TopBar } from "./TopBar"
 import { StatusBar } from "./StatusBar"
 import { SidebarProvider } from "@/components/ui/sidebar"
+import { useRouterState } from "@tanstack/react-router"
 
 interface AppShellProps {
     children: React.ReactNode
@@ -11,12 +12,14 @@ interface AppShellProps {
 }
 
 export function AppShell({ children, className }: AppShellProps) {
+    const isWallpaperPage = useRouterState().location.pathname === "/"
+        
     return (
         <SidebarProvider defaultOpen={false}>
             <div className="flex h-screen w-full overflow-hidden bg-background">
                 <Sidebar />
                 <div className="flex flex-1 flex-col overflow-hidden">
-                    <TopBar />
+                    {isWallpaperPage && <TopBar />}
                     <main className={cn("flex-1 overflow-auto", className)}>
                         {children}
                     </main>

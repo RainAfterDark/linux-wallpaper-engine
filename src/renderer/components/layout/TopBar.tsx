@@ -1,14 +1,10 @@
-import { Search, SlidersHorizontal, Grid3X3 } from "lucide-react"
+import { Search, SlidersHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Separator } from "@/components/ui/separator"
 
 export function TopBar() {
     return (
         <header className="flex h-14 items-center justify-between border-b border-border bg-background px-4">
             <div className="flex flex-1 items-center gap-4">
-                <SidebarTrigger />
-                <Separator orientation="vertical" className="h-6 text-red-500" />
                 <div className="relative max-w-md flex-1">
                     <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                     <input

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 
 export function StatusBar() {
     return (
-        <footer className="flex h-10 items-center justify-between border-t border-border bg-secondary/30 px-4">
+        <footer className="flex h-10 items-center justify-between border-t border-border bg-background px-4">
             <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Monitor className="size-3.5" />
