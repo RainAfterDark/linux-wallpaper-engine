@@ -220,6 +220,7 @@ function SettingsPage() {
                                 <SelectItem value="system">System</SelectItem>
                                 <SelectItem value="light">Light</SelectItem>
                                 <SelectItem value="dark">Dark</SelectItem>
+                                <SelectItem value="steam">Steam</SelectItem>
                             </SelectContent>
                         </Select>
                     </SettingRow>

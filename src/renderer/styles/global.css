@@ -166,22 +166,22 @@
     @apply bg-background text-foreground;
   }
 
-  /* Custom scrollbar styling for steam theme */
-  .steam ::-webkit-scrollbar {
+  /* Custom scrollbar styling for all themes */
+  .app-scrollbar::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
 
-  .steam ::-webkit-scrollbar-track {
+  .app-scrollbar::-webkit-scrollbar-track {
     background: var(--sidebar);
   }
 
-  .steam ::-webkit-scrollbar-thumb {
+  .app-scrollbar::-webkit-scrollbar-thumb {
     background: var(--border);
     border-radius: 4px;
   }
 
-  .steam ::-webkit-scrollbar-thumb:hover {
+  .app-scrollbar::-webkit-scrollbar-thumb:hover {
     background: var(--muted-foreground);
   }
 }

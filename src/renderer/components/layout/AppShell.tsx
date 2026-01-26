@@ -20,7 +20,7 @@ export function AppShell({ children, className }: AppShellProps) {
                 <Sidebar />
                 <div className="flex flex-1 flex-col overflow-hidden">
                     {isWallpaperPage && <TopBar />}
-                    <main className={cn("flex-1 overflow-auto", className)}>
+                    <main className={cn("flex-1 overflow-auto app-scrollbar", className)}>
                         {children}
                     </main>
                     <StatusBar />
