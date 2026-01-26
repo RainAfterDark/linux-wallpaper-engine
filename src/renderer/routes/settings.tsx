@@ -11,6 +11,8 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
+import { SettingsSection } from "@/components/settings/SettingsSection"
+import { SettingRow } from "@/components/settings/SettingRow"
 import { trpc } from "@/lib/trpc"
 import { useTheme } from "@/components/theme-provider"
 
@@ -222,46 +224,3 @@ function SettingsPage() {
         </div>
     )
 }
-
-// Settings Section Component
-interface SettingsSectionProps {
-    icon: React.ElementType
-    title: string
-    description: string
-    children: React.ReactNode
-}
-
-function SettingsSection({ icon: Icon, title, description, children }: SettingsSectionProps) {
-    return (
-        <div className="rounded-xl border border-border bg-card">
-            <div className="flex items-center gap-3 border-b border-border p-4">
-                <div className="flex size-9 items-center justify-center rounded-lg bg-secondary">
-                    <Icon className="size-4 text-muted-foreground" />
-                </div>
-                <div>
-                    <h2 className="font-semibold">{title}</h2>
-                    <p className="text-sm text-muted-foreground">{description}</p>
-                </div>
-            </div>
-            <div className="divide-y divide-border">{children}</div>
-        </div>
-    )
-}
-
-// Setting Row Component
-interface SettingRowProps {
-    label: string
-    children: React.ReactNode
-}
-
-function SettingRow({ label, children }: SettingRowProps) {
-    return (
-        <div className="flex items-center justify-between px-4 py-3">
-            <span className="text-sm">{label}</span>
-            <div className="flex items-center gap-2">{children}</div>
-        </div>
-    )
-}
-
-
-

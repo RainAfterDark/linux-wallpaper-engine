@@ -1,9 +1,9 @@
 import * as React from "react"
 import { WallpaperCard, type Wallpaper } from "./WallpaperCard"
 import { WallpaperDetails } from "./WallpaperDetails"
+import { RefreshButton } from "./RefreshButton"
 import { trpc } from "@/lib/trpc"
-import { Loader2, AlertCircle, FolderOpen, RefreshCw } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Loader2, AlertCircle, FolderOpen } from "lucide-react"
 
 interface WallpaperGridProps {
     filter?: "installed" | "workshop" | "all"
@@ -69,65 +69,47 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
     // Empty state
     if (filteredWallpapers.length === 0) {
         return (
-            <>
-                <div className="flex justify-end mb-4">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => refetch()}
-                        disabled={isFetching}
-                    >
-                        <RefreshCw className={`size-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
-                        Refresh
-                    </Button>
-                </div>
-                <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-                    <FolderOpen className="size-12 mb-4 opacity-50" />
-                    <p className="font-medium">No wallpapers found</p>
-                    <p className="text-sm mt-1">
+            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+                <FolderOpen className="size-12 mb-4 opacity-50" />
+                <p className="font-medium">No wallpapers found</p>
+                <div className="flex items-center gap-3 mt-1">
+                    <p className="text-sm">
                         Install wallpapers from Steam Workshop via Wallpaper Engine
                     </p>
+                    <RefreshButton onClick={() => refetch()} isLoading={isFetching} />
                 </div>
-            </>
+            </div>
         )
     }
 
     return (
         <>
             <div className="flex justify-end mb-4">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => refetch()}
-                    disabled={isFetching}
-                >
-                    <RefreshCw className={`size-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
-                    Refresh
-                </Button>
+                <RefreshButton onClick={() => refetch()} isLoading={isFetching} />
             </div>
             <div className="flex gap-6">
-            <div
-                className={`grid flex-1 gap-4 ${selectedWallpaper
-                    ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
-                    : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                    }`}
-            >
-                {filteredWallpapers.map((wallpaper) => (
-                    <WallpaperCard
-                        key={wallpaper.id}
-                        wallpaper={wallpaper}
-                        selected={selectedWallpaper?.id === wallpaper.id}
-                        onClick={setSelectedWallpaper}
-                    />
-                ))}
-            </div>
+                <div
+                    className={`grid flex-1 gap-4 ${selectedWallpaper
+                        ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
+                        : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                        }`}
+                >
+                    {filteredWallpapers.map((wallpaper) => (
+                        <WallpaperCard
+                            key={wallpaper.id}
+                            wallpaper={wallpaper}
+                            selected={selectedWallpaper?.id === wallpaper.id}
+                            onClick={setSelectedWallpaper}
+                        />
+                    ))}
+                </div>
 
-            {selectedWallpaper && (
-                <WallpaperDetails
-                    wallpaper={selectedWallpaper}
-                    onClose={() => setSelectedWallpaper(null)}
-                />
-            )}
+                {selectedWallpaper && (
+                    <WallpaperDetails
+                        wallpaper={selectedWallpaper}
+                        onClose={() => setSelectedWallpaper(null)}
+                    />
+                )}
             </div>
         </>
     )

@@ -25,11 +25,6 @@ export function TopBar() {
                 </div>
             </div>
 
-            <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon-sm">
-                    <Grid3X3 className="size-4" />
-                </Button>
-            </div>
         </header>
     )
 }
