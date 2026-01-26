@@ -8,6 +8,11 @@ import { loadSettings } from './settings'
 
 const execAsync = promisify(exec)
 
+// In-memory cache
+let wallpaperCache: Wallpaper[] | null = null
+let cacheTimestamp: number | null = null
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
 // Types
 export interface Wallpaper {
   id: string
@@ -80,7 +85,7 @@ export async function checkBackendInstalled(): Promise<boolean> {
   }
 }
 
-export async function scanWallpapers(): Promise<Wallpaper[]> {
+async function scanWallpapersInternal(): Promise<Wallpaper[]> {
   const workshopDirs: Set<string> = new Set()
   const wallpapers: Wallpaper[] = []
   const seen: Set<string> = new Set()
@@ -194,6 +199,65 @@ export async function scanWallpapers(): Promise<Wallpaper[]> {
   wallpapers.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()))
 
   return wallpapers
+}
+
+export interface GetWallpapersOptions {
+  search?: string
+  filter?: 'installed' | 'workshop' | 'all'
+  limit?: number
+  cursor?: number
+  refresh?: boolean
+}
+
+export interface GetWallpapersResult {
+  wallpapers: Wallpaper[]
+  nextCursor?: number
+  hasMore: boolean
+  total: number
+}
+
+export async function getWallpapers(options: GetWallpapersOptions = {}): Promise<GetWallpapersResult> {
+  const { search, filter = 'all', limit = 50, cursor = 0, refresh = false } = options
+
+  // Check if we need to refresh cache
+  const now = Date.now()
+  const cacheExpired = !cacheTimestamp || (now - cacheTimestamp) > CACHE_TTL
+
+  if (refresh || !wallpaperCache || cacheExpired) {
+    wallpaperCache = await scanWallpapersInternal()
+    cacheTimestamp = now
+  }
+
+  let filtered = wallpaperCache
+
+  // Apply filter
+  if (filter === 'installed') {
+    filtered = filtered.filter(w => w.installed)
+  } else if (filter === 'workshop') {
+    filtered = filtered.filter(w => !w.installed)
+  }
+
+  // Apply search
+  if (search && search.trim()) {
+    const searchLower = search.toLowerCase().trim()
+    filtered = filtered.filter(w => 
+      w.title.toLowerCase().includes(searchLower) ||
+      w.author.toLowerCase().includes(searchLower) ||
+      w.tags.some(tag => tag.toLowerCase().includes(searchLower))
+    )
+  }
+
+  const total = filtered.length
+  const hasMore = cursor + limit < total
+  const wallpapers = filtered.slice(cursor, cursor + limit)
+  const nextCursor = hasMore ? cursor + limit : undefined
+
+  return {
+    wallpapers,
+    nextCursor,
+    hasMore,
+    total,
+  }
 }
 
 export async function getWallpaperProperties(backgroundPath: string): Promise<WallpaperProperty[]> {
@@ -376,7 +440,7 @@ export async function applyWallpaper(options: ApplyWallpaperOptions): Promise<{ 
 
     proc.unref()
     runningProcesses.set(screenKey, proc)
-    
+
     // Store the wallpaper config for reapplying later
     activeWallpapers.set(screenKey, options)
 

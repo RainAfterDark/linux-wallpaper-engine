@@ -1,7 +1,11 @@
 import { Search, SlidersHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useSearch } from "@/contexts/SearchContext"
+
 export function TopBar() {
+    const { searchQuery, setSearchQuery } = useSearch()
+
     return (
         <header className="flex h-14 items-center justify-between border-b border-border bg-background px-4">
             <div className="flex flex-1 items-center gap-4">
@@ -10,6 +14,8 @@ export function TopBar() {
                     <Input
                         type="text"
                         placeholder="Search wallpapers..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                         className="h-9 w-full rounded-lg border border-input bg-secondary/50 pl-9 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
                     />
                 </div>
