@@ -1,8 +1,8 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { Sidebar } from "./sidebar"
+import { Sidebar } from "./side-bar"
 import { TopBar } from "./top-bar"
-import { StatusBar } from "./status-bar"
+import { StatusBar } from "./bottom-status-bar"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { useRouterState } from "@tanstack/react-router"
 

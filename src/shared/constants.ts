@@ -3,6 +3,7 @@
 export interface AppSettings {
   // Performance settings (backend supported)
   fps: number
+  maxRefreshRate: number | null // null means auto-detect
   pauseOnFullscreen: boolean
 
   // Audio settings (backend supported)
@@ -12,7 +13,7 @@ export interface AppSettings {
   audioProcessing: boolean
 
   // Display settings (backend supported)
-  defaultScaling: 'default' | 'stretch' | 'fit' | 'fill'
+  defaultScaling: ScalingOption
   disableMouse: boolean
   disableParallax: boolean
 
@@ -20,7 +21,7 @@ export interface AppSettings {
   assetsDir: string | null
 
   // App settings (not backend, managed by our app)
-  theme: 'light' | 'dark' | 'system'
+  theme: ThemeOption
   launchOnLogin: boolean
   restoreLastWallpaper: boolean
   lastWallpaperId: string | null
@@ -30,6 +31,7 @@ export interface AppSettings {
 export const DEFAULT_SETTINGS: AppSettings = {
   // Performance
   fps: 60,
+  maxRefreshRate: null, // Auto-detect from display
   pauseOnFullscreen: true,
 
   // Audio
@@ -55,15 +57,50 @@ export const DEFAULT_SETTINGS: AppSettings = {
 }
 
 // Scaling options for display
-export const SCALING_OPTIONS = ['default', 'stretch', 'fit', 'fill'] as const
-export type ScalingOption = typeof SCALING_OPTIONS[number]
+export const SCALING_OPTIONS = [
+  { label: 'Default', value: 'default' },
+  { label: 'Fill', value: 'fill' },
+  { label: 'Fit', value: 'fit' },
+  { label: 'Stretch', value: 'stretch' },
+] as const
+export type ScalingOption = typeof SCALING_OPTIONS[number]['value']
 
-// Theme options
-export const THEME_OPTIONS = ['light', 'dark', 'system'] as const
-export type ThemeOption = typeof THEME_OPTIONS[number]
+export const THEME_OPTIONS = [
+  { label: 'System', value: 'system' },
+  { label: 'Light', value: 'light' },
+  { label: 'Dark', value: 'dark' },
+  { label: 'Steam', value: 'steam' },
+] as const
+export type ThemeOption = typeof THEME_OPTIONS[number]['value']
 
-// FPS presets
-export const FPS_PRESETS = [30, 60, 120, 144] as const
+
+
+// FPS presets - base options that will be filtered based on display capabilities
+export const BASE_FPS_OPTIONS = [30, 60, 90, 120, 144, 165, 240, 360] as const
+export type BaseFpsOption = typeof BASE_FPS_OPTIONS[number]
+
+/**
+ * Generate FPS options based on the maximum refresh rate
+ * @param maxRefreshRate - Maximum refresh rate from displays
+ * @param currentFps - Current FPS value to ensure it's included in options
+ * @returns Array of FPS options that don't exceed the max refresh rate, with max as final option
+ */
+export function getFpsOptions(maxRefreshRate: number, currentFps?: number): number[] {
+  const filtered = BASE_FPS_OPTIONS.filter(fps => fps <= maxRefreshRate)
+  const options: Set<number> = new Set(filtered)
+
+  // Add the max refresh rate if it's not already included
+  if (maxRefreshRate > 0) {
+    options.add(maxRefreshRate)
+  }
+
+  // Ensure current FPS is always included (important for maintaining selection)
+  if (currentFps && currentFps > 0) {
+    options.add(currentFps)
+  }
+
+  return Array.from(options).sort((a, b) => a - b)
+}
 
 // App info
 export const APP_NAME = 'Linux Wallpaper Engine'

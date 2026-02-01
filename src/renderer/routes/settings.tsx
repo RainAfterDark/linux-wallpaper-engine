@@ -21,7 +21,7 @@ import { SettingsSection } from "@/components/settings/settings-section"
 import { SettingRow } from "@/components/settings/setting-row"
 import { trpc } from "@/lib/trpc"
 import { useTheme } from "@/components/theme-provider"
-import type { AppSettings } from "../../shared/constants"
+import { type AppSettings, THEME_OPTIONS, SCALING_OPTIONS, getFpsOptions } from "../../shared/constants"
 
 export const Route = createFileRoute("/settings")({
     component: SettingsPage,
@@ -44,6 +44,9 @@ function SettingsPage() {
     })
 
     const { mode, setMode } = useTheme()
+
+    // Get max refresh rate from displays
+    const { data: maxRefreshData } = trpc.display.maxRefreshRate.useQuery()
 
     // Update a single setting immediately
     const updateSetting = <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
@@ -106,10 +109,11 @@ function SettingsPage() {
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="30">30 FPS</SelectItem>
-                                <SelectItem value="60">60 FPS</SelectItem>
-                                <SelectItem value="120">120 FPS</SelectItem>
-                                <SelectItem value="144">144 FPS</SelectItem>
+                                {getFpsOptions(maxRefreshData?.maxRefreshRate ?? 60, settings.fps).map((fps) => (
+                                    <SelectItem key={fps} value={String(fps)}>
+                                        {fps} FPS
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </SettingRow>
@@ -177,10 +181,11 @@ function SettingsPage() {
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="default">Default</SelectItem>
-                                <SelectItem value="fill">Fill</SelectItem>
-                                <SelectItem value="fit">Fit</SelectItem>
-                                <SelectItem value="stretch">Stretch</SelectItem>
+                                {SCALING_OPTIONS.map((option) => (
+                                    <SelectItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </SettingRow>
@@ -208,19 +213,20 @@ function SettingsPage() {
                         <Select
                             value={mode}
                             onValueChange={(value) => {
-                                const newMode = value as "light" | "dark" | "system"
-                                setMode(newMode) // Apply theme immediately
-                                updateSetting("theme", newMode)
+                                const newTheme = value as AppSettings["theme"]
+                                setMode(newTheme) // Apply theme immediately
+                                updateSetting("theme", newTheme)
                             }}
                         >
                             <SelectTrigger className="w-28">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="system">System</SelectItem>
-                                <SelectItem value="light">Light</SelectItem>
-                                <SelectItem value="dark">Dark</SelectItem>
-                                <SelectItem value="steam">Steam</SelectItem>
+                                {THEME_OPTIONS.map((option) => (
+                                    <SelectItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </SettingRow>

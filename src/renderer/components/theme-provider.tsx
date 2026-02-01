@@ -1,27 +1,23 @@
 import { createContext, useContext, useEffect, useState } from 'react'
+import { THEME_OPTIONS, type ThemeOption } from '../../shared/constants'
 
-type ThemeMode = 'dark' | 'light' | 'system'
-type ThemeStyle = 'default' | 'steam'
+// Derive type from constants - single source of truth
+type ThemeMode = ThemeOption
 
 type ThemeProviderProps = {
   children: React.ReactNode
   defaultMode?: ThemeMode
-  defaultStyle?: ThemeStyle
   storageKey?: string
 }
 
 type ThemeProviderState = {
   mode: ThemeMode
-  style: ThemeStyle
   setMode: (mode: ThemeMode) => void
-  setStyle: (style: ThemeStyle) => void
 }
 
 const initialState: ThemeProviderState = {
   mode: 'system',
-  style: 'default',
   setMode: () => null,
-  setStyle: () => null,
 }
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
@@ -29,30 +25,22 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
 export function ThemeProvider({
   children,
   defaultMode = 'system',
-  defaultStyle = 'default',
   storageKey = 'wallpaper-engine-theme',
   ...props
 }: ThemeProviderProps) {
   const [mode, setMode] = useState<ThemeMode>(
-    () => (localStorage.getItem(`${storageKey}-mode`) as ThemeMode) ?? defaultMode
-  )
-  const [style, setStyle] = useState<ThemeStyle>(
-    () => (localStorage.getItem(`${storageKey}-style`) as ThemeStyle) ?? defaultStyle
+    () => (localStorage.getItem(storageKey) as ThemeMode) ?? defaultMode
   )
 
   useEffect(() => {
     const root = window.document.documentElement
 
     // Remove all theme classes
-    root.classList.remove('light', 'dark', 'steam')
+    THEME_OPTIONS.forEach((option) => {
+      root.classList.remove(option.value)
+    })
 
-    // Handle steam style (it's always "dark" mode)
-    if (style === 'steam') {
-      root.classList.add('steam')
-      return
-    }
-
-    // Handle default style with light/dark/system modes
+    // Handle system theme
     if (mode === 'system') {
       const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
         .matches
@@ -62,19 +50,15 @@ export function ThemeProvider({
       return
     }
 
+    // Apply selected theme
     root.classList.add(mode)
-  }, [mode, style])
+  }, [mode])
 
   const value = {
     mode,
-    style,
     setMode: (newMode: ThemeMode) => {
-      localStorage.setItem(`${storageKey}-mode`, newMode)
+      localStorage.setItem(storageKey, newMode)
       setMode(newMode)
-    },
-    setStyle: (newStyle: ThemeStyle) => {
-      localStorage.setItem(`${storageKey}-style`, newStyle)
-      setStyle(newStyle)
     },
   }
 

@@ -7,9 +7,11 @@ import {
   stopWallpaper,
   takeScreenshot,
   checkBackendInstalled,
+  getActiveWallpapers,
   type ApplyWallpaperOptions,
 } from '../../services/wallpaper'
 import { loadSettings } from '../../services/settings'
+import { detectDisplays } from '../../services/display'
 
 export const wallpaperRouter = trpc.router({
   // Check if linux-wallpaperengine is installed
@@ -46,7 +48,7 @@ export const wallpaperRouter = trpc.router({
         backgroundId: z.string(),
         screen: z.string().optional(),
         scaling: z.enum(['default', 'stretch', 'fit', 'fill']).optional(),
-        fps: z.number().min(1).max(144).optional(),
+        fps: z.number().optional(),
         volume: z.number().min(0).max(100).optional(),
         silent: z.boolean().optional(),
         noAutomute: z.boolean().optional(),
@@ -107,4 +109,24 @@ export const wallpaperRouter = trpc.router({
     .mutation(async ({ input }) => {
       return takeScreenshot(input.backgroundPath, input.outputPath)
     }),
+
+  // Get currently active wallpapers
+  getActive: trpc.procedure.query(async () => {
+    const activeWallpapers = getActiveWallpapers()
+    const result: Array<{
+      screen: string
+      wallpaper: ApplyWallpaperOptions
+    }> = []
+
+    for (const [screen, wallpaper] of activeWallpapers.entries()) {
+      result.push({ screen, wallpaper })
+    }
+
+    return result
+  }),
+
+  // Get available displays
+  getDisplays: trpc.procedure.query(async () => {
+    return detectDisplays()
+  }),
 })

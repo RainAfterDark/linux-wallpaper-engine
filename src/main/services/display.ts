@@ -11,6 +11,7 @@ export interface Display {
   height: number
   x: number
   y: number
+  refreshRate: number
   primary: boolean
   connected: boolean
 }
@@ -26,10 +27,23 @@ export async function detectDisplays(): Promise<Display[]> {
     // Regex to match: Name connected [primary] WxH+X+Y ...
     const pattern = /^(\S+)\s+connected\s+(primary\s+)?(\d+)x(\d+)\+(\d+)\+(\d+)/
 
-    for (const line of lines) {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
       const match = line.match(pattern)
       if (match) {
         const [, name, primaryStr, width, height, x, y] = match
+
+        // Look for refresh rate in the next line (mode line)
+        // Example: "   1920x1080     60.00*+  59.93"
+        let refreshRate = 60 // Default fallback
+        if (i + 1 < lines.length) {
+          const modeLine = lines[i + 1]
+          const rateMatch = modeLine.match(/(\d+\.\d+)\*/)
+          if (rateMatch) {
+            refreshRate = Math.round(parseFloat(rateMatch[1]))
+          }
+        }
+
         displays.push({
           id: name,
           name,
@@ -38,6 +52,7 @@ export async function detectDisplays(): Promise<Display[]> {
           height: parseInt(height, 10),
           x: parseInt(x, 10),
           y: parseInt(y, 10),
+          refreshRate,
           primary: !!primaryStr,
           connected: true,
         })
@@ -74,6 +89,7 @@ export async function detectDisplays(): Promise<Display[]> {
           height: parseInt(height, 10),
           x: 0,
           y: 0,
+          refreshRate: 60, // Default for Wayland
           primary: displays.length === 0, // First one is primary
           connected: true,
         }
@@ -119,6 +135,7 @@ export async function detectDisplays(): Promise<Display[]> {
           height: parseInt(height, 10),
           x: parseInt(x, 10),
           y: parseInt(y, 10),
+          refreshRate: 60, // Default for gnome-randr
           primary: displays.length === 0,
           connected: true,
         })
@@ -142,6 +159,7 @@ export async function detectDisplays(): Promise<Display[]> {
       height: 1080,
       x: 0,
       y: 0,
+      refreshRate: 60,
       primary: true,
       connected: true,
     },
@@ -159,4 +177,10 @@ export async function getDisplaySession(): Promise<'x11' | 'wayland' | 'unknown'
   if (process.env.DISPLAY) return 'x11'
 
   return 'unknown'
+}
+
+export async function getMaxRefreshRate(): Promise<number> {
+  const displays = await detectDisplays()
+  const maxRate = Math.max(...displays.map(d => d.refreshRate))
+  return maxRate
 }

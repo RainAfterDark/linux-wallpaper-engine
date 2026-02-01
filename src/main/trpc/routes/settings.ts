@@ -11,7 +11,7 @@ import { reapplyActiveWallpapers } from '../../services/wallpaper'
 
 const settingsSchema = z.object({
   // Performance
-  fps: z.number().min(1).max(144).optional(),
+  fps: z.number().optional(),
   pauseOnFullscreen: z.boolean().optional(),
 
   // Audio
@@ -47,20 +47,20 @@ export const settingsRouter = trpc.router({
     .input(settingsSchema)
     .mutation(async ({ input }) => {
       const updated = await saveSettings(input)
-      
+
       // Reapply active wallpapers with new settings
       await reapplyActiveWallpapers()
-      
+
       return updated
     }),
 
   // Reset to defaults
   reset: trpc.procedure.mutation(async () => {
     const reset = await resetSettings()
-    
+
     // Reapply active wallpapers with default settings
     await reapplyActiveWallpapers()
-    
+
     return reset
   }),
 
