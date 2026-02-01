@@ -2,7 +2,7 @@ import * as React from "react"
 import { ChevronDown, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { type Wallpaper } from "./WallpaperCard"
+import { type Wallpaper } from "./wallpaper-card"
 import { trpc } from "@/lib/trpc"
 
 interface WallpaperPropertiesProps {

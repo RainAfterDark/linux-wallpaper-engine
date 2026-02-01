@@ -1,11 +1,11 @@
 import * as React from "react"
-import { WallpaperCard, type Wallpaper } from "./WallpaperCard"
-import { WallpaperDetails } from "./WallpaperDetails"
-import { RefreshButton } from "./RefreshButton"
+import { WallpaperCard, type Wallpaper } from "./wallpaper-card"
+import { WallpaperDetails } from "./wallpaper-details"
+import { RefreshButton } from "./refresh-button"
 import { trpc } from "@/lib/trpc"
 import { Loader2, AlertCircle, FolderOpen } from "lucide-react"
 import { useDebounce } from "@uidotdev/usehooks"
-import { useSearch } from "@/contexts/SearchContext"
+import { useSearch } from "@/contexts/search-context"
 
 interface WallpaperGridProps {
     filter?: "installed" | "workshop" | "all"

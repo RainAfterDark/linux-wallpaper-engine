@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { WallpaperGrid } from "@/components/wallpaper/WallpaperGrid"
+import { WallpaperGrid } from "@/components/wallpaper/wallpaper-grid"
 import { trpc } from "@/lib/trpc"
 
 export const Route = createFileRoute("/")({

@@ -1,7 +1,7 @@
 import { Search, SlidersHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useSearch } from "@/contexts/SearchContext"
+import { useSearch } from "@/contexts/search-context"
 
 export function TopBar() {
     const { searchQuery, setSearchQuery } = useSearch()

@@ -1,8 +1,8 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { Sidebar } from "./Sidebar"
-import { TopBar } from "./TopBar"
-import { StatusBar } from "./StatusBar"
+import { Sidebar } from "./sidebar"
+import { TopBar } from "./top-bar"
+import { StatusBar } from "./status-bar"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { useRouterState } from "@tanstack/react-router"
 
@@ -13,7 +13,7 @@ interface AppShellProps {
 
 export function AppShell({ children, className }: AppShellProps) {
     const isWallpaperPage = useRouterState().location.pathname === "/"
-        
+
     return (
         <SidebarProvider defaultOpen={false}>
             <div className="flex h-screen w-full overflow-hidden bg-background">

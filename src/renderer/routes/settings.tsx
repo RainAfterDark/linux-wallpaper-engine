@@ -17,8 +17,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { SettingsSection } from "@/components/settings/SettingsSection"
-import { SettingRow } from "@/components/settings/SettingRow"
+import { SettingsSection } from "@/components/settings/settings-section"
+import { SettingRow } from "@/components/settings/setting-row"
 import { trpc } from "@/lib/trpc"
 import { useTheme } from "@/components/theme-provider"
 import type { AppSettings } from "../../shared/constants"

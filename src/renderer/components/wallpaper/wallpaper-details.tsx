@@ -9,8 +9,8 @@ import {
     Loader2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { type Wallpaper } from "./WallpaperCard"
-import { WallpaperProperties } from "./WallpaperProperties"
+import { type Wallpaper } from "./wallpaper-card"
+import { WallpaperProperties } from "./wallpaper-properties"
 import { trpc } from "@/lib/trpc"
 
 interface WallpaperDetailsProps {
