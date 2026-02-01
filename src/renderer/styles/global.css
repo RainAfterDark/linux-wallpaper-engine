@@ -82,38 +82,37 @@
 
 /* Steam/Wallpaper Engine inspired theme */
 .steam {
-  --background: #1b2838;
-  --foreground: #c7d5e0;
-  --card: #2a475e;
-  --card-foreground: #c7d5e0;
-  --popover: #171a21;
-  --popover-foreground: #c7d5e0;
-  --primary: #66c0f4;
-  --primary-foreground: #1b2838;
-  --secondary: #2a475e;
-  --secondary-foreground: #c7d5e0;
-  --muted: #1e3a50;
-  --muted-foreground: #8f98a0;
-  --accent: #1a9fff;
-  --accent-foreground: #ffffff;
-  --destructive: #c74b4b;
-  --destructive-foreground: #ffffff;
-  --border: #3d5a73;
-  --input: #2a475e;
-  --ring: #66c0f4;
+  --background: oklch(0.24 0.04 247);
+  --foreground: oklch(0.87 0.03 236);
+  --card: oklch(0.36 0.06 242);
+  --card-foreground: oklch(0.87 0.03 236);
+  --popover: oklch(0.20 0.03 247);
+  --popover-foreground: oklch(0.87 0.03 236);
+  --primary: oklch(0.77 0.12 235);
+  --primary-foreground: oklch(0.24 0.04 247);
+  --secondary: oklch(0.36 0.06 242);
+  --secondary-foreground: oklch(0.87 0.03 236);
+  --muted: oklch(0.31 0.06 242);
+  --muted-foreground: oklch(0.66 0.02 236);
+  --accent: oklch(0.65 0.18 250);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.55 0.17 25);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.35 0.06 242);
+  --input: oklch(0.30 0.06 242);
+  --ring: oklch(0.77 0.12 235);
   --radius: 0.25rem;
-  --sidebar: #171a21;
-  --sidebar-foreground: #c7d5e0;
-  --sidebar-primary: #66c0f4;
-  --sidebar-primary-foreground: #1b2838;
-  --sidebar-accent: #2a475e;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #2a475e;
-  --sidebar-ring: #66c0f4;
-  --success: #5ba32b;
-  --success-foreground: #ffffff;
-  --search-bg: #316282;
-
+  --sidebar: oklch(0.20 0.03 247);
+  --sidebar-foreground: oklch(0.87 0.03 236);
+  --sidebar-primary: oklch(0.77 0.12 235);
+  --sidebar-primary-foreground: oklch(0.24 0.04 247);
+  --sidebar-accent: oklch(0.36 0.06 242);
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-border: oklch(0.30 0.06 242);
+  --sidebar-ring: oklch(0.77 0.12 235);
+  --success: oklch(0.66 0.15 135);
+  --success-foreground: oklch(1 0 0);
+  --search-bg: oklch(0.47 0.08 240);
 }
 
 @theme inline {
