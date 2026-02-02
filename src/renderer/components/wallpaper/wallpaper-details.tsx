@@ -35,8 +35,8 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
     const [isHovering, setIsHovering] = React.useState(false)
     const [isApplying, setIsApplying] = React.useState(false)
 
-    const applyMutation = trpc.wallpaper.set.useMutation()
-    const stopMutation = trpc.wallpaper.stop.useMutation()
+    const applyMutation = trpc.wallpaper.setWallpaper.useMutation()
+    const stopMutation = trpc.wallpaper.stopWalpaper.useMutation()
 
     const handleApply = async () => {
         if (!wallpaper.path && !wallpaper.id) return

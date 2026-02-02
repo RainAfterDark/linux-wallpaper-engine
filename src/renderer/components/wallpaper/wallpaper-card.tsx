@@ -25,19 +25,6 @@ interface WallpaperCardProps {
     selected?: boolean
 }
 
-const typeColors = {
-    scene: "bg-purple-500/80",
-    video: "bg-blue-500/80",
-    web: "bg-green-500/80",
-    application: "bg-orange-500/80",
-}
-
-const typeLabels = {
-    scene: "Scene",
-    video: "Video",
-    web: "Web",
-    application: "App",
-}
 
 export function WallpaperCard({
     wallpaper,

@@ -17,6 +17,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { Separator } from "@/components/ui/separator"
 
 const navItems = [
     { to: "/", icon: Download, label: "Installed" },
@@ -30,23 +31,18 @@ export function Sidebar() {
     const currentPath = router.location.pathname
 
     return (
-        <SidebarPrimitive collapsible="icon" className="bg-red">
+        <SidebarPrimitive collapsible="icon">
             <SidebarHeader>
-                <div className="flex h-14 items-center gap-3 px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
-                    <div className="flex items-center justify-center shrink-0">
-                        <img 
-                            src={logoImage} 
-                            alt="Wallpaper Engine Logo" 
-                            className="size-9 object-contain"
+                <div className="flex h-14 -mt-2 items-center gap-3 px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+                    <div className="flex items-center justify-center shrink-0 rounded-md p-1">
+                        <img
+                            src={logoImage}
+                            alt="Wallpaper Engine Logo"
+                            className="size-7 object-contain"
                         />
                     </div>
-                    <div className="flex flex-col justify-center group-data-[collapsible=icon]:hidden">
-                        <span className="text-sm font-semibold text-sidebar-foreground leading-tight">
-                            Wallpaper Engine
-                        </span>
-                        <span className="text-xs text-muted-foreground leading-tight">for Linux</span>
-                    </div>
                 </div>
+                <Separator className="-mt-[9px] w-full p-0" />
             </SidebarHeader>
 
             <SidebarContent>

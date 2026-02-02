@@ -240,7 +240,7 @@ export async function getWallpapers(options: GetWallpapersOptions = {}): Promise
   // Apply search
   if (search && search.trim()) {
     const searchLower = search.toLowerCase().trim()
-    filtered = filtered.filter(w => 
+    filtered = filtered.filter(w =>
       w.title.toLowerCase().includes(searchLower) ||
       w.author.toLowerCase().includes(searchLower) ||
       w.tags.some(tag => tag.toLowerCase().includes(searchLower))
@@ -474,9 +474,49 @@ export async function stopWallpaper(screen?: string): Promise<{ success: boolean
   }
 }
 
-// Get currently active wallpapers
-export function getActiveWallpapers(): Map<string, ApplyWallpaperOptions> {
-  return new Map(activeWallpapers)
+// Get currently active wallpapers - overloaded signatures
+export function getActiveWallpapers(includeTitles: false): Map<string, ApplyWallpaperOptions>
+export function getActiveWallpapers(includeTitles: true): Promise<Array<{
+  screen: string
+  wallpaper: ApplyWallpaperOptions
+  title: string
+}>>
+export function getActiveWallpapers(): Map<string, ApplyWallpaperOptions>
+
+// Implementation
+export function getActiveWallpapers(includeTitles = false): Map<string, ApplyWallpaperOptions> | Promise<Array<{
+  screen: string
+  wallpaper: ApplyWallpaperOptions
+  title: string
+}>> {
+  if (!includeTitles) {
+    return new Map(activeWallpapers)
+  }
+
+  // Async path for including titles
+  return (async () => {
+    const result: Array<{
+      screen: string
+      wallpaper: ApplyWallpaperOptions
+      title: string
+    }> = []
+
+    // Get all wallpapers from cache to look up titles
+    const wallpapersData = await getWallpapers({ limit: 10000 })
+
+    for (const [screen, wallpaper] of activeWallpapers.entries()) {
+      // Try to find the wallpaper in cache by path
+      const cachedWallpaper = wallpapersData.wallpapers.find(
+        w => w.path === wallpaper.backgroundId
+      )
+
+      const title = cachedWallpaper?.title ?? wallpaper.backgroundId.split('/').filter(Boolean).pop() ?? 'Unknown'
+
+      result.push({ screen, wallpaper, title })
+    }
+
+    return result
+  })()
 }
 
 // Reapply all active wallpapers with current global settings

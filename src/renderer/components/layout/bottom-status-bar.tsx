@@ -1,25 +1,19 @@
-import { Pause, Play, Volume2, VolumeX, Monitor } from "lucide-react"
+import { Square, Volume2, VolumeX, Monitor } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { trpc } from "@/lib/trpc"
-import { useState, useMemo } from "react"
 
 export function StatusBar() {
-    const [isPaused, setIsPaused] = useState(false)
-    const [isMuted, setIsMuted] = useState(false)
-
-    const { data: activeWallpapers = [] } = trpc.wallpaper.getActive.useQuery(undefined, {
-        refetchInterval: 5000, // Refresh every 5 seconds
+    const { data: activeWallpapers = [] } = trpc.wallpaper.getActiveWallpaper.useQuery(undefined, {
+        refetchInterval: 5000,
     })
 
-    const { data: displays = [] } = trpc.wallpaper.getDisplays.useQuery()
+    const { data: displays = [] } = trpc.display.list.useQuery()
+    const { data: settings } = trpc.settings.get.useQuery()
 
-    // Fetch all wallpapers to get metadata
-    const { data: wallpapersData } = trpc.wallpaper.getWallpapers.useQuery({
-        limit: 1000,
-        filter: 'all',
-    })
 
-    const stopMutation = trpc.wallpaper.stop.useMutation()
+
+    const stopMutation = trpc.wallpaper.stopWalpaper.useMutation()
+    const updateSettingsMutation = trpc.settings.update.useMutation()
     const utils = trpc.useUtils()
 
     // Get the primary display or first display
@@ -30,38 +24,25 @@ export function StatusBar() {
         w => w.screen === primaryDisplay?.name
     ) ?? activeWallpapers[0]
 
-    // Get the wallpaper metadata
-    const wallpaperTitle = useMemo(() => {
-        if (!activeWallpaper || !wallpapersData?.wallpapers) return null
+    // Get the wallpaper title from the API response
+    const wallpaperTitle = activeWallpaper?.title ?? 'Unknown'
 
-        const backgroundId = activeWallpaper.wallpaper.backgroundId
-        const wallpaper = wallpapersData.wallpapers.find(
-            w => w.path === backgroundId || w.id === backgroundId
-        )
-
-        return wallpaper?.title ?? backgroundId.split('/').pop() ?? 'Unknown'
-    }, [activeWallpaper, wallpapersData])
-
-    const handlePauseToggle = async () => {
+    const handleStop = async () => {
         if (!activeWallpaper) return
-
-        // For now, we'll stop the wallpaper when pausing
-        // A proper pause/resume would require backend support
-        if (!isPaused) {
-            await stopMutation.mutateAsync({ screen: activeWallpaper.screen })
-            setIsPaused(true)
-            // Invalidate the active wallpapers query to refresh the UI
-            utils.wallpaper.getActive.invalidate()
-        } else {
-            // Would need to reapply the wallpaper here
-            setIsPaused(false)
-        }
+        await stopMutation.mutateAsync({ screen: activeWallpaper.screen })
+        utils.wallpaper.getActiveWallpaper.invalidate()
     }
 
-    const handleMuteToggle = () => {
-        // This would require backend support to change volume on the fly
-        // For now, just toggle the UI state
-        setIsMuted(!isMuted)
+    const handleMuteToggle = async () => {
+        if (!settings) return
+
+        // Toggle between silent mode and normal volume
+        await updateSettingsMutation.mutateAsync({
+            silent: !settings.silent,
+        })
+
+        // Refresh settings to update UI
+        utils.settings.get.invalidate()
     }
 
     return (
@@ -77,7 +58,7 @@ export function StatusBar() {
                         <>
                             <div className="size-2 rounded-full bg-success" />
                             <span className="text-sm text-muted-foreground">
-                                Active: {wallpaperTitle}
+                                {wallpaperTitle}
                             </span>
                         </>
                     ) : (
@@ -96,21 +77,21 @@ export function StatusBar() {
                     variant="ghost"
                     size="icon-sm"
                     className="size-7"
-                    onClick={handlePauseToggle}
-                    disabled={!activeWallpaper}
-                    title={isPaused ? "Resume wallpaper" : "Pause wallpaper"}
+                    onClick={handleMuteToggle}
+                    disabled={!activeWallpaper || !settings}
+                    title={settings?.silent ? "Unmute" : "Mute"}
                 >
-                    {isPaused ? <Play className="size-3.5" /> : <Pause className="size-3.5" />}
+                    {settings?.silent ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
                 </Button>
                 <Button
                     variant="ghost"
                     size="icon-sm"
                     className="size-7"
-                    onClick={handleMuteToggle}
+                    onClick={handleStop}
                     disabled={!activeWallpaper}
-                    title={isMuted ? "Unmute" : "Mute"}
+                    title="Stop wallpaper"
                 >
-                    {isMuted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
+                    <Square className="size-3.5" />
                 </Button>
             </div>
         </footer>
