@@ -33,7 +33,7 @@ export function Sidebar() {
     return (
         <SidebarPrimitive collapsible="icon">
             <SidebarHeader>
-                <div className="flex h-14 -mt-2 items-center gap-3 px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+                <div className="flex h-14 -mt-[10px] items-center gap-3 px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
                     <div className="flex items-center justify-center shrink-0 rounded-md p-1">
                         <img
                             src={logoImage}
@@ -42,7 +42,7 @@ export function Sidebar() {
                         />
                     </div>
                 </div>
-                <Separator className="-mt-[9px] w-full p-0" />
+                <Separator className="-mt-[7.511px] w-full p-0" />
             </SidebarHeader>
 
             <SidebarContent>

@@ -127,7 +127,7 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
                 <RefreshButton onClick={handleRefresh} isLoading={isLoading} />
             </div>
 
-            <div ref={scrollRef} className="flex gap-6 overflow-y-auto flex-1">
+            <div ref={scrollRef} className="flex items-start gap-6 flex-1">
                 <div
                     className={`grid flex-1 gap-4 h-fit ${selectedWallpaper
                         ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
