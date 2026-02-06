@@ -18,6 +18,7 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
+import { cn } from "@/lib/utils"
 
 const navItems = [
     { to: "/", icon: Download, label: "Installed" },
@@ -26,12 +27,16 @@ const navItems = [
     { to: "/settings", icon: Settings, label: "Settings" },
 ] as const
 
-export function Sidebar() {
+interface SidebarProps {
+    className?: string
+}
+
+export function Sidebar({ className }: SidebarProps) {
     const router = useRouterState()
     const currentPath = router.location.pathname
 
     return (
-        <SidebarPrimitive collapsible="icon">
+        <SidebarPrimitive collapsible="icon" className={cn("", className)}>
             <SidebarHeader>
                 <div className="flex h-14 -mt-[10px] items-center gap-3 px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
                     <div className="flex items-center justify-center shrink-0 rounded-md p-1">

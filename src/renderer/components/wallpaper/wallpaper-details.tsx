@@ -12,24 +12,15 @@ import { Button } from "@/components/ui/button"
 import { type Wallpaper } from "./wallpaper-card"
 import { WallpaperProperties } from "./wallpaper-properties"
 import { trpc } from "@/lib/trpc"
+import { formatFileSize, WALLPAPER_TYPE_LABELS } from "@/lib/utils"
+import { WallpaperThumbnail } from "./wallpaper-thumbnail"
 
 interface WallpaperDetailsProps {
     wallpaper: Wallpaper
     onClose: () => void
 }
 
-function formatFileSize(bytes: number): string {
-    if (bytes < 1024) return `${bytes} B`
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
 
-const typeLabels = {
-    scene: "Scene",
-    video: "Video",
-    web: "Web",
-    application: "Application",
-}
 
 export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) {
     const [isHovering, setIsHovering] = React.useState(false)
@@ -57,37 +48,38 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
     return (
         <div className="sticky top-0 h-fit w-80 shrink-0 overflow-y-auto rounded-xl border border-border bg-card">
             {/* Preview */}
-            <div
-                className="relative aspect-video overflow-hidden"
-                onMouseEnter={() => setIsHovering(true)}
-                onMouseLeave={() => setIsHovering(false)}
+            <WallpaperThumbnail
+                src={wallpaper.thumbnail}
+                alt={wallpaper.title}
+
+                containerClassName="rounded-t-xl"
             >
-                <img
-                    src={wallpaper.thumbnail}
-                    alt={wallpaper.title}
-                    className="size-full object-cover"
-                />
-
-                {/* Play overlay on hover */}
                 <div
-                    className={`absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity ${isHovering ? "opacity-100" : "opacity-0"
-                        }`}
+                    onMouseEnter={() => setIsHovering(true)}
+                    onMouseLeave={() => setIsHovering(false)}
+                    className="absolute inset-0"
                 >
-                    <div className="flex size-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-                        <Play className="size-5 text-white" fill="white" />
+                    {/* Play overlay on hover */}
+                    <div
+                        className={`absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity ${isHovering ? "opacity-100" : "opacity-0"
+                            }`}
+                    >
+                        <div className="flex size-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+                            <Play className="size-5 text-white" fill="white" />
+                        </div>
                     </div>
-                </div>
 
-                {/* Close button */}
-                <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="absolute right-2 top-2 size-7 bg-black/50 text-white hover:bg-black/70"
-                    onClick={onClose}
-                >
-                    <X className="size-4" />
-                </Button>
-            </div>
+                    {/* Close button */}
+                    <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="absolute right-2 top-2 size-7 bg-black/50 text-white hover:bg-black/70"
+                        onClick={onClose}
+                    >
+                        <X className="size-4" />
+                    </Button>
+                </div>
+            </WallpaperThumbnail>
 
             {/* Info */}
             <div className="p-4">
@@ -126,7 +118,7 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
                             <Layers className="size-4" />
                             Type
                         </span>
-                        <span>{typeLabels[wallpaper.type]}</span>
+                        <span>{WALLPAPER_TYPE_LABELS[wallpaper.type]}</span>
                     </div>
 
                     <div className="flex items-center justify-between text-sm">
@@ -135,7 +127,9 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
                             Resolution
                         </span>
                         <span>
-                            {wallpaper.resolution.width}x{wallpaper.resolution.height}
+                            {wallpaper.resolution.width > 0 && wallpaper.resolution.height > 0
+                                ? `${wallpaper.resolution.width}x${wallpaper.resolution.height}`
+                                : 'N/A'}
                         </span>
                     </div>
 

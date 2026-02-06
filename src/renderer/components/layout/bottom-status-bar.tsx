@@ -1,10 +1,16 @@
 import { Square, Volume2, VolumeX, Monitor } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { trpc } from "@/lib/trpc"
+import { cn } from "@/lib/utils"
 
-export function StatusBar() {
+interface StatusBarProps {
+    className?: string
+}
+
+export function StatusBar({ className }: StatusBarProps) {
     const { data: activeWallpapers = [] } = trpc.wallpaper.getActiveWallpaper.useQuery(undefined, {
         refetchInterval: 5000,
+        refetchOnMount: true,
     })
 
     const { data: displays = [] } = trpc.display.list.useQuery()
@@ -46,7 +52,7 @@ export function StatusBar() {
     }
 
     return (
-        <footer className="flex h-10 items-center justify-between border-t border-border bg-sidebar px-4">
+        <footer className={cn("flex h-10 items-center justify-between border-t border-border bg-sidebar px-4", className)}>
             <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Monitor className="size-3.5" />

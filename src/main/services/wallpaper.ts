@@ -140,11 +140,11 @@ async function scanWallpapersInternal(): Promise<Wallpaper[]> {
           const projectData = await fs.readFile(projectFile, 'utf-8')
           const project = JSON.parse(projectData)
 
-          // Get file size
+          // Calculate total file size using du command
           let fileSize = 0
           try {
-            const stats = await fs.stat(wallpaperPath)
-            fileSize = stats.size
+            const { stdout } = await execAsync(`du -sb "${wallpaperPath}"`)
+            fileSize = parseInt(stdout.split('\t')[0], 10) || 0
           } catch {
             // Ignore size errors
           }
@@ -167,6 +167,50 @@ async function scanWallpapersInternal(): Promise<Wallpaper[]> {
             thumbnail = path.join(wallpaperPath, project.preview)
           }
 
+          // Get resolution from media files
+          let width = 0
+          let height = 0
+
+          // Scan directory for media files
+          try {
+            const files = await fs.readdir(wallpaperPath)
+
+            // Look for video files first
+            const videoFile = files.find(f =>
+              f.endsWith('.mp4') || f.endsWith('.webm') || f.endsWith('.avi') || f.endsWith('.mkv')
+            )
+
+            if (videoFile) {
+              // Use ffprobe for videos
+              const videoPath = path.join(wallpaperPath, videoFile)
+              const { stdout } = await execAsync(`ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 "${videoPath}"`)
+              const [w, h] = stdout.trim().split(',')
+              if (w && h) {
+                width = parseInt(w, 10)
+                height = parseInt(h, 10)
+              }
+            } else {
+              // Look for image files (excluding preview thumbnails)
+              const imageFile = files.find(f =>
+                (f.endsWith('.png') || f.endsWith('.jpg') || f.endsWith('.jpeg') || f.endsWith('.bmp')) &&
+                !f.toLowerCase().includes('preview')
+              )
+
+              if (imageFile) {
+                // Use file command for images
+                const imagePath = path.join(wallpaperPath, imageFile)
+                const { stdout } = await execAsync(`file "${imagePath}"`)
+                const match = stdout.match(/(\d+)\s*x\s*(\d+)/)
+                if (match) {
+                  width = parseInt(match[1], 10)
+                  height = parseInt(match[2], 10)
+                }
+              }
+            }
+          } catch {
+            // Keep 0x0 if detection fails
+          }
+
           wallpapers.push({
             id: itemId,
             workshopId: itemId,
@@ -175,10 +219,7 @@ async function scanWallpapersInternal(): Promise<Wallpaper[]> {
             type,
             thumbnail,
             previewUrl: project.preview ? path.join(wallpaperPath, project.preview) : undefined,
-            resolution: {
-              width: project.general?.properties?.schemecolor?.width || 1920,
-              height: project.general?.properties?.schemecolor?.height || 1080,
-            },
+            resolution: { width, height },
             fileSize,
             tags: project.tags || [],
             installed: true,

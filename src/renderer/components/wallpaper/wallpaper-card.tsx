@@ -2,6 +2,7 @@ import * as React from "react"
 import { Play, Download, Star, MoreHorizontal } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { WallpaperThumbnail } from "./wallpaper-thumbnail"
 
 export interface Wallpaper {
     id: string
@@ -45,17 +46,14 @@ export function WallpaperCard({
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
         >
-            <div className="relative aspect-video overflow-hidden">
-                <img
-                    src={wallpaper.thumbnail}
-                    alt={wallpaper.title}
-                    className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-
-
+            <WallpaperThumbnail
+                src={wallpaper.thumbnail}
+                alt={wallpaper.title}
+                enableHover={true}
+            >
                 {/* Gradient overlay at bottom */}
                 <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/80 to-transparent" />
-            </div>
+            </WallpaperThumbnail>
 
             <div className="px-2 py-1">
                 <div className="flex items-start justify-between gap-2">
@@ -63,7 +61,7 @@ export function WallpaperCard({
                         <h3 className="truncate font-medium text-card-foreground">
                             {wallpaper.title}
                         </h3>
-       
+
                     </div>
                     <Button
                         variant="ghost"

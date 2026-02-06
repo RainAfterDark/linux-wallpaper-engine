@@ -74,7 +74,7 @@ function SettingsPage() {
     }
 
     return (
-        <div className="p-6">
+        <div className="p-6 max-h-[100vh]">
             <div className="mb-6 flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold">Settings</h1>
