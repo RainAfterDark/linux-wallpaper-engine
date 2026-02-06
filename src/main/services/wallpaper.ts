@@ -245,20 +245,11 @@ async function scanWallpapersInternal(): Promise<Wallpaper[]> {
 export interface GetWallpapersOptions {
   search?: string
   filter?: 'installed' | 'workshop' | 'all'
-  limit?: number
-  cursor?: number
   refresh?: boolean
 }
 
-export interface GetWallpapersResult {
-  wallpapers: Wallpaper[]
-  nextCursor?: number
-  hasMore: boolean
-  total: number
-}
-
-export async function getWallpapers(options: GetWallpapersOptions = {}): Promise<GetWallpapersResult> {
-  const { search, filter = 'all', limit = 50, cursor = 0, refresh = false } = options
+export async function getWallpapers(options: GetWallpapersOptions = {}): Promise<Wallpaper[]> {
+  const { search, filter = 'all', refresh = false } = options
 
   // Check if we need to refresh cache
   const now = Date.now()
@@ -288,17 +279,7 @@ export async function getWallpapers(options: GetWallpapersOptions = {}): Promise
     )
   }
 
-  const total = filtered.length
-  const hasMore = cursor + limit < total
-  const wallpapers = filtered.slice(cursor, cursor + limit)
-  const nextCursor = hasMore ? cursor + limit : undefined
-
-  return {
-    wallpapers,
-    nextCursor,
-    hasMore,
-    total,
-  }
+  return filtered
 }
 
 export async function getWallpaperProperties(backgroundPath: string): Promise<WallpaperProperty[]> {
@@ -543,11 +524,11 @@ export function getActiveWallpapers(includeTitles = false): Map<string, ApplyWal
     }> = []
 
     // Get all wallpapers from cache to look up titles
-    const wallpapersData = await getWallpapers({ limit: 10000 })
+    const allWallpapers = await getWallpapers()
 
     for (const [screen, wallpaper] of activeWallpapers.entries()) {
       // Try to find the wallpaper in cache by path
-      const cachedWallpaper = wallpapersData.wallpapers.find(
+      const cachedWallpaper = allWallpapers.find(
         w => w.path === wallpaper.backgroundId
       )
 

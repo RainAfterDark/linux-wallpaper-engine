@@ -16,48 +16,35 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
         React.useState<Wallpaper | null>(null)
     const { searchQuery, filterType, filterTags, sortBy, sortOrder, setAvailableTags } = useSearch()
     const debouncedSearch = useDebounce(searchQuery, 300)
-    const scrollRef = React.useRef<HTMLDivElement>(null)
 
-    // Fetch wallpapers with infinite scroll
     const {
         data,
         isLoading,
         error,
-        fetchNextPage,
-        hasNextPage,
-        isFetchingNextPage,
         refetch,
-    } = trpc.wallpaper.getWallpapers.useInfiniteQuery(
-        {
-            filter,
-            search: debouncedSearch || undefined,
-            limit: 50,
-        },
-        {
-            getNextPageParam: (lastPage) => lastPage.nextCursor,
-        },
-    )
+    } = trpc.wallpaper.getWallpapers.useQuery({
+        filter,
+        search: debouncedSearch || undefined,
+    })
 
     // Transform, filter and sort wallpapers
     const wallpapers: Wallpaper[] = React.useMemo(() => {
-        if (!data?.pages) return []
+        if (!data) return []
 
-        let result = data.pages.flatMap((page) =>
-            page.wallpapers.map((w) => ({
-                id: w.id,
-                workshopId: w.workshopId,
-                title: w.title,
-                author: w.author,
-                type: w.type,
-                thumbnail: w.thumbnail ? `local-file://${w.thumbnail}` : '',
-                previewUrl: w.previewUrl ? `local-file://${w.previewUrl}` : undefined,
-                resolution: w.resolution,
-                fileSize: w.fileSize,
-                tags: w.tags,
-                installed: w.installed,
-                path: w.path,
-            })),
-        )
+        let result = data.map((w) => ({
+            id: w.id,
+            workshopId: w.workshopId,
+            title: w.title,
+            author: w.author,
+            type: w.type,
+            thumbnail: w.thumbnail ? `local-file://${w.thumbnail}` : '',
+            previewUrl: w.previewUrl ? `local-file://${w.previewUrl}` : undefined,
+            resolution: w.resolution,
+            fileSize: w.fileSize,
+            tags: w.tags,
+            installed: w.installed,
+            path: w.path,
+        }))
 
         // Apply type filter
         if (filterType !== "all") {
@@ -67,7 +54,7 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
         // Apply tag filter (wallpaper must have ALL selected tags)
         if (filterTags.length > 0) {
             result = result.filter(w =>
-                filterTags.every(tag => w.tags?.includes(tag))
+                filterTags.some(tag => w.tags?.includes(tag))
             )
         }
 
@@ -83,7 +70,6 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
                     comparison = a.fileSize - b.fileSize
                     break
                 case "recent":
-                    // Assuming newer wallpapers have higher IDs
                     comparison = b.id.localeCompare(a.id)
                     break
             }
@@ -96,29 +82,11 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
 
     // Extract and set available tags from raw data (before filtering)
     React.useEffect(() => {
-        if (!data?.pages) return
-        const allTags = data.pages.flatMap(page =>
-            page.wallpapers.flatMap(w => w.tags ?? [])
-        )
+        if (!data) return
+        const allTags = data.flatMap(w => w.tags ?? [])
         const uniqueTags = [...new Set(allTags)].sort()
         setAvailableTags(uniqueTags)
     }, [data, setAvailableTags])
-
-    // Infinite scroll handler
-    React.useEffect(() => {
-        const handleScroll = () => {
-            if (!scrollRef.current || !hasNextPage || isFetchingNextPage) return
-
-            const { scrollTop, scrollHeight, clientHeight } = scrollRef.current
-            if (scrollTop + clientHeight >= scrollHeight - 500) {
-                fetchNextPage()
-            }
-        }
-
-        const scrollElement = scrollRef.current
-        scrollElement?.addEventListener('scroll', handleScroll)
-        return () => scrollElement?.removeEventListener('scroll', handleScroll)
-    }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
     const handleRefresh = () => {
         refetch()
@@ -172,7 +140,7 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
                 <RefreshButton onClick={handleRefresh} isLoading={isLoading} />
             </div>
 
-            <div ref={scrollRef} className="flex items-start gap-6 flex-1">
+            <div className="flex items-start gap-6 flex-1">
                 <div
                     className={`grid flex-1 gap-4 h-fit ${selectedWallpaper
                         ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
@@ -197,12 +165,6 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
                 )}
             </div>
 
-            {/* Loading more indicator */}
-            {isFetchingNextPage && (
-                <div className="flex justify-center py-4">
-                    <Loader2 className="size-6 animate-spin text-muted-foreground" />
-                </div>
-            )}
         </div>
     )
 }

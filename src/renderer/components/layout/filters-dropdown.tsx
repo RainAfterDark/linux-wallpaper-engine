@@ -53,7 +53,7 @@ export function FiltersDropdown() {
             </DropdownMenuTrigger>
             <DropdownMenuContent
                 align="end"
-                className="w-56 rounded-xl border-border bg-popover/95 backdrop-blur-xl"
+                className="w-56 rounded-xl border-border bg-popover"
             >
                 {/* Header with Clear All */}
                 <div className="flex items-center justify-between px-2 py-1.5">
@@ -101,7 +101,7 @@ export function FiltersDropdown() {
                             )}
                         </DropdownMenuLabel>
 
-                        <div className="max-h-64 overflow-y-auto px-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border/40 hover:scrollbar-thumb-border">
+                        <div className="max-h-48 overflow-y-auto px-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border/40 hover:scrollbar-thumb-border">
                             {availableTags.map((tag) => (
                                 <DropdownMenuItem
                                     key={tag}

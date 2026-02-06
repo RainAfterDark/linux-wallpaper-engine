@@ -49,8 +49,6 @@ export function TopBar() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="h-8 w-full rounded-lg border-0 bg-secondary/50 pl-9 pr-4 text-sm font-light tracking-wide text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border/40 transition-all duration-300 focus:bg-secondary focus:ring-primary/40 focus:ring-2 hover:bg-secondary hover:ring-border"
                     />
-                    {/* Glow effect on focus */}
-                    <div className="absolute inset-0 -z-10 rounded-lg bg-primary/20 opacity-0 blur-xl transition-opacity duration-300 group-focus-within:opacity-100" />
                 </div>
 
                 {/* Filter & Sort Controls */}

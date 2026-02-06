@@ -18,14 +18,12 @@ export const wallpaperRouter = trpc.router({
     return { installed: await checkBackendInstalled() }
   }),
 
-  // Get wallpapers with infinite scroll support
+  // Get all wallpapers
   getWallpapers: trpc.procedure
     .input(
       z.object({
         search: z.string().optional(),
         filter: z.enum(['installed', 'workshop', 'all']).optional(),
-        limit: z.number().min(1).max(100).default(50),
-        cursor: z.number().min(0).default(0),
         refresh: z.boolean().default(false),
       }),
     )
