@@ -14,7 +14,7 @@ interface WallpaperGridProps {
 export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
     const [selectedWallpaper, setSelectedWallpaper] =
         React.useState<Wallpaper | null>(null)
-    const { searchQuery } = useSearch()
+    const { searchQuery, filterType, filterTags, sortBy, sortOrder, setAvailableTags } = useSearch()
     const debouncedSearch = useDebounce(searchQuery, 300)
     const scrollRef = React.useRef<HTMLDivElement>(null)
 
@@ -38,10 +38,11 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
         },
     )
 
-    // Transform backend data to frontend Wallpaper type
+    // Transform, filter and sort wallpapers
     const wallpapers: Wallpaper[] = React.useMemo(() => {
         if (!data?.pages) return []
-        return data.pages.flatMap((page) =>
+
+        let result = data.pages.flatMap((page) =>
             page.wallpapers.map((w) => ({
                 id: w.id,
                 workshopId: w.workshopId,
@@ -57,7 +58,51 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
                 path: w.path,
             })),
         )
-    }, [data])
+
+        // Apply type filter
+        if (filterType !== "all") {
+            result = result.filter(w => w.type === filterType)
+        }
+
+        // Apply tag filter (wallpaper must have ALL selected tags)
+        if (filterTags.length > 0) {
+            result = result.filter(w =>
+                filterTags.every(tag => w.tags?.includes(tag))
+            )
+        }
+
+        // Apply sorting
+        result.sort((a, b) => {
+            let comparison = 0
+
+            switch (sortBy) {
+                case "name":
+                    comparison = a.title.localeCompare(b.title)
+                    break
+                case "size":
+                    comparison = a.fileSize - b.fileSize
+                    break
+                case "recent":
+                    // Assuming newer wallpapers have higher IDs
+                    comparison = b.id.localeCompare(a.id)
+                    break
+            }
+
+            return sortOrder === "asc" ? comparison : -comparison
+        })
+
+        return result
+    }, [data, filterType, filterTags, sortBy, sortOrder])
+
+    // Extract and set available tags from raw data (before filtering)
+    React.useEffect(() => {
+        if (!data?.pages) return
+        const allTags = data.pages.flatMap(page =>
+            page.wallpapers.flatMap(w => w.tags ?? [])
+        )
+        const uniqueTags = [...new Set(allTags)].sort()
+        setAvailableTags(uniqueTags)
+    }, [data, setAvailableTags])
 
     // Infinite scroll handler
     React.useEffect(() => {

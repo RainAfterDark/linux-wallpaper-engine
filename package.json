@@ -40,6 +40,7 @@
     "eslint": "^8.57.1",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
+    "tailwind-scrollbar": "^4.0.2",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.7.2",
     "vite": "^5.4.21"

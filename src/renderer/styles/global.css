@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@plugin "tailwind-scrollbar";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -165,22 +166,4 @@
     @apply bg-background text-foreground;
   }
 
-  /* Custom scrollbar styling for all themes */
-  .app-scrollbar::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  .app-scrollbar::-webkit-scrollbar-track {
-    background: var(--sidebar);
-  }
-
-  .app-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 4px;
-  }
-
-  .app-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: var(--muted-foreground);
-  }
 }

@@ -52,10 +52,10 @@ export function WallpaperCard({
                 enableHover={true}
             >
                 {/* Gradient overlay at bottom */}
-                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/80 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-card via-card/20 to-transparent" />
             </WallpaperThumbnail>
 
-            <div className="px-2 py-1">
+            <div className="px-2 pt-0 pb-1">
                 <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
                         <h3 className="truncate font-medium text-card-foreground">
@@ -63,17 +63,6 @@ export function WallpaperCard({
                         </h3>
 
                     </div>
-                    <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        className="size-7 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            // TODO: Open context menu
-                        }}
-                    >
-                        <MoreHorizontal className="size-4" />
-                    </Button>
                 </div>
 
 

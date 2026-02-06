@@ -20,10 +20,10 @@ export function AppShell({ children, className }: AppShellProps) {
                 <Sidebar className="z-10" />
                 <div className="flex flex-1 flex-col overflow-hidden">
                     {isWallpaperPage && <TopBar />}
-                    <main className={cn("flex-1 overflow-auto app-scrollbar", className)}>
+                    <main className={cn("flex-1 overflow-auto scrollbar-thin scrollbar-track-sidebar scrollbar-thumb-border", className)}>
                         {children}
                     </main>
-                <StatusBar className="absolute bottom-0 left-0 right-0 z-30" />
+                    <StatusBar className="absolute bottom-0 left-0 right-0 z-30" />
                 </div>
             </div>
         </SidebarProvider>

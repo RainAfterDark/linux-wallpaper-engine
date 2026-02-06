@@ -59,15 +59,6 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
                     onMouseLeave={() => setIsHovering(false)}
                     className="absolute inset-0"
                 >
-                    {/* Play overlay on hover */}
-                    <div
-                        className={`absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity ${isHovering ? "opacity-100" : "opacity-0"
-                            }`}
-                    >
-                        <div className="flex size-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-                            <Play className="size-5 text-white" fill="white" />
-                        </div>
-                    </div>
 
                     {/* Close button */}
                     <Button
