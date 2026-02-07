@@ -158,7 +158,7 @@ function DisplaysPage() {
                                     </TooltipTrigger>
                                     <TooltipContent side="left" className="max-w-xs">
                                         <p className="text-sm">
-                                            To change wallpaper, select one from the gallery and use the dropdown on the Apply button to choose this display.
+                                            Select a wallpaper from the gallery to apply it here. Use per-wallpaper overrides to customize settings for each wallpaper.
                                         </p>
                                     </TooltipContent>
                                 </Tooltip>
