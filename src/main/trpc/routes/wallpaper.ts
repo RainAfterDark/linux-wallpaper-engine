@@ -22,11 +22,11 @@ export const wallpaperRouter = trpc.router({
       return wallpaperService.getWallpapers(input)
     }),
 
-  // Get properties for a specific wallpaper
-  getProperties: trpc.procedure
+  // Get per-wallpaper setting overrides
+  getOverrides: trpc.procedure
     .input(z.object({ path: z.string() }))
-    .query(async ({ input }) => {
-      return wallpaperService.getWallpaperProperties(input.path)
+    .query(({ input }) => {
+      return wallpaperService.getWallpaperOverrides(input.path)
     }),
 
   // Apply a wallpaper
@@ -52,7 +52,6 @@ export const wallpaperRouter = trpc.router({
             height: z.number(),
           })
           .optional(),
-        properties: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
       }),
     )
     .mutation(async ({ input }) => {
@@ -62,7 +61,6 @@ export const wallpaperRouter = trpc.router({
       const options: ApplyWallpaperOptions = {
         backgroundId: input.backgroundId,
         screen: input.screen,
-        // Use input values if provided, otherwise fall back to settings
         scaling: input.scaling ?? settings.defaultScaling,
         fps: input.fps ?? settings.fps,
         volume: input.volume ?? settings.volume,
@@ -73,7 +71,6 @@ export const wallpaperRouter = trpc.router({
         disableParallax: input.disableParallax ?? settings.disableParallax,
         noFullscreenPause: input.noFullscreenPause ?? !settings.pauseOnFullscreen,
         windowed: input.windowed,
-        properties: input.properties as Record<string, string | number | boolean> | undefined,
       }
 
       return wallpaperService.applyWallpaper(options)
@@ -103,31 +100,30 @@ export const wallpaperRouter = trpc.router({
     return wallpaperService.getActiveWallpapersWithTitles()
   }),
 
-  // Get saved properties for a wallpaper
-  getSavedProperties: trpc.procedure
-    .input(z.object({ path: z.string() }))
-    .query(({ input }) => {
-      return wallpaperService.getWallpaperSavedProperties(input.path)
-    }),
-
-  // Save properties for a wallpaper
-  saveProperties: trpc.procedure
+  // Save per-wallpaper setting overrides
+  saveOverrides: trpc.procedure
     .input(
       z.object({
         path: z.string(),
-        properties: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])),
+        overrides: z.object({
+          volume: z.number().min(0).max(100).optional(),
+          audioProcessing: z.boolean().optional(),
+          scaling: z.enum(['default', 'stretch', 'fit', 'fill']).optional(),
+          disableMouse: z.boolean().optional(),
+          disableParallax: z.boolean().optional(),
+        }),
       }),
     )
     .mutation(async ({ input }) => {
-      await wallpaperService.saveWallpaperProperties(input.path, input.properties)
+      await wallpaperService.saveWallpaperOverrides(input.path, input.overrides)
       return { success: true }
     }),
 
-  // Reset properties for a wallpaper
-  resetProperties: trpc.procedure
+  // Reset per-wallpaper setting overrides
+  resetOverrides: trpc.procedure
     .input(z.object({ path: z.string() }))
     .mutation(async ({ input }) => {
-      await wallpaperService.resetWallpaperProperties(input.path)
+      await wallpaperService.resetWallpaperOverrides(input.path)
       return { success: true }
     }),
 

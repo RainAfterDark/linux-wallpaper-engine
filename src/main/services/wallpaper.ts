@@ -6,7 +6,7 @@ import { glob } from 'glob'
 import Store from 'electron-store'
 import { displayService } from './display'
 import { settingsService } from './settings'
-import { STEAM_PATHS, CACHE_TTL } from '../../shared/constants'
+import { STEAM_PATHS, CACHE_TTL, type WallpaperOverrides } from '../../shared/constants'
 
 const execAsync = promisify(exec)
 
@@ -26,17 +26,6 @@ export interface Wallpaper {
   path: string
 }
 
-export interface WallpaperProperty {
-  name: string
-  type: 'slider' | 'boolean' | 'color' | 'combolist'
-  label: string
-  value: number | boolean | { r: number; g: number; b: number; a: number } | string
-  min?: number
-  max?: number
-  step?: number
-  options?: { label: string; value: string }[]
-}
-
 export interface ApplyWallpaperOptions {
   backgroundId: string
   screen?: string
@@ -50,7 +39,6 @@ export interface ApplyWallpaperOptions {
   disableParallax?: boolean
   noFullscreenPause?: boolean
   windowed?: { x: number; y: number; width: number; height: number }
-  properties?: Record<string, string | number | boolean>
 }
 
 export interface GetWallpapersOptions {
@@ -63,9 +51,9 @@ interface ActiveWallpapersStore {
   activeWallpapers: Record<string, ApplyWallpaperOptions>
 }
 
-// Store for per-wallpaper custom properties (keyed by wallpaper path)
-interface WallpaperPropertiesStore {
-  properties: Record<string, Record<string, string | number | boolean>>
+// Store for per-wallpaper setting overrides (keyed by wallpaper path)
+interface WallpaperOverridesStore {
+  overrides: Record<string, WallpaperOverrides>
 }
 
 
@@ -77,7 +65,7 @@ class WallpaperService {
   private runningProcesses: Map<string, ChildProcess> = new Map()
   private activeWallpapers: Map<string, ApplyWallpaperOptions> = new Map()
   private store: Store<ActiveWallpapersStore>
-  private propertiesStore: Store<WallpaperPropertiesStore>
+  private overridesStore: Store<WallpaperOverridesStore>
 
   private constructor() {
     this.store = new Store<ActiveWallpapersStore>({
@@ -86,10 +74,10 @@ class WallpaperService {
         activeWallpapers: {},
       },
     })
-    this.propertiesStore = new Store<WallpaperPropertiesStore>({
-      name: 'wallpaper-properties',
+    this.overridesStore = new Store<WallpaperOverridesStore>({
+      name: 'wallpaper-overrides',
       defaults: {
-        properties: {},
+        overrides: {},
       },
     })
     this.restoreActiveWallpapers()
@@ -109,27 +97,36 @@ class WallpaperService {
     }
   }
 
-  // Get saved properties for a specific wallpaper
-  getWallpaperSavedProperties(wallpaperPath: string): Record<string, string | number | boolean> {
-    const allProps = this.propertiesStore.get('properties')
-    return allProps[wallpaperPath] ?? {}
+  // Get saved overrides for a specific wallpaper
+  getWallpaperOverrides(wallpaperPath: string): WallpaperOverrides {
+    const all = this.overridesStore.get('overrides')
+    return all[wallpaperPath] ?? {}
   }
 
-  // Save properties for a specific wallpaper and reapply if active
-  async saveWallpaperProperties(wallpaperPath: string, properties: Record<string, string | number | boolean>): Promise<void> {
-    const allProps = this.propertiesStore.get('properties')
-    allProps[wallpaperPath] = properties
-    this.propertiesStore.set('properties', allProps)
+  private reapplyTimer: ReturnType<typeof setTimeout> | null = null
 
-    // Reapply if this wallpaper is currently active
-    await this.reapplyActiveWallpapers()
+  private debouncedReapply(): void {
+    if (this.reapplyTimer) clearTimeout(this.reapplyTimer)
+    this.reapplyTimer = setTimeout(() => {
+      this.reapplyActiveWallpapers()
+    }, 500)
   }
 
-  // Reset properties for a specific wallpaper and reapply if active
-  async resetWallpaperProperties(wallpaperPath: string): Promise<void> {
-    const allProps = this.propertiesStore.get('properties')
-    delete allProps[wallpaperPath]
-    this.propertiesStore.set('properties', allProps)
+  // Save overrides for a specific wallpaper and reapply if active
+  async saveWallpaperOverrides(wallpaperPath: string, overrides: WallpaperOverrides): Promise<void> {
+    const all = this.overridesStore.get('overrides')
+    all[wallpaperPath] = overrides
+    this.overridesStore.set('overrides', all)
+
+    // Debounced reapply to avoid spamming process restarts
+    this.debouncedReapply()
+  }
+
+  // Reset overrides for a specific wallpaper and reapply if active
+  async resetWallpaperOverrides(wallpaperPath: string): Promise<void> {
+    const all = this.overridesStore.get('overrides')
+    delete all[wallpaperPath]
+    this.overridesStore.set('overrides', all)
 
     // Reapply if this wallpaper is currently active
     await this.reapplyActiveWallpapers()
@@ -348,116 +345,18 @@ class WallpaperService {
     return filtered
   }
 
-  async getWallpaperProperties(backgroundPath: string): Promise<WallpaperProperty[]> {
-    const properties: WallpaperProperty[] = []
-
-    try {
-      const { stdout, stderr } = await execAsync(`linux-wallpaperengine --list-properties "${backgroundPath}"`, {
-        timeout: 10000,
-      })
-
-      // Combine stdout and stderr since the tool outputs to both
-      const output = stdout + stderr
-      const blocks = output.split(/\n(?=\w+\s*-\s*\w+)/)
-
-      for (const block of blocks) {
-        const lines = block.trim().split('\n')
-        if (lines.length === 0) continue
-
-        // Match header like "clockWeatherColor - color"
-        const headerMatch = lines[0].match(/^(\w+)\s*-\s*(\w+)/)
-        if (!headerMatch) continue
-
-        const [, name, typeStr] = headerMatch
-        const prop: Partial<WallpaperProperty> & { options?: { label: string; value: string }[] } = { name }
-
-        for (const line of lines.slice(1)) {
-          const trimmed = line.trim()
-
-          // Parse label from "Text:" field (strip HTML tags)
-          if (trimmed.startsWith('Text:')) {
-            const rawText = trimmed.replace('Text:', '').trim()
-            // Remove HTML tags like <strong>, <em>, <br>, <a>, etc.
-            prop.label = rawText.replace(/<[^>]+>/g, '').trim()
-          }
-          // Parse value
-          else if (trimmed.startsWith('Value:')) {
-            const rawValue = trimmed.replace('Value:', '').trim()
-            if (typeStr === 'boolean') {
-              prop.value = rawValue === '1' || rawValue === 'true'
-            } else if (typeStr === 'slider') {
-              prop.value = parseFloat(rawValue)
-            } else if (typeStr === 'color') {
-              // Color values are comma-separated: "0.988235, 0.870588, 0.788235"
-              const parts = rawValue.split(',').map(s => parseFloat(s.trim()))
-              if (parts.length >= 3) {
-                prop.value = {
-                  r: parts[0],
-                  g: parts[1],
-                  b: parts[2],
-                  a: parts[3] ?? 1,
-                }
-              }
-            } else {
-              prop.value = rawValue
-            }
-          }
-          // Parse slider constraints
-          else if (trimmed.startsWith('Min:')) {
-            prop.min = parseFloat(trimmed.replace('Min:', '').trim())
-          } else if (trimmed.startsWith('Max:')) {
-            prop.max = parseFloat(trimmed.replace('Max:', '').trim())
-          } else if (trimmed.startsWith('Step:')) {
-            prop.step = parseFloat(trimmed.replace('Step:', '').trim())
-          }
-          // Parse combo options like "Lake = lake"
-          else if (trimmed.includes(' = ')) {
-            const optionMatch = trimmed.match(/^(.+?)\s*=\s*(.+)$/)
-            if (optionMatch) {
-              if (!prop.options) prop.options = []
-              prop.options.push({
-                label: optionMatch[1].trim(),
-                value: optionMatch[2].trim(),
-              })
-            }
-          }
-        }
-
-        const typeMap: Record<string, WallpaperProperty['type']> = {
-          slider: 'slider',
-          boolean: 'boolean',
-          color: 'color',
-          combo: 'combolist',
-          combolist: 'combolist',
-        }
-
-        // Accept properties even without label, using name as fallback
-        if (typeMap[typeStr] && prop.name) {
-          properties.push({
-            name: prop.name,
-            type: typeMap[typeStr],
-            label: prop.label ?? prop.name,
-            value: prop.value ?? (typeStr === 'boolean' ? false : 0),
-            ...(prop.min !== undefined && { min: prop.min }),
-            ...(prop.max !== undefined && { max: prop.max }),
-            ...(prop.step !== undefined && { step: prop.step }),
-            ...(prop.options && { options: prop.options }),
-          } as WallpaperProperty)
-        }
-      }
-    } catch (error) {
-      console.error('Failed to get wallpaper properties:', error)
-    }
-
-    return properties
-  }
-
   async applyWallpaper(options: ApplyWallpaperOptions): Promise<{ success: boolean; error?: string }> {
     const args: string[] = []
 
-    // Get saved properties for this wallpaper and merge with passed properties
-    const savedProps = this.getWallpaperSavedProperties(options.backgroundId)
-    const mergedProperties = { ...savedProps, ...options.properties }
+    // Per-wallpaper overrides take priority over options (which already have global settings merged)
+    const overrides = this.getWallpaperOverrides(options.backgroundId)
+    const volume = overrides.volume ?? options.volume
+    const noAudioProcessing = overrides.audioProcessing !== undefined
+      ? !overrides.audioProcessing
+      : options.noAudioProcessing
+    const disableMouse = overrides.disableMouse ?? options.disableMouse
+    const disableParallax = overrides.disableParallax ?? options.disableParallax
+    const scaling = overrides.scaling ?? options.scaling
 
     let targetScreen = options.screen
     if (options.windowed) {
@@ -484,24 +383,17 @@ class WallpaperService {
 
     if (options.silent) {
       args.push('--silent')
-    } else if (options.volume !== undefined) {
-      args.push('--volume', options.volume.toString())
+    } else if (volume !== undefined) {
+      args.push('--volume', volume.toString())
     }
 
     if (options.noAutomute) args.push('--noautomute')
-    if (options.noAudioProcessing) args.push('--no-audio-processing')
+    if (noAudioProcessing) args.push('--no-audio-processing')
     if (options.fps) args.push('--fps', options.fps.toString())
-    if (options.disableMouse) args.push('--disable-mouse')
-    if (options.disableParallax) args.push('--disable-parallax')
+    if (disableMouse) args.push('--disable-mouse')
+    if (disableParallax) args.push('--disable-parallax')
     if (options.noFullscreenPause) args.push('--no-fullscreen-pause')
-    if (options.scaling && options.scaling !== 'default') args.push('--scaling', options.scaling)
-
-    // Apply saved + passed properties
-    if (Object.keys(mergedProperties).length > 0) {
-      for (const [key, value] of Object.entries(mergedProperties)) {
-        args.push('--set-property', `${key}=${value}`)
-      }
-    }
+    if (scaling && scaling !== 'default') args.push('--scaling', scaling)
 
     try {
       const screenKey = targetScreen ?? 'default'

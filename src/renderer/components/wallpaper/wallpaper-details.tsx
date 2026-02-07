@@ -18,7 +18,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { type Wallpaper } from "./wallpaper-card"
-import { WallpaperProperties } from "./wallpaper-properties"
+import { WallpaperOverrides } from "./wallpaper-overrides"
 import { trpc } from "@/lib/trpc"
 import { formatFileSize, WALLPAPER_TYPE_LABELS } from "@/lib/utils"
 import { WallpaperThumbnail } from "./wallpaper-thumbnail"
@@ -193,8 +193,7 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
                     </div>
                 </div>
 
-                {/* TODO: Properties, currently unstable */}
-                {/* <WallpaperProperties wallpaper={wallpaper} /> */}
+                <WallpaperOverrides wallpaper={wallpaper} />
             </div>
         </div>
     )

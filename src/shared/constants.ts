@@ -102,6 +102,15 @@ export function getFpsOptions(maxRefreshRate: number, currentFps?: number): numb
   return Array.from(options).sort((a, b) => a - b)
 }
 
+// Per-wallpaper setting overrides (all optional, falls back to global settings)
+export interface WallpaperOverrides {
+  volume?: number
+  audioProcessing?: boolean
+  scaling?: ScalingOption
+  disableMouse?: boolean
+  disableParallax?: boolean
+}
+
 // App info
 export const APP_NAME = 'Linux Wallpaper Engine'
 export const APP_VERSION = '1.0.0'

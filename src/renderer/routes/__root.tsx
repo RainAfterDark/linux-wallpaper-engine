@@ -5,7 +5,7 @@ import { SearchProvider } from '@/contexts/search-context'
 
 export const Route = createRootRoute({
   component: () => (
-    <ThemeProvider defaultMode="dark" defaultStyle="steam" storageKey="wallpaper-engine-theme">
+    <ThemeProvider defaultMode="dark" storageKey="wallpaper-engine-theme">
       <SearchProvider>
         <AppShell>
           <Outlet />
