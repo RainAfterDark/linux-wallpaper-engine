@@ -71,7 +71,7 @@ function DisplaysPage() {
                 <div>
                     <h1 className="text-2xl font-bold">Displays</h1>
                     <p className="text-muted-foreground">
-                        Configure wallpapers for each monitor
+                        View wallpapers for each monitor
                         {session && (
                             <span className="ml-2 text-xs bg-secondary px-2 py-0.5 rounded">
                                 {session.type.toUpperCase()}

@@ -103,6 +103,11 @@ class WallpaperService {
     return all[wallpaperPath] ?? {}
   }
 
+  private isWallpaperRunning(wallpaperPath: string): boolean {
+    if (this.runningProcesses.size === 0) return false
+    return [...this.activeWallpapers.values()].some(w => w.backgroundId === wallpaperPath)
+  }
+
   private reapplyTimer: ReturnType<typeof setTimeout> | null = null
 
   private debouncedReapply(): void {
@@ -118,8 +123,9 @@ class WallpaperService {
     all[wallpaperPath] = overrides
     this.overridesStore.set('overrides', all)
 
-    // Debounced reapply to avoid spamming process restarts
-    this.debouncedReapply()
+    if (this.isWallpaperRunning(wallpaperPath)) {
+      this.debouncedReapply()
+    }
   }
 
   // Reset overrides for a specific wallpaper and reapply if active
@@ -128,8 +134,9 @@ class WallpaperService {
     delete all[wallpaperPath]
     this.overridesStore.set('overrides', all)
 
-    // Reapply if this wallpaper is currently active
-    await this.reapplyActiveWallpapers()
+    if (this.isWallpaperRunning(wallpaperPath)) {
+      await this.reapplyActiveWallpapers()
+    }
   }
 
   private saveActiveWallpapers(): void {
@@ -466,7 +473,7 @@ class WallpaperService {
   }
 
   getActiveWallpapers(): Map<string, ApplyWallpaperOptions> {
-    return new Map(this.activeWallpapers)
+    return this.activeWallpapers
   }
 
   async getActiveWallpapersWithTitles(): Promise<Array<{
@@ -485,6 +492,7 @@ class WallpaperService {
     const allWallpapers = await this.getWallpapers()
 
     for (const [screen, wallpaper] of this.activeWallpapers.entries()) {
+      if (!this.runningProcesses.has(screen)) continue
       const cachedWallpaper = allWallpapers.find(w => w.path === wallpaper.backgroundId)
       const title = cachedWallpaper?.title ?? wallpaper.backgroundId.split('/').filter(Boolean).pop() ?? 'Unknown'
 

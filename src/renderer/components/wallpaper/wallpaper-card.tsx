@@ -53,7 +53,7 @@ export function WallpaperCard({
             </WallpaperThumbnail>
 
             <div className="px-2.5 pb-2 pt-1">
-                <h3 className="truncate text-[15px] font-semibold tracking-tight text-card-foreground">
+                <h3 className="truncate text-[15px]  font-semibold tracking-tight text-card-foreground">
                     {wallpaper.title}
                 </h3>
             </div>
