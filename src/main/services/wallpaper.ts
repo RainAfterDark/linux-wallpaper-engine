@@ -505,11 +505,25 @@ class WallpaperService {
 
     try {
       const screenKey = targetScreen ?? 'default'
+
+      // Kill existing process for this screen
       const existing = this.runningProcesses.get(screenKey)
       if (existing) {
-        existing.kill()
+        existing.kill('SIGKILL')
         this.runningProcesses.delete(screenKey)
       }
+
+      // Also kill any orphaned linux-wallpaperengine processes for this screen
+      try {
+        if (targetScreen) {
+          await execAsync(`pkill -9 -f "linux-wallpaperengine.*--screen-root.*${targetScreen}"`)
+        }
+      } catch {
+        // pkill returns error if no process found, that's ok
+      }
+
+      // Small delay to ensure cleanup
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       const proc = spawn('linux-wallpaperengine', args, {
         detached: true,
@@ -535,13 +549,20 @@ class WallpaperService {
       if (screen) {
         const proc = this.runningProcesses.get(screen)
         if (proc) {
-          proc.kill()
+          proc.kill('SIGKILL')
           this.runningProcesses.delete(screen)
           this.activeWallpapers.delete(screen)
           this.saveActiveWallpapers()
         }
+        // Also kill any orphaned processes for this screen
+        try {
+          await execAsync(`pkill -9 -f "linux-wallpaperengine.*--screen-root.*${screen}"`)
+        } catch {
+          // No process found is ok
+        }
       } else {
-        await execAsync('pkill -f linux-wallpaperengine')
+        // Kill all linux-wallpaperengine processes
+        await execAsync('pkill -9 -f linux-wallpaperengine')
         this.runningProcesses.clear()
         this.activeWallpapers.clear()
         this.saveActiveWallpapers()
@@ -560,11 +581,13 @@ class WallpaperService {
     screen: string
     wallpaper: ApplyWallpaperOptions
     title: string
+    thumbnail: string
   }>> {
     const result: Array<{
       screen: string
       wallpaper: ApplyWallpaperOptions
       title: string
+      thumbnail: string
     }> = []
 
     const allWallpapers = await this.getWallpapers()
@@ -572,7 +595,34 @@ class WallpaperService {
     for (const [screen, wallpaper] of this.activeWallpapers.entries()) {
       const cachedWallpaper = allWallpapers.find(w => w.path === wallpaper.backgroundId)
       const title = cachedWallpaper?.title ?? wallpaper.backgroundId.split('/').filter(Boolean).pop() ?? 'Unknown'
-      result.push({ screen, wallpaper, title })
+
+      // Try to get thumbnail from cache, or build it from project.json
+      let thumbnail = cachedWallpaper?.thumbnail ?? ''
+      if (!thumbnail && wallpaper.backgroundId) {
+        try {
+          const projectPath = path.join(wallpaper.backgroundId, 'project.json')
+          const projectData = await fs.readFile(projectPath, 'utf-8')
+          const project = JSON.parse(projectData)
+          if (project.preview) {
+            thumbnail = path.join(wallpaper.backgroundId, project.preview)
+          }
+        } catch {
+          // Fallback: try common preview filenames
+          const previewCandidates = ['preview.jpg', 'preview.png', 'preview.gif']
+          for (const candidate of previewCandidates) {
+            const candidatePath = path.join(wallpaper.backgroundId, candidate)
+            try {
+              await fs.access(candidatePath)
+              thumbnail = candidatePath
+              break
+            } catch {
+              // Continue to next candidate
+            }
+          }
+        }
+      }
+
+      result.push({ screen, wallpaper, title, thumbnail })
     }
 
     return result
@@ -585,12 +635,15 @@ class WallpaperService {
     for (const [screenKey, baseOptions] of this.activeWallpapers.entries()) {
       const options: ApplyWallpaperOptions = {
         ...baseOptions,
+        // Ensure we target the correct screen that this wallpaper is assigned to
+        screen: screenKey !== 'default' ? screenKey : baseOptions.screen,
         fps: settings.fps,
         volume: settings.volume,
         silent: settings.silent,
         noAutomute: settings.noAutomute,
         noAudioProcessing: !settings.audioProcessing,
-        scaling: settings.defaultScaling,
+        // Respect per-wallpaper scaling if set, otherwise use default
+        scaling: baseOptions.scaling && baseOptions.scaling !== 'default' ? baseOptions.scaling : settings.defaultScaling,
         disableMouse: settings.disableMouse,
         disableParallax: settings.disableParallax,
         noFullscreenPause: !settings.pauseOnFullscreen,

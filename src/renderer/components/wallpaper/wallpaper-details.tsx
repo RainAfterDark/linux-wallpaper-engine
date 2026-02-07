@@ -1,14 +1,22 @@
 import * as React from "react"
 import {
     X,
-    Play,
     Monitor,
     HardDrive,
     Layers,
     Square,
     Loader2,
+    ChevronDown,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { type Wallpaper } from "./wallpaper-card"
 import { WallpaperProperties } from "./wallpaper-properties"
 import { trpc } from "@/lib/trpc"
@@ -25,15 +33,17 @@ interface WallpaperDetailsProps {
 export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) {
     const [isApplying, setIsApplying] = React.useState(false)
 
+    const { data: displays } = trpc.display.list.useQuery()
     const applyMutation = trpc.wallpaper.setWallpaper.useMutation()
     const stopMutation = trpc.wallpaper.stopWalpaper.useMutation()
 
-    const handleApply = async () => {
+    const handleApply = async (screen?: string) => {
         if (!wallpaper.path && !wallpaper.id) return
         setIsApplying(true)
         try {
             await applyMutation.mutateAsync({
                 backgroundId: wallpaper.path || wallpaper.id,
+                screen,
             })
         } finally {
             setIsApplying(false)
@@ -76,18 +86,55 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
 
                 {/* Action buttons */}
                 <div className="mt-4 flex gap-2">
-                    <Button
-                        className="flex-1 gap-2"
-                        onClick={handleApply}
-                        disabled={isApplying}
-                    >
-                        {isApplying ? (
-                            <Loader2 className="size-4 animate-spin" />
-                        ) : (
-                            <Monitor className="size-4" />
-                        )}
-                        {isApplying ? "Applying..." : "Apply"}
-                    </Button>
+                    <div className="flex flex-1">
+                        <Button
+                            className="flex-1 gap-2 rounded-r-none"
+                            onClick={() => handleApply()}
+                            disabled={isApplying}
+                        >
+                            {isApplying ? (
+                                <Loader2 className="size-4 animate-spin" />
+                            ) : (
+                                <Monitor className="size-4" />
+                            )}
+                            {isApplying ? "Applying..." : "Apply"}
+                        </Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    className="rounded-l-none border-l border-primary-foreground/20 px-2"
+                                    disabled={isApplying}
+                                >
+                                    <ChevronDown className="size-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
+
+                                {displays && displays.length > 0 && (
+                                    <>
+                                        {displays.map((display) => (
+                                            <DropdownMenuItem
+                                                key={display.name}
+                                                onClick={() => handleApply(display.name)}
+                                            >
+                                                <Monitor className="size-4" />
+                                                {display.name}
+                                                {display.primary && (
+                                                    <span className="ml-auto text-xs text-muted-foreground">Primary</span>
+                                                )}
+                                            </DropdownMenuItem>
+
+                                        ))}
+                                        <DropdownMenuSeparator />
+                                    </>
+                                )}
+                                <DropdownMenuItem onClick={() => handleApply()}>
+                                    <Monitor className="size-4" />
+                                    All
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                     <Button
                         variant="outline"
                         size="icon"

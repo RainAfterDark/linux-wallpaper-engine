@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { Monitor, Plus, Settings2, Save, Loader2, AlertCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Monitor, Plus, Loader2, AlertCircle, Info } from "lucide-react"
+import { WallpaperThumbnail } from "@/components/wallpaper/wallpaper-thumbnail"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { trpc } from "@/lib/trpc"
 import * as React from "react"
 
@@ -21,19 +22,29 @@ function DisplaysPage() {
     // Fetch displays from backend
     const { data: displays, isLoading, error } = trpc.display.list.useQuery()
     const { data: session } = trpc.display.session.useQuery()
+    const { data: activeWallpapers = [] } = trpc.wallpaper.getActiveWallpaper.useQuery(undefined, {
+        refetchInterval: 5000,
+    })
 
     // Transform backend displays to our monitor format
     const monitors: DisplayMonitor[] = React.useMemo(() => {
         if (!displays) return []
-        return displays.map((d) => ({
-            id: d.name,
-            name: d.name,
-            resolution: d.resolution,
-            position: { x: d.x, y: d.y },
-            wallpaper: null, // TODO: Track active wallpapers per display
-            scaling: "default" as const,
-        }))
-    }, [displays])
+        return displays.map((d) => {
+            // Find active wallpaper for this display
+            const active = activeWallpapers.find(w => w.screen === d.name)
+            return {
+                id: d.name,
+                name: d.name,
+                resolution: d.resolution,
+                position: { x: d.x, y: d.y },
+                wallpaper: active ? {
+                    name: active.title ?? 'Unknown',
+                    thumbnail: active.thumbnail ? `local-file://${active.thumbnail}` : '',
+                } : null,
+                scaling: (active?.wallpaper.scaling ?? "default") as DisplayMonitor["scaling"],
+            }
+        })
+    }, [displays, activeWallpapers])
 
     if (isLoading) {
         return (
@@ -68,12 +79,6 @@ function DisplaysPage() {
                         )}
                     </p>
                 </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="gap-2">
-                        <Save className="size-4" />
-                        Save Profile
-                    </Button>
-                </div>
             </div>
 
             <div className="mb-8 rounded-xl border border-border bg-card p-6">
@@ -97,10 +102,10 @@ function DisplaysPage() {
                                 }}
                             >
                                 {monitor.wallpaper ? (
-                                    <img
+                                    <WallpaperThumbnail
                                         src={monitor.wallpaper.thumbnail}
                                         alt={monitor.wallpaper.name}
-                                        className="size-full object-cover"
+                                        containerClassName="aspect-auto size-full"
                                     />
                                 ) : (
                                     <div className="flex size-full items-center justify-center">
@@ -109,11 +114,6 @@ function DisplaysPage() {
                                 )}
                                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2">
                                     <p className="text-xs font-medium text-white">{monitor.id}</p>
-                                </div>
-                                <div className="absolute right-1 top-1 opacity-0 transition-opacity group-hover:opacity-100">
-                                    <Button size="icon-sm" variant="secondary" className="size-6">
-                                        <Settings2 className="size-3" />
-                                    </Button>
                                 </div>
                             </div>
                         ))
@@ -149,9 +149,20 @@ function DisplaysPage() {
                                     Scaling: {monitor.scaling}
                                 </p>
                             </div>
-                            <Button variant="outline" size="sm">
-                                Change
-                            </Button>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="flex size-8 cursor-help items-center justify-center rounded-md text-muted-foreground ">
+                                            <Info className="size-4" />
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="left" className="max-w-xs">
+                                        <p className="text-sm">
+                                            To change wallpaper, select one from the gallery and use the dropdown on the Apply button to choose this display.
+                                        </p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
                         </div>
                     </div>
                 ))}
