@@ -1,21 +1,12 @@
 import { z } from 'zod'
 import { trpc } from '../trpc'
-import {
-  getWallpapers,
-  getWallpaperProperties,
-  applyWallpaper,
-  stopWallpaper,
-  takeScreenshot,
-  checkBackendInstalled,
-  getActiveWallpapers,
-  type ApplyWallpaperOptions,
-} from '../../services/wallpaper'
+import { wallpaperService, type ApplyWallpaperOptions } from '../../services/wallpaper'
 import { loadSettings } from '../../services/settings'
 
 export const wallpaperRouter = trpc.router({
   // Check if linux-wallpaperengine is installed
   checkBackend: trpc.procedure.query(async () => {
-    return { installed: await checkBackendInstalled() }
+    return { installed: await wallpaperService.checkBackendInstalled() }
   }),
 
   // Get all wallpapers
@@ -28,14 +19,14 @@ export const wallpaperRouter = trpc.router({
       }),
     )
     .query(async ({ input }) => {
-      return getWallpapers(input)
+      return wallpaperService.getWallpapers(input)
     }),
 
   // Get properties for a specific wallpaper
   getProperties: trpc.procedure
     .input(z.object({ path: z.string() }))
     .query(async ({ input }) => {
-      return getWallpaperProperties(input.path)
+      return wallpaperService.getWallpaperProperties(input.path)
     }),
 
   // Apply a wallpaper
@@ -85,14 +76,14 @@ export const wallpaperRouter = trpc.router({
         properties: input.properties as Record<string, string | number | boolean> | undefined,
       }
 
-      return applyWallpaper(options)
+      return wallpaperService.applyWallpaper(options)
     }),
 
   // Stop wallpaper(s)
   stopWalpaper: trpc.procedure
     .input(z.object({ screen: z.string().optional() }).optional())
     .mutation(async ({ input }) => {
-      return stopWallpaper(input?.screen)
+      return wallpaperService.stopWallpaper(input?.screen)
     }),
 
   // Take a screenshot of a wallpaper
@@ -104,12 +95,12 @@ export const wallpaperRouter = trpc.router({
       }),
     )
     .mutation(async ({ input }) => {
-      return takeScreenshot(input.backgroundPath, input.outputPath)
+      return wallpaperService.takeScreenshot(input.backgroundPath, input.outputPath)
     }),
 
   // Get currently active wallpapers
   getActiveWallpaper: trpc.procedure.query(async () => {
-    return getActiveWallpapers(true)
+    return wallpaperService.getActiveWallpapersWithTitles()
   }),
 
 })

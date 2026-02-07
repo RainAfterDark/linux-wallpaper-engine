@@ -7,7 +7,7 @@ import {
   getDefaultSettings,
   type AppSettings,
 } from '../../services/settings'
-import { reapplyActiveWallpapers } from '../../services/wallpaper'
+import { wallpaperService } from '../../services/wallpaper'
 
 const settingsSchema = z.object({
   // Performance
@@ -49,7 +49,7 @@ export const settingsRouter = trpc.router({
       const updated = await saveSettings(input)
 
       // Reapply active wallpapers with new settings
-      await reapplyActiveWallpapers()
+      await wallpaperService.reapplyActiveWallpapers()
 
       return updated
     }),
@@ -59,7 +59,7 @@ export const settingsRouter = trpc.router({
     const reset = await resetSettings()
 
     // Reapply active wallpapers with default settings
-    await reapplyActiveWallpapers()
+    await wallpaperService.reapplyActiveWallpapers()
 
     return reset
   }),
