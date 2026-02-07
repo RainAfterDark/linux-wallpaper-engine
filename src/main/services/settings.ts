@@ -101,32 +101,3 @@ class SettingsService {
 
 // Export singleton instance
 export const settingsService = SettingsService.getInstance()
-
-// Legacy function exports for backward compatibility
-export async function loadSettings(): Promise<AppSettings> {
-  return settingsService.loadSettings()
-}
-
-export async function saveSettings(settings: Partial<AppSettings>): Promise<AppSettings> {
-  return settingsService.saveSettings(settings)
-}
-
-export async function resetSettings(): Promise<AppSettings> {
-  return settingsService.resetSettings()
-}
-
-export function getDefaultSettings(): AppSettings {
-  return settingsService.getDefaultSettings()
-}
-
-export function getSetting<K extends keyof AppSettings>(key: K): AppSettings[K] {
-  return settingsService.getSetting(key)
-}
-
-export function setSetting<K extends keyof AppSettings>(key: K, value: AppSettings[K]): void {
-  settingsService.setSetting(key, value)
-}
-
-export function settingsToArgs(settings: AppSettings): string[] {
-  return settingsService.settingsToArgs(settings)
-}

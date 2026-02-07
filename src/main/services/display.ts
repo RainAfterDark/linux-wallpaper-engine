@@ -201,16 +201,3 @@ class DisplayService {
 
 // Export singleton instance
 export const displayService = DisplayService.getInstance()
-
-// Legacy function exports for backward compatibility
-export async function detectDisplays(): Promise<Display[]> {
-  return displayService.detectDisplays()
-}
-
-export async function getDisplaySession(): Promise<'x11' | 'wayland' | 'unknown'> {
-  return displayService.getDisplaySession()
-}
-
-export async function getMaxRefreshRate(): Promise<number> {
-  return displayService.getMaxRefreshRate()
-}

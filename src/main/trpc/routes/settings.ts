@@ -1,12 +1,6 @@
 import { z } from 'zod'
 import { trpc } from '../trpc'
-import {
-  loadSettings,
-  saveSettings,
-  resetSettings,
-  getDefaultSettings,
-  type AppSettings,
-} from '../../services/settings'
+import { settingsService, type AppSettings } from '../../services/settings'
 import { wallpaperService } from '../../services/wallpaper'
 
 const settingsSchema = z.object({
@@ -39,14 +33,14 @@ const settingsSchema = z.object({
 export const settingsRouter = trpc.router({
   // Get all settings
   get: trpc.procedure.query(async (): Promise<AppSettings> => {
-    return loadSettings()
+    return settingsService.loadSettings()
   }),
 
   // Update settings (partial update)
   update: trpc.procedure
     .input(settingsSchema)
     .mutation(async ({ input }) => {
-      const updated = await saveSettings(input)
+      const updated = await settingsService.saveSettings(input)
 
       // Reapply active wallpapers with new settings
       await wallpaperService.reapplyActiveWallpapers()
@@ -56,7 +50,7 @@ export const settingsRouter = trpc.router({
 
   // Reset to defaults
   reset: trpc.procedure.mutation(async () => {
-    const reset = await resetSettings()
+    const reset = await settingsService.resetSettings()
 
     // Reapply active wallpapers with default settings
     await wallpaperService.reapplyActiveWallpapers()
@@ -66,6 +60,6 @@ export const settingsRouter = trpc.router({
 
   // Get default settings
   defaults: trpc.procedure.query(() => {
-    return getDefaultSettings()
+    return settingsService.getDefaultSettings()
   }),
 })

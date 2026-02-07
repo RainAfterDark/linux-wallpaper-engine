@@ -4,8 +4,8 @@ import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import { glob } from 'glob'
 import Store from 'electron-store'
-import { detectDisplays } from './display'
-import { loadSettings } from './settings'
+import { displayService } from './display'
+import { settingsService } from './settings'
 import { STEAM_PATHS, CACHE_TTL } from '../../shared/constants'
 
 const execAsync = promisify(exec)
@@ -397,7 +397,7 @@ class WallpaperService {
     } else {
       if (!targetScreen) {
         try {
-          const displays = await detectDisplays()
+          const displays = await displayService.detectDisplays()
           const primary = displays.find((d) => d.primary) ?? displays[0]
           if (primary) {
             targetScreen = primary.name
@@ -510,7 +510,7 @@ class WallpaperService {
 
   async reapplyActiveWallpapers(): Promise<{ success: boolean; errors?: string[] }> {
     const errors: string[] = []
-    const settings = await loadSettings()
+    const settings = await settingsService.loadSettings()
 
     for (const [screenKey, baseOptions] of this.activeWallpapers.entries()) {
       const options: ApplyWallpaperOptions = {

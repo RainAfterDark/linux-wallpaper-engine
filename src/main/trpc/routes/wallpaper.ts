@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { trpc } from '../trpc'
 import { wallpaperService, type ApplyWallpaperOptions } from '../../services/wallpaper'
-import { loadSettings } from '../../services/settings'
+import { settingsService } from '../../services/settings'
 
 export const wallpaperRouter = trpc.router({
   // Check if linux-wallpaperengine is installed
@@ -57,7 +57,7 @@ export const wallpaperRouter = trpc.router({
     )
     .mutation(async ({ input }) => {
       // Load saved settings and merge with input (input takes priority)
-      const settings = await loadSettings()
+      const settings = await settingsService.loadSettings()
 
       const options: ApplyWallpaperOptions = {
         backgroundId: input.backgroundId,

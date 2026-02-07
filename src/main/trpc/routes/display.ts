@@ -1,19 +1,19 @@
 import { trpc } from '../trpc'
-import { detectDisplays, getDisplaySession, getMaxRefreshRate } from '../../services/display'
+import { displayService } from '../../services/display'
 
 export const displayRouter = trpc.router({
   // List all connected displays
   list: trpc.procedure.query(async () => {
-    return detectDisplays()
+    return displayService.detectDisplays()
   }),
 
   // Get current display session type
   session: trpc.procedure.query(async () => {
-    return { type: await getDisplaySession() }
+    return { type: await displayService.getDisplaySession() }
   }),
 
   // Get maximum refresh rate across all displays
   maxRefreshRate: trpc.procedure.query(async () => {
-    return { maxRefreshRate: await getMaxRefreshRate() }
+    return { maxRefreshRate: await displayService.getMaxRefreshRate() }
   }),
 })
