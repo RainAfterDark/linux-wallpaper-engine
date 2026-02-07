@@ -32,7 +32,6 @@ export function WallpaperCard({
     onClick,
     selected,
 }: WallpaperCardProps) {
-    const [isHovering, setIsHovering] = React.useState(false)
 
     return (
         <div
@@ -43,8 +42,6 @@ export function WallpaperCard({
                     : "border-border hover:border-ring/50 hover:shadow-lg"
             )}
             onClick={() => onClick?.(wallpaper)}
-            onMouseEnter={() => setIsHovering(true)}
-            onMouseLeave={() => setIsHovering(false)}
         >
             <WallpaperThumbnail
                 src={wallpaper.thumbnail}
@@ -55,17 +52,10 @@ export function WallpaperCard({
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-card via-card/20 to-transparent" />
             </WallpaperThumbnail>
 
-            <div className="px-2 pt-0 pb-1">
-                <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                        <h3 className="truncate font-medium text-card-foreground">
-                            {wallpaper.title}
-                        </h3>
-
-                    </div>
-                </div>
-
-
+            <div className="px-2.5 pb-2 pt-1">
+                <h3 className="truncate text-[15px] font-semibold tracking-tight text-card-foreground">
+                    {wallpaper.title}
+                </h3>
             </div>
         </div>
     )
