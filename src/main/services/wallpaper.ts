@@ -6,6 +6,7 @@ import { glob } from 'glob'
 import Store from 'electron-store'
 import { detectDisplays } from './display'
 import { loadSettings } from './settings'
+import { STEAM_PATHS, CACHE_TTL } from '../../shared/constants'
 
 const execAsync = promisify(exec)
 
@@ -62,16 +63,7 @@ interface ActiveWallpapersStore {
   activeWallpapers: Record<string, ApplyWallpaperOptions>
 }
 
-// Steam paths to search for wallpapers
-const STEAM_PATHS = [
-  '~/.local/share/Steam',
-  '~/.steam/steam',
-  '~/.var/app/com.valvesoftware.Steam/.local/share/Steam',
-  '~/.var/app/com.valvesoftware.Steam/.data/Steam',
-  '~/.var/app/com.valvesoftware.Steam/.steam/steam',
-]
 
-const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
 class WallpaperService {
   private static instance: WallpaperService | null = null

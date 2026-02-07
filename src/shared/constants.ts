@@ -105,3 +105,15 @@ export function getFpsOptions(maxRefreshRate: number, currentFps?: number): numb
 // App info
 export const APP_NAME = 'Linux Wallpaper Engine'
 export const APP_VERSION = '1.0.0'
+
+
+// Steam paths to search for wallpapers
+export const STEAM_PATHS = [
+  '~/.local/share/Steam',
+  '~/.steam/steam',
+  '~/.var/app/com.valvesoftware.Steam/.local/share/Steam',
+  '~/.var/app/com.valvesoftware.Steam/.data/Steam',
+  '~/.var/app/com.valvesoftware.Steam/.steam/steam',
+]
+
+export const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
