@@ -103,4 +103,32 @@ export const wallpaperRouter = trpc.router({
     return wallpaperService.getActiveWallpapersWithTitles()
   }),
 
+  // Get saved properties for a wallpaper
+  getSavedProperties: trpc.procedure
+    .input(z.object({ path: z.string() }))
+    .query(({ input }) => {
+      return wallpaperService.getWallpaperSavedProperties(input.path)
+    }),
+
+  // Save properties for a wallpaper
+  saveProperties: trpc.procedure
+    .input(
+      z.object({
+        path: z.string(),
+        properties: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      await wallpaperService.saveWallpaperProperties(input.path, input.properties)
+      return { success: true }
+    }),
+
+  // Reset properties for a wallpaper
+  resetProperties: trpc.procedure
+    .input(z.object({ path: z.string() }))
+    .mutation(async ({ input }) => {
+      await wallpaperService.resetWallpaperProperties(input.path)
+      return { success: true }
+    }),
+
 })

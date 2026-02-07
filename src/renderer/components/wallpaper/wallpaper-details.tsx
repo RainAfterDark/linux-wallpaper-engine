@@ -23,7 +23,6 @@ interface WallpaperDetailsProps {
 
 
 export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) {
-    const [isHovering, setIsHovering] = React.useState(false)
     const [isApplying, setIsApplying] = React.useState(false)
 
     const applyMutation = trpc.wallpaper.setWallpaper.useMutation()
@@ -46,7 +45,7 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
     }
 
     return (
-        <div className="sticky top-0 h-fit w-80 shrink-0 overflow-y-auto rounded-xl border border-border bg-card">
+        <div className="sticky top-0 max-h-[85vh] w-80 shrink-0 overflow-y-auto rounded-xl border border-border bg-card scrollbar-thin ">
             {/* Preview */}
             <WallpaperThumbnail
                 src={wallpaper.thumbnail}
@@ -55,8 +54,6 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
                 containerClassName="rounded-t-xl"
             >
                 <div
-                    onMouseEnter={() => setIsHovering(true)}
-                    onMouseLeave={() => setIsHovering(false)}
                     className="absolute inset-0"
                 >
 
@@ -149,8 +146,8 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
                     </div>
                 </div>
 
-                {/* Properties */}
-                <WallpaperProperties wallpaper={wallpaper} />
+                {/* TODO: Properties, currently unstable */}
+                {/* <WallpaperProperties wallpaper={wallpaper} /> */}
             </div>
         </div>
     )

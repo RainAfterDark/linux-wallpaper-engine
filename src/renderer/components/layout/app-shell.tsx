@@ -16,15 +16,17 @@ export function AppShell({ children, className }: AppShellProps) {
 
     return (
         <SidebarProvider defaultOpen={false}>
-            <div className="flex h-screen w-full overflow-hidden bg-background">
-                <Sidebar className="z-10" />
-                <div className="flex flex-1 flex-col overflow-hidden">
-                    {isWallpaperPage && <TopBar />}
-                    <main className={cn("flex-1 overflow-auto scrollbar-thin scrollbar-track-sidebar scrollbar-thumb-border", className)}>
-                        {children}
-                    </main>
-                    <StatusBar className="absolute bottom-0 left-0 right-0 z-30" />
+            <div className="flex h-screen w-full flex-col overflow-hidden bg-background">
+                <div className="flex min-h-0 flex-1">
+                    <Sidebar className="z-10" />
+                    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                        {isWallpaperPage && <TopBar />}
+                        <main className={cn("min-h-0 flex-1 overflow-auto pb-4 scrollbar-thin scrollbar-track-sidebar scrollbar-thumb-border", className)}>
+                            {children}
+                        </main>
+                    </div>
                 </div>
+                <StatusBar className="z-20 shrink-0" />
             </div>
         </SidebarProvider>
     )

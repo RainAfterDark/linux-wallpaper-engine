@@ -63,6 +63,10 @@ interface ActiveWallpapersStore {
   activeWallpapers: Record<string, ApplyWallpaperOptions>
 }
 
+// Store for per-wallpaper custom properties (keyed by wallpaper path)
+interface WallpaperPropertiesStore {
+  properties: Record<string, Record<string, string | number | boolean>>
+}
 
 
 class WallpaperService {
@@ -73,12 +77,19 @@ class WallpaperService {
   private runningProcesses: Map<string, ChildProcess> = new Map()
   private activeWallpapers: Map<string, ApplyWallpaperOptions> = new Map()
   private store: Store<ActiveWallpapersStore>
+  private propertiesStore: Store<WallpaperPropertiesStore>
 
   private constructor() {
     this.store = new Store<ActiveWallpapersStore>({
       name: 'active-wallpapers',
       defaults: {
         activeWallpapers: {},
+      },
+    })
+    this.propertiesStore = new Store<WallpaperPropertiesStore>({
+      name: 'wallpaper-properties',
+      defaults: {
+        properties: {},
       },
     })
     this.restoreActiveWallpapers()
@@ -96,6 +107,32 @@ class WallpaperService {
     for (const [screen, options] of Object.entries(stored)) {
       this.activeWallpapers.set(screen, options)
     }
+  }
+
+  // Get saved properties for a specific wallpaper
+  getWallpaperSavedProperties(wallpaperPath: string): Record<string, string | number | boolean> {
+    const allProps = this.propertiesStore.get('properties')
+    return allProps[wallpaperPath] ?? {}
+  }
+
+  // Save properties for a specific wallpaper and reapply if active
+  async saveWallpaperProperties(wallpaperPath: string, properties: Record<string, string | number | boolean>): Promise<void> {
+    const allProps = this.propertiesStore.get('properties')
+    allProps[wallpaperPath] = properties
+    this.propertiesStore.set('properties', allProps)
+
+    // Reapply if this wallpaper is currently active
+    await this.reapplyActiveWallpapers()
+  }
+
+  // Reset properties for a specific wallpaper and reapply if active
+  async resetWallpaperProperties(wallpaperPath: string): Promise<void> {
+    const allProps = this.propertiesStore.get('properties')
+    delete allProps[wallpaperPath]
+    this.propertiesStore.set('properties', allProps)
+
+    // Reapply if this wallpaper is currently active
+    await this.reapplyActiveWallpapers()
   }
 
   private saveActiveWallpapers(): void {
@@ -315,47 +352,73 @@ class WallpaperService {
     const properties: WallpaperProperty[] = []
 
     try {
-      const { stdout } = await execAsync(`linux-wallpaperengine --list-properties "${backgroundPath}"`)
-      const blocks = stdout.split(/\n(?=\w)/)
+      const { stdout, stderr } = await execAsync(`linux-wallpaperengine --list-properties "${backgroundPath}"`, {
+        timeout: 10000,
+      })
+
+      // Combine stdout and stderr since the tool outputs to both
+      const output = stdout + stderr
+      const blocks = output.split(/\n(?=\w+\s*-\s*\w+)/)
 
       for (const block of blocks) {
         const lines = block.trim().split('\n')
         if (lines.length === 0) continue
 
+        // Match header like "clockWeatherColor - color"
         const headerMatch = lines[0].match(/^(\w+)\s*-\s*(\w+)/)
         if (!headerMatch) continue
 
         const [, name, typeStr] = headerMatch
-        const prop: Partial<WallpaperProperty> = { name }
+        const prop: Partial<WallpaperProperty> & { options?: { label: string; value: string }[] } = { name }
 
         for (const line of lines.slice(1)) {
           const trimmed = line.trim()
-          if (trimmed.startsWith('Description:')) {
-            prop.label = trimmed.replace('Description:', '').trim()
-          } else if (trimmed.startsWith('Value:')) {
+
+          // Parse label from "Text:" field (strip HTML tags)
+          if (trimmed.startsWith('Text:')) {
+            const rawText = trimmed.replace('Text:', '').trim()
+            // Remove HTML tags like <strong>, <em>, <br>, <a>, etc.
+            prop.label = rawText.replace(/<[^>]+>/g, '').trim()
+          }
+          // Parse value
+          else if (trimmed.startsWith('Value:')) {
             const rawValue = trimmed.replace('Value:', '').trim()
             if (typeStr === 'boolean') {
               prop.value = rawValue === '1' || rawValue === 'true'
             } else if (typeStr === 'slider') {
               prop.value = parseFloat(rawValue)
+            } else if (typeStr === 'color') {
+              // Color values are comma-separated: "0.988235, 0.870588, 0.788235"
+              const parts = rawValue.split(',').map(s => parseFloat(s.trim()))
+              if (parts.length >= 3) {
+                prop.value = {
+                  r: parts[0],
+                  g: parts[1],
+                  b: parts[2],
+                  a: parts[3] ?? 1,
+                }
+              }
             } else {
               prop.value = rawValue
             }
-          } else if (trimmed.startsWith('Minimum value:')) {
-            prop.min = parseFloat(trimmed.replace('Minimum value:', '').trim())
-          } else if (trimmed.startsWith('Maximum value:')) {
-            prop.max = parseFloat(trimmed.replace('Maximum value:', '').trim())
+          }
+          // Parse slider constraints
+          else if (trimmed.startsWith('Min:')) {
+            prop.min = parseFloat(trimmed.replace('Min:', '').trim())
+          } else if (trimmed.startsWith('Max:')) {
+            prop.max = parseFloat(trimmed.replace('Max:', '').trim())
           } else if (trimmed.startsWith('Step:')) {
             prop.step = parseFloat(trimmed.replace('Step:', '').trim())
-          } else if (trimmed.startsWith('R:')) {
-            const colorMatch = trimmed.match(/R:\s*([\d.]+)\s*G:\s*([\d.]+)\s*B:\s*([\d.]+)\s*A:\s*([\d.]+)/)
-            if (colorMatch) {
-              prop.value = {
-                r: parseFloat(colorMatch[1]),
-                g: parseFloat(colorMatch[2]),
-                b: parseFloat(colorMatch[3]),
-                a: parseFloat(colorMatch[4]),
-              }
+          }
+          // Parse combo options like "Lake = lake"
+          else if (trimmed.includes(' = ')) {
+            const optionMatch = trimmed.match(/^(.+?)\s*=\s*(.+)$/)
+            if (optionMatch) {
+              if (!prop.options) prop.options = []
+              prop.options.push({
+                label: optionMatch[1].trim(),
+                value: optionMatch[2].trim(),
+              })
             }
           }
         }
@@ -364,10 +427,12 @@ class WallpaperService {
           slider: 'slider',
           boolean: 'boolean',
           color: 'color',
+          combo: 'combolist',
           combolist: 'combolist',
         }
 
-        if (typeMap[typeStr] && prop.name && prop.label !== undefined) {
+        // Accept properties even without label, using name as fallback
+        if (typeMap[typeStr] && prop.name) {
           properties.push({
             name: prop.name,
             type: typeMap[typeStr],
@@ -389,6 +454,10 @@ class WallpaperService {
 
   async applyWallpaper(options: ApplyWallpaperOptions): Promise<{ success: boolean; error?: string }> {
     const args: string[] = []
+
+    // Get saved properties for this wallpaper and merge with passed properties
+    const savedProps = this.getWallpaperSavedProperties(options.backgroundId)
+    const mergedProperties = { ...savedProps, ...options.properties }
 
     let targetScreen = options.screen
     if (options.windowed) {
@@ -427,8 +496,9 @@ class WallpaperService {
     if (options.noFullscreenPause) args.push('--no-fullscreen-pause')
     if (options.scaling && options.scaling !== 'default') args.push('--scaling', options.scaling)
 
-    if (options.properties) {
-      for (const [key, value] of Object.entries(options.properties)) {
+    // Apply saved + passed properties
+    if (Object.keys(mergedProperties).length > 0) {
+      for (const [key, value] of Object.entries(mergedProperties)) {
         args.push('--set-property', `${key}=${value}`)
       }
     }

@@ -10,7 +10,7 @@ function InstalledPage() {
     const { data, error, isLoading } = trpc.health.useQuery()
     console.log('tRPC health query:', { data, error, isLoading })
     return (
-        <div className="p-6">
+        <div className="h-full p-6">
             <WallpaperGrid filter="installed" />
         </div>
     )
