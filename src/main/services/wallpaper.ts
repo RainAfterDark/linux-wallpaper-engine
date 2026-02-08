@@ -56,7 +56,7 @@ interface WallpaperOverridesStore {
   overrides: Record<string, WallpaperOverrides>
 }
 
-
+// TODO: simplify active wallpaper and scan/get logic 
 class WallpaperService {
   private static instance: WallpaperService | null = null
 
@@ -94,6 +94,32 @@ class WallpaperService {
     const stored = this.store.get('activeWallpapers')
     for (const [screen, options] of Object.entries(stored)) {
       this.activeWallpapers.set(screen, options)
+    }
+
+    // Check if wallpapers are actually running, reapply if not
+    this.syncAndReapply()
+  }
+
+  private async syncAndReapply(): Promise<void> {
+    if (this.activeWallpapers.size === 0) return
+
+    try {
+      const { stdout } = await execAsync('pgrep -a linux-wallpaperengine').catch(() => ({ stdout: '' }))
+      const processOutput = stdout.trim()
+
+      for (const [screen] of this.activeWallpapers.entries()) {
+        const isRunning = screen === 'default'
+          ? processOutput.length > 0 && !processOutput.includes('--screen-root')
+          : processOutput.includes(`--screen-root ${screen}`)
+
+        if (!isRunning) {
+          await this.reapplyActiveWallpapers()
+          return
+        }
+      }
+    } catch {
+      // If pgrep fails, reapply to be safe
+      await this.reapplyActiveWallpapers()
     }
   }
 

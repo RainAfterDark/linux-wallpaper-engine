@@ -4,6 +4,7 @@ import started from 'electron-squirrel-startup'
 import { createIPCHandler } from 'trpc-electron/main'
 import { createTrpcContext } from './trpc/context.ts'
 import { appRouter } from './trpc/router.ts'
+import { settingsService } from './services/settings.ts'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -64,6 +65,15 @@ app.whenReady().then(() => {
   })
 
   const mainWindow = createWindow()
+
+  mainWindow.on('close', (e) => {
+    const minimizeOnClose = settingsService.getSetting('minimizeOnClose')
+    if (minimizeOnClose) {
+      e.preventDefault()
+      mainWindow.hide()
+    }
+  })
+
   createIPCHandler({
     router: appRouter,
     windows: [mainWindow],
@@ -75,7 +85,8 @@ app.whenReady().then(() => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+  const minimizeOnClose = settingsService.getSetting('minimizeOnClose')
+  if (process.platform !== 'darwin' && !minimizeOnClose) {
     app.quit()
   }
 })

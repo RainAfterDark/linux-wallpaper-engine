@@ -23,6 +23,7 @@ export interface AppSettings {
   // App settings (not backend, managed by our app)
   theme: ThemeOption
   launchOnLogin: boolean
+  minimizeOnClose: boolean
   restoreLastWallpaper: boolean
   lastWallpaperId: string | null
   lastWallpaperScreen: string | null
@@ -51,6 +52,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   // App
   theme: 'system',
   launchOnLogin: false,
+  minimizeOnClose: false,
   restoreLastWallpaper: true,
   lastWallpaperId: null,
   lastWallpaperScreen: null,

@@ -25,6 +25,7 @@ const settingsSchema = z.object({
   // App
   theme: z.enum(['light', 'dark', 'system', 'steam']).optional(),
   launchOnLogin: z.boolean().optional(),
+  minimizeOnClose: z.boolean().optional(),
   restoreLastWallpaper: z.boolean().optional(),
   lastWallpaperId: z.string().nullable().optional(),
   lastWallpaperScreen: z.string().nullable().optional(),

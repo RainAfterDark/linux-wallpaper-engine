@@ -98,7 +98,7 @@ function SettingsPage() {
                 <SettingsSection
                     icon={Gauge}
                     title="Performance"
-                    description="FPS limits and power management"
+                    description="FPS limits and app management"
                 >
                     <SettingRow label="Maximum FPS">
                         <Select
@@ -121,6 +121,18 @@ function SettingsPage() {
                         <Switch
                             checked={settings.pauseOnFullscreen}
                             onCheckedChange={(checked) => updateSetting("pauseOnFullscreen", checked)}
+                        />
+                    </SettingRow>
+                    <SettingRow label="Launch on startup">
+                        <Switch
+                            checked={settings.launchOnLogin}
+                            onCheckedChange={(checked) => updateSetting("launchOnLogin", checked)}
+                        />
+                    </SettingRow>
+                    <SettingRow label="Minimize on close">
+                        <Switch
+                            checked={settings.minimizeOnClose}
+                            onCheckedChange={(checked) => updateSetting("minimizeOnClose", checked)}
                         />
                     </SettingRow>
                 </SettingsSection>
