@@ -21,7 +21,7 @@ export function AppShell({ children, className }: AppShellProps) {
                     <Sidebar className="z-10" />
                     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
                         {isWallpaperPage && <TopBar />}
-                        <main className={cn("min-h-0 flex-1 overflow-auto pb-4 scrollbar-thin scrollbar-track-sidebar scrollbar-thumb-border", className)}>
+                        <main className={cn("min-h-0 flex-1 overflow-auto pb-4 scrollbar-styled", className)}>
                             {children}
                         </main>
                     </div>

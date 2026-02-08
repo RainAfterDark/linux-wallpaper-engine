@@ -165,5 +165,8 @@
   body {
     @apply bg-background text-foreground;
   }
+}
 
+@utility scrollbar-styled {
+  @apply scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border/40 hover:scrollbar-thumb-border;
 }

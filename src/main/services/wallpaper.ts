@@ -7,6 +7,7 @@ import Store from 'electron-store'
 import { displayService } from './display'
 import { settingsService } from './settings'
 import { STEAM_PATHS, CACHE_TTL, type WallpaperOverrides } from '../../shared/constants'
+import { CompatibilityService } from './compatibility'
 
 const execAsync = promisify(exec)
 
@@ -80,6 +81,7 @@ class WallpaperService {
         overrides: {},
       },
     })
+    CompatibilityService.init(this.overridesStore)
     this.restoreActiveWallpapers()
   }
 
@@ -452,10 +454,11 @@ class WallpaperService {
 
       const proc = spawn('linux-wallpaperengine', args, {
         detached: true,
-        stdio: 'ignore',
+        stdio: ['ignore', 'ignore', 'pipe'],
       })
 
       proc.unref()
+      CompatibilityService.getInstance().monitorProcess(proc, options.backgroundId)
       this.runningProcesses.set(screenKey, proc)
       this.activeWallpapers.set(screenKey, options)
       this.saveActiveWallpapers()

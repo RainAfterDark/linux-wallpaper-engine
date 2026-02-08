@@ -3,6 +3,12 @@ import { trpc } from '../trpc'
 import { settingsService, type AppSettings } from '../../services/settings'
 import { wallpaperService } from '../../services/wallpaper'
 
+// Keys that affect the wallpaper backend process and require reapply
+const BACKEND_KEYS = new Set([
+  'fps', 'pauseOnFullscreen', 'volume', 'silent', 'noAutomute',
+  'audioProcessing', 'defaultScaling', 'disableMouse', 'disableParallax', 'assetsDir',
+])
+
 const settingsSchema = z.object({
   // Performance
   fps: z.number().optional(),
@@ -29,6 +35,14 @@ const settingsSchema = z.object({
   restoreLastWallpaper: z.boolean().optional(),
   lastWallpaperId: z.string().nullable().optional(),
   lastWallpaperScreen: z.string().nullable().optional(),
+  showCompatibilityDot: z.boolean().optional(),
+
+  // Persisted filter & sort preferences
+  filterType: z.enum(['all', 'scene', 'video', 'web', 'application']).optional(),
+  filterTags: z.array(z.string()).optional(),
+  filterCompatibility: z.array(z.enum(['unknown', 'broken', 'major', 'minor', 'perfect'])).optional(),
+  sortBy: z.enum(['name', 'size', 'recent']).optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
 })
 
 export const settingsRouter = trpc.router({
@@ -43,8 +57,11 @@ export const settingsRouter = trpc.router({
     .mutation(async ({ input }) => {
       const updated = await settingsService.saveSettings(input)
 
-      // Reapply active wallpapers with new settings
-      await wallpaperService.reapplyActiveWallpapers()
+      // Only reapply wallpapers if backend-relevant settings changed
+      const needsReapply = Object.keys(input).some(key => BACKEND_KEYS.has(key))
+      if (needsReapply) {
+        await wallpaperService.reapplyActiveWallpapers()
+      }
 
       return updated
     }),

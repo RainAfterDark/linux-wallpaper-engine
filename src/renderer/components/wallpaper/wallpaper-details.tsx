@@ -7,21 +7,29 @@ import {
     Square,
     Loader2,
     ChevronDown,
+    ShieldCheck,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { type Wallpaper } from "./wallpaper-card"
 import { WallpaperOverrides } from "./wallpaper-overrides"
 import { trpc } from "@/lib/trpc"
 import { formatFileSize, WALLPAPER_TYPE_LABELS } from "@/lib/utils"
 import { WallpaperThumbnail } from "./wallpaper-thumbnail"
+import { COMPATIBILITY_OPTIONS, type CompatibilityStatus } from "../../../shared/constants"
 
 interface WallpaperDetailsProps {
     wallpaper: Wallpaper
@@ -193,7 +201,61 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
                     </div>
                 </div>
 
+                {/* Compatibility */}
+                <CompatibilitySection wallpaperPath={wallpaper.path ?? ''} />
+
                 <WallpaperOverrides wallpaper={wallpaper} />
+            </div>
+        </div>
+    )
+}
+
+function CompatibilitySection({ wallpaperPath }: { wallpaperPath: string }) {
+    const utils = trpc.useUtils()
+    const { data: overrides } = trpc.wallpaper.getOverrides.useQuery(
+        { path: wallpaperPath },
+        { enabled: !!wallpaperPath },
+    )
+
+    const setCompatibility = trpc.wallpaper.setCompatibility.useMutation({
+        onSuccess: () => {
+            utils.wallpaper.getOverrides.invalidate({ path: wallpaperPath })
+            utils.wallpaper.getCompatibilityMap.invalidate()
+        },
+    })
+
+    const currentStatus: CompatibilityStatus = overrides?.compatibility ?? 'unknown'
+
+    return (
+        <div className="mt-4 border-t border-border pt-4">
+            <div className="flex items-center justify-between">
+                <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <ShieldCheck className="size-4" />
+                    Compatibility
+                </span>
+                <Select
+                    value={currentStatus}
+                    onValueChange={(value) => {
+                        setCompatibility.mutate({
+                            path: wallpaperPath,
+                            status: value as CompatibilityStatus,
+                        })
+                    }}
+                >
+                    <SelectTrigger className="w-32 h-8 text-xs">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {COMPATIBILITY_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                                <span className="flex items-center gap-2">
+                                    <span className={`size-2 rounded-full ${option.bgColor}`} />
+                                    {option.label}
+                                </span>
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
             </div>
         </div>
     )

@@ -7,6 +7,7 @@ import {
     Info,
     RotateCcw,
     Loader2,
+    ScanSearch,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
@@ -17,12 +18,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+
 import { SettingsSection } from "@/components/settings/settings-section"
 import { SettingRow } from "@/components/settings/setting-row"
 import { trpc } from "@/lib/trpc"
 import { useTheme } from "@/components/theme-provider"
 import { type AppSettings, THEME_OPTIONS, SCALING_OPTIONS, getFpsOptions } from "../../shared/constants"
-
+import { CompatibilityScanRow } from "@/components/settings/compatibility-scan-row"
 export const Route = createFileRoute("/settings")({
     component: SettingsPage,
 })
@@ -137,6 +139,15 @@ function SettingsPage() {
                     </SettingRow>
                 </SettingsSection>
 
+                {/* Compatibility Scan Section */}
+                <SettingsSection
+                    icon={ScanSearch}
+                    title="Compatibility"
+                    description="Test wallpapers for Linux compatibility"
+                >
+                    <CompatibilityScanRow />
+                </SettingsSection>
+
                 {/* Audio Section */}
                 <SettingsSection
                     icon={Volume2}
@@ -242,7 +253,15 @@ function SettingsPage() {
                             </SelectContent>
                         </Select>
                     </SettingRow>
+                    <SettingRow label="Show compatibility dot">
+                        <Switch
+                            checked={settings.showCompatibilityDot}
+                            onCheckedChange={(checked) => updateSetting("showCompatibilityDot", checked)}
+                        />
+                    </SettingRow>
+
                 </SettingsSection>
+
 
                 {/* About Section */}
                 <div className="rounded-xl border border-border bg-card p-4">
@@ -262,3 +281,4 @@ function SettingsPage() {
         </div>
     )
 }
+

@@ -14,8 +14,11 @@ interface WallpaperGridProps {
 export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
     const [selectedWallpaper, setSelectedWallpaper] =
         React.useState<Wallpaper | null>(null)
-    const { searchQuery, filterType, filterTags, sortBy, sortOrder, setAvailableTags } = useSearch()
+    const { searchQuery, filterType, filterTags, sortBy, sortOrder, setAvailableTags, filterCompatibility } = useSearch()
     const debouncedSearch = useDebounce(searchQuery, 300)
+
+    const { data: compatibilityMap } = trpc.wallpaper.getCompatibilityMap.useQuery()
+    const { data: settings } = trpc.settings.get.useQuery()
 
     const {
         data,
@@ -58,6 +61,14 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
             )
         }
 
+        // Apply compatibility filter (show only selected statuses)
+        if (filterCompatibility.length > 0 && compatibilityMap) {
+            result = result.filter(w => {
+                const status = compatibilityMap[w.path ?? ''] ?? 'unknown'
+                return filterCompatibility.includes(status)
+            })
+        }
+
         // Apply sorting
         result.sort((a, b) => {
             let comparison = 0
@@ -78,7 +89,7 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
         })
 
         return result
-    }, [data, filterType, filterTags, sortBy, sortOrder])
+    }, [data, filterType, filterTags, sortBy, sortOrder, filterCompatibility, compatibilityMap])
 
     // Extract and set available tags from raw data (before filtering)
     React.useEffect(() => {
@@ -153,6 +164,8 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
                             wallpaper={wallpaper}
                             selected={selectedWallpaper?.id === wallpaper.id}
                             onClick={setSelectedWallpaper}
+                            compatibilityStatus={compatibilityMap?.[wallpaper.path ?? '']}
+                            showCompatibilityDot={settings?.showCompatibilityDot ?? true}
                         />
                     ))}
                 </div>

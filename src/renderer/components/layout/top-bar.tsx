@@ -11,8 +11,9 @@ import {
     DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
-import { FiltersDropdown } from "./filters-dropdown"
+import { FiltersDropdown } from "../wallpaper/filters-dropdown"
 
+// TODO: Move to wallpaper grid
 export function TopBar() {
     const {
         searchQuery,

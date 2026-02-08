@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { trpc } from '../trpc'
 import { wallpaperService, type ApplyWallpaperOptions } from '../../services/wallpaper'
 import { settingsService } from '../../services/settings'
+import { CompatibilityService } from '../../services/compatibility'
 
 export const wallpaperRouter = trpc.router({
   // Check if linux-wallpaperengine is installed
@@ -126,5 +127,51 @@ export const wallpaperRouter = trpc.router({
       await wallpaperService.resetWallpaperOverrides(input.path)
       return { success: true }
     }),
+
+  // Set wallpaper compatibility status (manual user tag)
+  setCompatibility: trpc.procedure
+    .input(
+      z.object({
+        path: z.string(),
+        status: z.enum(['unknown', 'broken', 'major', 'minor', 'perfect']),
+      }),
+    )
+    .mutation(({ input }) => {
+      CompatibilityService.getInstance().setCompatibility(input.path, input.status)
+      return { success: true }
+    }),
+
+  // Get compatibility map for all wallpapers
+  getCompatibilityMap: trpc.procedure.query(() => {
+    return CompatibilityService.getInstance().getCompatibilityMap()
+  }),
+
+  // Start bulk compatibility scan
+  scanAll: trpc.procedure.mutation(async () => {
+    const wallpapers = await wallpaperService.getWallpapers()
+    return CompatibilityService.getInstance().scanAll(wallpapers)
+  }),
+
+  // Get scan progress (for polling)
+  getScanProgress: trpc.procedure.query(() => {
+    return CompatibilityService.getInstance().getScanProgress()
+  }),
+
+  // Get scan results report (joined with wallpaper titles)
+  getScanReport: trpc.procedure.query(async () => {
+    const report = CompatibilityService.getInstance().getScanReport()
+    const wallpapers = await wallpaperService.getWallpapers()
+    const titleMap = new Map(wallpapers.map(w => [w.path, w.title]))
+    return report.map(entry => ({
+      ...entry,
+      title: titleMap.get(entry.path) ?? entry.path.split('/').pop() ?? entry.path,
+    }))
+  }),
+
+  // Abort running scan
+  abortScan: trpc.procedure.mutation(() => {
+    CompatibilityService.getInstance().abortScan()
+    return { success: true }
+  }),
 
 })

@@ -2,7 +2,9 @@ import * as React from "react"
 import { Play, Download, Star, MoreHorizontal } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { WallpaperThumbnail } from "./wallpaper-thumbnail"
+import { COMPATIBILITY_CONFIG, type CompatibilityStatus } from "../../../shared/constants"
 
 export interface Wallpaper {
     id: string
@@ -24,6 +26,8 @@ interface WallpaperCardProps {
     wallpaper: Wallpaper
     onClick?: (wallpaper: Wallpaper) => void
     selected?: boolean
+    compatibilityStatus?: CompatibilityStatus
+    showCompatibilityDot?: boolean
 }
 
 
@@ -31,6 +35,8 @@ export function WallpaperCard({
     wallpaper,
     onClick,
     selected,
+    compatibilityStatus,
+    showCompatibilityDot = true,
 }: WallpaperCardProps) {
 
     return (
@@ -50,6 +56,19 @@ export function WallpaperCard({
             >
                 {/* Gradient overlay at bottom */}
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-card via-card/20 to-transparent" />
+                {showCompatibilityDot && compatibilityStatus && compatibilityStatus !== 'unknown' && (
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className={cn(
+                                "absolute top-2 right-2 size-2.5 rounded-full ring-1 ring-black/20",
+                                COMPATIBILITY_CONFIG[compatibilityStatus].bgColor
+                            )} />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="text-xs">
+                            {COMPATIBILITY_CONFIG[compatibilityStatus].label}
+                        </TooltipContent>
+                    </Tooltip>
+                )}
             </WallpaperThumbnail>
 
             <div className="px-2.5 pb-2 pt-1">
