@@ -52,7 +52,7 @@
 }
 
 /* Hard light theme */
-.light-alt {
+.hard-light {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -149,8 +149,8 @@
   --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.55 0.17 25);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.42 0.06 242);
-  --input: oklch(0.38 0.06 242);
+  --border: oklch(45.923% 0.06629 243.152);
+  --input: oklch(45.923% 0.06629 243.152);
   --ring: oklch(0.77 0.12 235);
   --radius: 0.25rem;
   --sidebar: oklch(0.20 0.03 247);
