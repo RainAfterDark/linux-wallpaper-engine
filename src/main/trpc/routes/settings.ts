@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { trpc } from '../trpc'
 import { settingsService, type AppSettings } from '../../services/settings'
 import { wallpaperService } from '../../services/wallpaper'
+import { THEME_OPTIONS, SCALING_OPTIONS, type ThemeOption, type ScalingOption } from '../../../shared/constants'
 
 // Keys that affect the wallpaper backend process and require reapply
 const BACKEND_KEYS = new Set([
@@ -21,7 +22,7 @@ const settingsSchema = z.object({
   audioProcessing: z.boolean().optional(),
 
   // Display
-  defaultScaling: z.enum(['default', 'stretch', 'fit', 'fill']).optional(),
+  defaultScaling: z.enum(SCALING_OPTIONS.map(o => o.value) as [ScalingOption, ...ScalingOption[]]).optional(),
   disableMouse: z.boolean().optional(),
   disableParallax: z.boolean().optional(),
 
@@ -29,7 +30,7 @@ const settingsSchema = z.object({
   assetsDir: z.string().nullable().optional(),
 
   // App
-  theme: z.enum(['light', 'light-alt', 'dark', 'system', 'steam']).optional(),
+  theme: z.enum(THEME_OPTIONS.map(o => o.value) as [ThemeOption, ...ThemeOption[]]).optional(),
   launchOnLogin: z.boolean().optional(),
   minimizeOnClose: z.boolean().optional(),
   restoreLastWallpaper: z.boolean().optional(),
