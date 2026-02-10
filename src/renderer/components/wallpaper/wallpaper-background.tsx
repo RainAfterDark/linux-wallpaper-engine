@@ -1,16 +1,18 @@
 import { useWallpaperBackground } from "@/contexts/wallpaper-background-context"
+import { useStaticFrame } from "@/hooks/use-static-frame"
 import { AnimatePresence, motion } from "framer-motion"
 
 export function WallpaperBackground() {
   const { backgroundUrl } = useWallpaperBackground()
+  const staticUrl = useStaticFrame(backgroundUrl)
 
   return (
     <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
       <AnimatePresence mode="popLayout">
-        {backgroundUrl && (
+        {staticUrl && (
           <motion.img
-            key={backgroundUrl}
-            src={backgroundUrl}
+            key={staticUrl}
+            src={staticUrl}
             alt=""
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.4 }}

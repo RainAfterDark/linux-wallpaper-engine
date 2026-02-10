@@ -48,7 +48,7 @@ function DisplaysPage() {
 
     if (isLoading) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground glass">
                 <Loader2 className="size-8 animate-spin mb-4" />
                 <p>Detecting displays...</p>
             </div>
@@ -57,7 +57,7 @@ function DisplaysPage() {
 
     if (error) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 text-destructive">
+            <div className="flex flex-col items-center justify-center py-20 text-destructive glass">
                 <AlertCircle className="size-8 mb-4" />
                 <p className="font-medium">Failed to detect displays</p>
                 <p className="text-sm text-muted-foreground mt-1">{error.message}</p>
@@ -67,7 +67,7 @@ function DisplaysPage() {
 
     return (
         <div className="p-6">
-            <div className="mb-6 flex items-start justify-between">
+            <div className="mb-6 flex items-start justify-between ">
                 <div>
                     <h1 className="text-2xl font-bold">Displays</h1>
                     <p className="text-muted-foreground">
@@ -81,7 +81,7 @@ function DisplaysPage() {
                 </div>
             </div>
 
-            <div id="onboarding-display-layout" className="mb-8 rounded-xl border border-border bg-card p-6">
+            <div id="onboarding-display-layout" className="mb-8 rounded-xl border border-border bg-card p-6 glass">
                 <h2 className="mb-4 text-sm font-medium text-muted-foreground">
                     Monitor Layout
                 </h2>
@@ -126,7 +126,7 @@ function DisplaysPage() {
                 {monitors.map((monitor) => (
                     <div
                         key={monitor.id}
-                        className="flex items-center justify-between rounded-lg border border-border bg-card p-4"
+                        className="flex items-center justify-between rounded-lg border border-border bg-card p-4 glass"
                     >
                         <div className="flex items-center gap-4">
                             <div className="flex size-10 items-center justify-center rounded-lg bg-secondary">

@@ -55,7 +55,7 @@ export function WallpaperCard({
                 enableHover={true}
             >
                 {/* Gradient overlay at bottom */}
-                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-card via-card/20 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background via-background/20 to-transparent" />
                 {showCompatibilityDot && compatibilityStatus && compatibilityStatus !== 'unknown' && (
                     <Tooltip>
                         <TooltipTrigger asChild>

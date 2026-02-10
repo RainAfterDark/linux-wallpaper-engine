@@ -89,6 +89,7 @@ function SettingsPage() {
                     size="sm"
                     onClick={() => resetMutation.mutate()}
                     disabled={resetMutation.isPending}
+                    className="bg-background"
                 >
                     <RotateCcw className="size-4 mr-2" />
                     Reset to Defaults
@@ -275,7 +276,7 @@ function SettingsPage() {
 
 
                 {/* About Section */}
-                <div className="rounded-xl border border-border bg-card p-4">
+                <div className="rounded-xl border border-border bg-card p-4 glass">
                     <div className="flex items-center gap-3">
                         <div className="flex size-9 items-center justify-center rounded-lg bg-secondary">
                             <Info className="size-4 text-muted-foreground" />
@@ -291,7 +292,7 @@ function SettingsPage() {
                             size="sm"
                             onClick={() => updateSetting("onboardingComplete", false)}
                         >
-                            Restart Tour
+                            Tutorial
                         </Button>
                     </div>
                 </div>

@@ -63,7 +63,7 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
     }
 
     return (
-        <div id="wallpaper-details" className="sticky top-0 max-h-[85vh] w-80 shrink-0 overflow-y-auto rounded-xl border border-border bg-card scrollbar-thin ">
+        <div id="wallpaper-details" className="sticky top-0 max-h-[85vh] w-80 shrink-0 overflow-y-auto rounded-xl border border-border bg-card glass scrollbar-thin ">
             {/* Preview */}
             <WallpaperThumbnail
                 src={wallpaper.thumbnail}

@@ -13,6 +13,7 @@ export function RefreshButton({ onClick, isLoading = false }: RefreshButtonProps
             size="sm"
             onClick={onClick}
             disabled={isLoading}
+            className="bg-background"
         >
             <RefreshCw className={`size-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh

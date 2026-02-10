@@ -10,7 +10,7 @@ interface SettingsSectionProps {
 
 export function SettingsSection({ id, icon: Icon, title, description, children }: SettingsSectionProps) {
     return (
-        <div id={id} className="rounded-xl border border-border bg-card">
+        <div id={id} className="rounded-xl border border-border bg-card glass">
             <div className="flex items-center gap-3 border-b border-border p-4">
                 <div className="flex size-9 items-center justify-center rounded-lg bg-secondary">
                     <Icon className="size-4 text-muted-foreground" />

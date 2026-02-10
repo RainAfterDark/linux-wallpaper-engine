@@ -1,4 +1,4 @@
-import { ChevronDown, RotateCcw } from "lucide-react"
+import { ChevronDown, RotateCcw, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import {
@@ -83,7 +83,7 @@ export function WallpaperOverrides({ wallpaper }: WallpaperOverridesProps) {
     return (
         <Collapsible className="mt-4 border-t border-border pt-4">
             <CollapsibleTrigger className="flex w-full items-center justify-between text-sm font-medium [&[data-state=open]>svg]:rotate-180">
-                <span>Per-Wallpaper Settings</span>
+                <span className="flex items-center gap-1.5"><Settings className="size-3.5" />Settings</span>
                 <ChevronDown className="size-4 text-muted-foreground transition-transform" />
             </CollapsibleTrigger>
 
