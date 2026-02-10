@@ -7,6 +7,7 @@ import { SidebarProvider } from "@/components/ui/sidebar"
 import { useRouterState } from "@tanstack/react-router"
 import { trpc } from "@/lib/trpc"
 import { OnboardingWrapper } from "@/components/onboarding/onboarding-provider"
+import { WallpaperBackground } from "@/components/wallpaper/wallpaper-background"
 
 interface AppShellProps {
     children: React.ReactNode
@@ -20,8 +21,9 @@ export function AppShell({ children, className }: AppShellProps) {
     return (
         <OnboardingWrapper>
             <SidebarProvider defaultOpen={false}>
-                <div className="flex h-screen w-full flex-col overflow-hidden bg-background">
-                    <div className="flex min-h-0 flex-1">
+                <div className="relative flex h-screen w-full flex-col overflow-hidden bg-background">
+                    <WallpaperBackground />
+                    <div className="relative z-10 flex min-h-0 flex-1">
                         <Sidebar className="z-10" />
                         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
                             {isWallpaperPage && <TopBar />}
