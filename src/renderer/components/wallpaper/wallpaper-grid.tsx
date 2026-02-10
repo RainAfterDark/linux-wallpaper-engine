@@ -17,7 +17,7 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
         React.useState<Wallpaper | null>(null)
     const { searchQuery, filterType, filterTags, sortBy, sortOrder, setAvailableTags, filterCompatibility } = useSearch()
     const debouncedSearch = useDebounce(searchQuery, 300)
-    const { setActiveUrl, setSelectedUrl } = useWallpaperBackground()
+    const { setSelectedUrl } = useWallpaperBackground()
 
     const { data: compatibilityMap } = trpc.wallpaper.getCompatibilityMap.useQuery()
     const { data: settings } = trpc.settings.get.useQuery()
@@ -98,12 +98,6 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
         setSelectedUrl(selectedWallpaper?.thumbnail ?? null)
     }, [selectedWallpaper, setSelectedUrl])
 
-    // Set the active wallpaper (currently applied) as the default background
-    const { data: activeWallpapers } = trpc.wallpaper.getActiveWallpaper.useQuery()
-    React.useEffect(() => {
-        const active = activeWallpapers?.[0]
-        setActiveUrl(active?.thumbnail ? `local-file://${active.thumbnail}` : null)
-    }, [activeWallpapers, setActiveUrl])
 
     // Extract and set available tags from raw data (before filtering)
     React.useEffect(() => {

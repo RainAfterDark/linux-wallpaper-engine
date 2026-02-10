@@ -1,25 +1,32 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react"
+import { trpc } from "@/lib/trpc"
 
 interface WallpaperBackgroundState {
   backgroundUrl: string | null
-  setActiveUrl: (url: string | null) => void
   setSelectedUrl: (url: string | null) => void
 }
 
 const WallpaperBackgroundContext = createContext<WallpaperBackgroundState>({
   backgroundUrl: null,
-  setActiveUrl: () => null,
   setSelectedUrl: () => null,
 })
 
 export function WallpaperBackgroundProvider({ children }: { children: ReactNode }) {
-  const [activeUrl, setActiveUrl] = useState<string | null>(null)
   const [selectedUrl, setSelectedUrl] = useState<string | null>(null)
+
+  const { data: activeWallpapers } = trpc.wallpaper.getActiveWallpaper.useQuery(undefined, {
+    refetchInterval: 5000,
+  })
+
+  const activeUrl = useMemo(() => {
+    const active = activeWallpapers?.[0]
+    return active?.thumbnail ? `local-file://${active.thumbnail}` : null
+  }, [activeWallpapers])
 
   const backgroundUrl = useMemo(() => selectedUrl ?? activeUrl, [selectedUrl, activeUrl])
 
   return (
-    <WallpaperBackgroundContext.Provider value={{ backgroundUrl, setActiveUrl, setSelectedUrl }}>
+    <WallpaperBackgroundContext.Provider value={{ backgroundUrl, setSelectedUrl }}>
       {children}
     </WallpaperBackgroundContext.Provider>
   )
