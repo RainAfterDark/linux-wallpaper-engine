@@ -1,4 +1,5 @@
-// Shared constants used across main and renderer processes
+import { ThemeOption } from "../renderer/styles/themes"
+
 
 // Scaling options for display
 export const SCALING_OPTIONS = [
@@ -9,13 +10,6 @@ export const SCALING_OPTIONS = [
 ] as const
 export type ScalingOption = typeof SCALING_OPTIONS[number]['value']
 
-export const THEME_OPTIONS = [
-  { label: 'System', value: 'system' },
-  { label: 'Light', value: 'light' },
-  { label: 'Dark', value: 'dark' },
-  { label: 'Steam', value: 'steam' },
-] as const
-export type ThemeOption = typeof THEME_OPTIONS[number]['value']
 
 // Wallpaper compatibility status
 export const COMPATIBILITY_OPTIONS = [

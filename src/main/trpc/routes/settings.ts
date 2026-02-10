@@ -29,7 +29,7 @@ const settingsSchema = z.object({
   assetsDir: z.string().nullable().optional(),
 
   // App
-  theme: z.enum(['light', 'dark', 'system', 'steam']).optional(),
+  theme: z.enum(['light', 'light-alt', 'dark', 'system', 'steam']).optional(),
   launchOnLogin: z.boolean().optional(),
   minimizeOnClose: z.boolean().optional(),
   restoreLastWallpaper: z.boolean().optional(),

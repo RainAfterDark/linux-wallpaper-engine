@@ -23,8 +23,9 @@ import { SettingsSection } from "@/components/settings/settings-section"
 import { SettingRow } from "@/components/settings/setting-row"
 import { trpc } from "@/lib/trpc"
 import { useTheme } from "@/components/theme-provider"
-import { type AppSettings, THEME_OPTIONS, SCALING_OPTIONS, getFpsOptions } from "../../shared/constants"
+import { type AppSettings, SCALING_OPTIONS, getFpsOptions } from "../../shared/constants"
 import { CompatibilityScanRow } from "@/components/settings/compatibility-scan-row"
+import { THEME_OPTIONS } from "@/styles/themes"
 export const Route = createFileRoute("/settings")({
     component: SettingsPage,
 })
