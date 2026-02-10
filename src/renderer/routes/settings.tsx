@@ -271,6 +271,12 @@ function SettingsPage() {
                             onCheckedChange={(checked) => updateSetting("showStatusBar", checked)}
                         />
                     </SettingRow>
+                    <SettingRow label="Dynamic background">
+                        <Switch
+                            checked={settings.dynamicBackground}
+                            onCheckedChange={(checked) => updateSetting("dynamicBackground", checked)}
+                        />
+                    </SettingRow>
 
                 </SettingsSection>
 

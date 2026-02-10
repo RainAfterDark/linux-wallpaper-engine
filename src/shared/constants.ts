@@ -67,6 +67,7 @@ export interface AppSettings {
   lastWallpaperScreen: string | null
   showCompatibilityDot: boolean
   showStatusBar: boolean
+  dynamicBackground: boolean
   onboardingComplete: boolean
   dismissedScanReminder: boolean
 
@@ -107,6 +108,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   lastWallpaperScreen: null,
   showCompatibilityDot: true,
   showStatusBar: false,
+  dynamicBackground: true,
   onboardingComplete: false,
   dismissedScanReminder: false,
 

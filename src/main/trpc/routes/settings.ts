@@ -38,6 +38,7 @@ const settingsSchema = z.object({
   lastWallpaperScreen: z.string().nullable().optional(),
   showCompatibilityDot: z.boolean().optional(),
   showStatusBar: z.boolean().optional(),
+  dynamicBackground: z.boolean().optional(),
   onboardingComplete: z.boolean().optional(),
   dismissedScanReminder: z.boolean().optional(),
 
@@ -72,7 +73,14 @@ export const settingsRouter = trpc.router({
 
   // Reset to defaults
   reset: trpc.procedure.mutation(async () => {
+    const current = await settingsService.loadSettings()
     const reset = await settingsService.resetSettings()
+
+    // Preserve non-resettable flags
+    await settingsService.saveSettings({
+      onboardingComplete: current.onboardingComplete,
+      dismissedScanReminder: current.dismissedScanReminder,
+    })
 
     // Reapply active wallpapers with default settings
     await wallpaperService.reapplyActiveWallpapers()
