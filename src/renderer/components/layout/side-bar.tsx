@@ -1,7 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router"
 import {
     Download,
-    ListMusic,
     Monitor,
     Settings,
 } from "lucide-react"
@@ -22,7 +21,7 @@ import { cn } from "@/lib/utils"
 
 const navItems = [
     { to: "/", icon: Download, label: "Installed" },
-    // { to: "/playlists", icon: ListMusic, label: "Playlists" },
+    // { to: "/playlists", icon: ListMusic, label: "Playlists" }, //todo add playlists
     { to: "/displays", icon: Monitor, label: "Displays" },
     { to: "/settings", icon: Settings, label: "Settings" },
 ] as const
@@ -37,8 +36,8 @@ export function Sidebar({ className }: SidebarProps) {
 
     return (
         <SidebarPrimitive collapsible="icon" className={cn("", className)}>
-            <SidebarHeader>
-                <div className="flex h-14 -mt-[10px] items-center gap-3 px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+            <SidebarHeader className="gap-0 p-0">
+                <div className="flex h-12 items-center justify-center border-b border-border/65 px-2 group-data-[collapsible=icon]:px-0">
                     <div className="flex items-center justify-center shrink-0 rounded-md p-1">
                         <img
                             src={logoImage}
@@ -47,13 +46,12 @@ export function Sidebar({ className }: SidebarProps) {
                         />
                     </div>
                 </div>
-                <Separator className="-mt-[7.511px] w-full p-0" />
             </SidebarHeader>
 
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarGroupContent>
-                        <SidebarMenu>
+                        <SidebarMenu id="onboarding-sidebar-nav">
                             {navItems.map((item) => {
                                 const isActive = currentPath === item.to
                                 return (
@@ -80,7 +78,6 @@ export function Sidebar({ className }: SidebarProps) {
                     </div>
                 </div>
             </SidebarFooter>
-            {/* <SidebarRail /> */}
         </SidebarPrimitive>
     )
 }

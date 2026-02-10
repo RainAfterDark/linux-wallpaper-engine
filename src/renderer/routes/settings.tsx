@@ -77,7 +77,7 @@ function SettingsPage() {
 
     return (
         <div className="p-6 max-h-[100vh]">
-            <div className="mb-6 flex items-center justify-between">
+            <div id="onboarding-settings-page" className="mb-6 flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold">Settings</h1>
                     <p className="text-muted-foreground">
@@ -98,6 +98,7 @@ function SettingsPage() {
             <div className="space-y-6">
                 {/* Performance Section */}
                 <SettingsSection
+                    id="onboarding-performance"
                     icon={Gauge}
                     title="Performance"
                     description="FPS limits and app management"
@@ -141,6 +142,7 @@ function SettingsPage() {
 
                 {/* Compatibility Scan Section */}
                 <SettingsSection
+                    id="onboarding-compatibility-scan"
                     icon={ScanSearch}
                     title="Compatibility"
                     description="Test wallpapers for Linux compatibility"
@@ -150,6 +152,7 @@ function SettingsPage() {
 
                 {/* Audio Section */}
                 <SettingsSection
+                    id="onboarding-audio"
                     icon={Volume2}
                     title="Audio"
                     description="Volume and audio processing"
@@ -191,6 +194,7 @@ function SettingsPage() {
 
                 {/* Display Section */}
                 <SettingsSection
+                    id="onboarding-display"
                     icon={Monitor}
                     title="Display"
                     description="Default display behavior"
@@ -228,6 +232,7 @@ function SettingsPage() {
 
                 {/* Appearance Section */}
                 <SettingsSection
+                    id="onboarding-appearance"
                     icon={Palette}
                     title="Appearance"
                     description="Theme and visual preferences"
@@ -259,6 +264,12 @@ function SettingsPage() {
                             onCheckedChange={(checked) => updateSetting("showCompatibilityDot", checked)}
                         />
                     </SettingRow>
+                    <SettingRow label="Show status bar">
+                        <Switch
+                            checked={settings.showStatusBar}
+                            onCheckedChange={(checked) => updateSetting("showStatusBar", checked)}
+                        />
+                    </SettingRow>
 
                 </SettingsSection>
 
@@ -275,6 +286,13 @@ function SettingsPage() {
                                 Linux Wallpaper Engine UI v1.0.0
                             </p>
                         </div>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => updateSetting("onboardingComplete", false)}
+                        >
+                            Restart Tour
+                        </Button>
                     </div>
                 </div>
             </div>

@@ -41,6 +41,8 @@
   --sidebar-ring: oklch(0.708 0 0);
   --success: oklch(0.7 0.2 145);
   --success-foreground: oklch(1 0 0);
+  --warning: oklch(0.75 0.18 75);
+  --warning-foreground: oklch(1 0 0);
 }
 
 /* Default dark theme */
@@ -79,6 +81,8 @@
   --sidebar-ring: oklch(0.439 0 0);
   --success: oklch(0.7 0.2 145);
   --success-foreground: oklch(1 0 0);
+  --warning: oklch(0.75 0.18 75);
+  --warning-foreground: oklch(1 0 0);
 }
 
 /* Steam/Wallpaper Engine inspired theme */
@@ -113,6 +117,8 @@
   --sidebar-ring: oklch(0.77 0.12 235);
   --success: oklch(0.66 0.15 135);
   --success-foreground: oklch(1 0 0);
+  --warning: oklch(0.75 0.15 80);
+  --warning-foreground: oklch(1 0 0);
   --search-bg: oklch(0.47 0.08 240);
 }
 
@@ -143,6 +149,8 @@
   --color-chart-5: var(--chart-5);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --radius-sm: calc(var(--radius) - 2px);
   --radius-md: var(--radius);
   --radius-lg: calc(var(--radius) + 2px);

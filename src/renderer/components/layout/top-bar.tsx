@@ -35,7 +35,7 @@ export function TopBar() {
     }
 
     return (
-        <header className="relative flex h-12 items-center justify-between border-b border-border/50 bg-gradient-to-r from-background via-background to-background/95 px-4 backdrop-blur-xl">
+        <header id="onboarding-topbar" className="relative flex h-12 items-center justify-between border-b border-border/50 bg-gradient-to-r from-background via-background to-background/95 px-4 backdrop-blur-xl">
             {/* Subtle top highlight */}
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" />
 

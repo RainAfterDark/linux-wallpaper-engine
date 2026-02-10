@@ -153,6 +153,7 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
 
             <div className="flex items-start gap-6 flex-1">
                 <div
+                    id="onboarding-wallpaper-grid"
                     className={`grid flex-1 gap-4 h-fit ${selectedWallpaper
                         ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
                         : "grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"

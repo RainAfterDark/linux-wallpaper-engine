@@ -36,6 +36,9 @@ const settingsSchema = z.object({
   lastWallpaperId: z.string().nullable().optional(),
   lastWallpaperScreen: z.string().nullable().optional(),
   showCompatibilityDot: z.boolean().optional(),
+  showStatusBar: z.boolean().optional(),
+  onboardingComplete: z.boolean().optional(),
+  dismissedScanReminder: z.boolean().optional(),
 
   // Persisted filter & sort preferences
   filterType: z.enum(['all', 'scene', 'video', 'web', 'application']).optional(),

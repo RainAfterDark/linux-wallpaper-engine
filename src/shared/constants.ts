@@ -65,6 +65,9 @@ export interface AppSettings {
   lastWallpaperId: string | null
   lastWallpaperScreen: string | null
   showCompatibilityDot: boolean
+  showStatusBar: boolean
+  onboardingComplete: boolean
+  dismissedScanReminder: boolean
 
   // Persisted filter & sort preferences
   filterType: WallpaperFilterType
@@ -102,6 +105,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
   lastWallpaperId: null,
   lastWallpaperScreen: null,
   showCompatibilityDot: true,
+  showStatusBar: false,
+  onboardingComplete: false,
+  dismissedScanReminder: false,
 
   // Filters & sort
   filterType: 'all',
