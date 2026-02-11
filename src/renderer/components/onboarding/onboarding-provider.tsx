@@ -34,11 +34,13 @@ function OnboardingTourStarter({ children }: { children: React.ReactNode }) {
         return () => clearTimeout(timer)
     }, [shouldStart, pathname])
 
-    // Reset when settings change (e.g. user clicked "Restart Tour")
+    // Reset when user clicks "Restart Tour" (onboardingComplete transitions true → false)
+    const prevOnboardingComplete = useRef(settings?.onboardingComplete)
     useEffect(() => {
-        if (settings?.onboardingComplete) {
+        if (prevOnboardingComplete.current === true && settings?.onboardingComplete === false) {
             hasStarted.current = false
         }
+        prevOnboardingComplete.current = settings?.onboardingComplete
     }, [settings?.onboardingComplete])
 
     return (

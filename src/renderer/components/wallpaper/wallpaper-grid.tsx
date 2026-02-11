@@ -1,4 +1,5 @@
 import * as React from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { WallpaperCard, type Wallpaper } from "./wallpaper-card"
 import { WallpaperDetails } from "./wallpaper-details"
 import { RefreshButton } from "./refresh-button"
@@ -114,28 +115,43 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
     // Loading state
     if (isLoading) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+            <motion.div
+                className="flex flex-col items-center justify-center py-20 text-muted-foreground"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+            >
                 <Loader2 className="size-8 animate-spin mb-4" />
                 <p>Scanning for wallpapers...</p>
-            </div>
+            </motion.div>
         )
     }
 
     // Error state
     if (error) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 text-destructive">
+            <motion.div
+                className="flex flex-col items-center justify-center py-20 text-destructive"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+            >
                 <AlertCircle className="size-8 mb-4" />
                 <p className="font-medium">Failed to load wallpapers</p>
                 <p className="text-sm text-muted-foreground mt-1">{error.message}</p>
-            </div>
+            </motion.div>
         )
     }
 
     // Empty state
     if (wallpapers.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+            <motion.div
+                className="flex flex-col items-center justify-center py-20 text-muted-foreground"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+            >
                 <FolderOpen className="size-12 mb-4 opacity-50" />
                 <p className="font-medium">No wallpapers found</p>
                 <p className="text-sm mt-1">
@@ -143,7 +159,7 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
                         ? "Try a different search term"
                         : "Install wallpapers from Steam Workshop via Wallpaper Engine"}
                 </p>
-            </div>
+            </motion.div>
         )
     }
 
@@ -179,12 +195,23 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
                     ))}
                 </div>
 
-                {selectedWallpaper && (
-                    <WallpaperDetails
-                        wallpaper={selectedWallpaper}
-                        onClose={() => setSelectedWallpaper(null)}
-                    />
-                )}
+                <AnimatePresence mode="wait">
+                    {selectedWallpaper && (
+                        <motion.div
+                            key={selectedWallpaper.id}
+                            className="sticky top-0"
+                            initial={{ opacity: 0, x: -40 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -40 }}
+                            transition={{ duration: 0.3, ease: "easeOut" }}
+                        >
+                            <WallpaperDetails
+                                wallpaper={selectedWallpaper}
+                                onClose={() => setSelectedWallpaper(null)}
+                            />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
 
         </div>
