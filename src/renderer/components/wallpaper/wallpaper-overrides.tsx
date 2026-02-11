@@ -83,7 +83,7 @@ export function WallpaperOverrides({ wallpaper }: WallpaperOverridesProps) {
     return (
         <Collapsible className="mt-4 border-t border-border pt-4">
             <CollapsibleTrigger className="flex w-full items-center justify-between text-sm font-medium [&[data-state=open]>svg]:rotate-180">
-                <span className="flex items-center gap-1.5"><Settings className="size-3.5" />Settings</span>
+                <span className="flex items-center gap-2 text-muted-foreground"><Settings className="size-4" />Settings</span>
                 <ChevronDown className="size-4 text-muted-foreground transition-transform" />
             </CollapsibleTrigger>
 
