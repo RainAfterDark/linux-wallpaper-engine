@@ -27,9 +27,9 @@ import {
 import { type Wallpaper } from "./wallpaper-card"
 import { WallpaperOverrides } from "./wallpaper-overrides"
 import { trpc } from "@/lib/trpc"
-import { formatFileSize, WALLPAPER_TYPE_LABELS } from "@/lib/utils"
+import { formatFileSize } from "@/lib/utils"
 import { WallpaperThumbnail } from "./wallpaper-thumbnail"
-import { COMPATIBILITY_OPTIONS, type CompatibilityStatus } from "../../../shared/constants"
+import { COMPATIBILITY_OPTIONS, type CompatibilityStatus, WALLPAPER_TYPE_LABELS } from "../../../shared/constants"
 
 interface WallpaperDetailsProps {
     wallpaper: Wallpaper

@@ -33,8 +33,19 @@ export const COMPATIBILITY_CONFIG = Object.fromEntries(
   COMPATIBILITY_OPTIONS.map(opt => [opt.value, opt])
 ) as Record<CompatibilityStatus, typeof COMPATIBILITY_OPTIONS[number]>
 
+
+// Wallpaper type labels for display
+export const WALLPAPER_TYPE_LABELS = {
+  scene: "Scene",
+  video: "Video",
+  web: "Web",
+  application: "Application",
+} as const
+
+export type WallpaperType = keyof typeof WALLPAPER_TYPE_LABELS
+
 // Filter & sort types
-export type WallpaperFilterType = 'all' | 'scene' | 'video' | 'web' | 'application'
+export type WallpaperFilterType = 'all' | WallpaperType
 export type SortBy = 'name' | 'size' | 'recent'
 export type SortOrder = 'asc' | 'desc'
 

@@ -1,7 +1,4 @@
-import * as React from "react"
-import { Play, Download, Star, MoreHorizontal } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { WallpaperThumbnail } from "./wallpaper-thumbnail"
 import { COMPATIBILITY_CONFIG, type CompatibilityStatus } from "../../../shared/constants"

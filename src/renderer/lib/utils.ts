@@ -12,12 +12,3 @@ export function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`
 }
 
-// Wallpaper type labels for display
-export const WALLPAPER_TYPE_LABELS = {
-  scene: "Scene",
-  video: "Video",
-  web: "Web",
-  application: "Application",
-} as const
-
-export type WallpaperType = keyof typeof WALLPAPER_TYPE_LABELS
