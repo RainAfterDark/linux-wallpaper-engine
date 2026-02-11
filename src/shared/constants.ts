@@ -46,8 +46,19 @@ export type WallpaperType = keyof typeof WALLPAPER_TYPE_LABELS
 
 // Filter & sort types
 export type WallpaperFilterType = 'all' | WallpaperType
-export type SortBy = 'name' | 'size' | 'recent'
-export type SortOrder = 'asc' | 'desc'
+
+export const SORT_OPTIONS = [
+  { label: 'Name', value: 'name' },
+  { label: 'Size', value: 'size' },
+  { label: 'Recent', value: 'recent' },
+] as const
+export type SortBy = typeof SORT_OPTIONS[number]['value']
+
+export const SORT_ORDER_OPTIONS = [
+  { label: 'Ascending', value: 'asc' },
+  { label: 'Descending', value: 'desc' },
+] as const
+export type SortOrder = typeof SORT_ORDER_OPTIONS[number]['value']
 
 export interface AppSettings {
   // Performance settings (backend supported)
