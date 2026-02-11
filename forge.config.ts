@@ -16,11 +16,11 @@ const config: ForgeConfig = {
   makers: [
     new MakerSquirrel({}),
     new MakerZIP({}, ['darwin']),
-    new MakerRpm({
-      options: {
-        icon: './assests/transperent-logo.png',
-      },
-    }),
+    // new MakerRpm({
+    //   options: {
+    //     icon: './assests/transperent-logo.png',
+    //   },
+    // }),
     new MakerDeb({
       options: {
         icon: './assests/transperent-logo.png',
