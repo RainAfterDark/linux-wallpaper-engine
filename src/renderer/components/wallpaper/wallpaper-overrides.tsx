@@ -17,7 +17,7 @@ import { type WallpaperOverrides, SCALING_OPTIONS } from "../../../shared/consta
 interface WallpaperOverridesProps {
     wallpaper: Wallpaper
 }
-
+// TODO: make it dynamic for a given wallpaper
 export function WallpaperOverrides({ wallpaper }: WallpaperOverridesProps) {
     const utils = trpc.useUtils()
 
