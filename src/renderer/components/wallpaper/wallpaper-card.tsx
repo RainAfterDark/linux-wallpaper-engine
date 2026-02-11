@@ -42,7 +42,7 @@ export function WallpaperCard({
     return (
         <div
             className={cn(
-                "group relative overflow-hidden rounded-xl border bg-card transition-all duration-200 cursor-pointer",
+                "group relative overflow-hidden rounded-xl border bg-card transition-all duration-200 cursor-pointer glass",
                 selected
                     ? "border-primary ring-2 ring-primary/20"
                     : "border-border hover:border-ring/50 hover:shadow-lg"
@@ -55,7 +55,15 @@ export function WallpaperCard({
                 enableHover={true}
             >
                 {/* Gradient overlay at bottom */}
-                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-card via-card/20 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-card via-card/60 to-transparent" />
+
+                {/* Title Overlay */}
+                <div className="absolute bottom-0 left-0 w-full p-3">
+                    <h3 className="truncate text-[15px] font-semibold tracking-tight drop-shadow-md">
+                        {wallpaper.title}
+                    </h3>
+                </div>
+
                 {showCompatibilityDot && compatibilityStatus && compatibilityStatus !== 'unknown' && (
                     <Tooltip>
                         <TooltipTrigger asChild>
@@ -70,12 +78,6 @@ export function WallpaperCard({
                     </Tooltip>
                 )}
             </WallpaperThumbnail>
-
-            <div className="px-2.5 pb-2 pt-1">
-                <h3 className="truncate text-[15px]  font-semibold tracking-tight text-card-foreground">
-                    {wallpaper.title}
-                </h3>
-            </div>
         </div>
     )
 }
