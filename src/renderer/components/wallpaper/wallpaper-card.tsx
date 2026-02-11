@@ -55,10 +55,11 @@ export function WallpaperCard({
                 enableHover={true}
             >
                 {/* Gradient overlay at bottom */}
+                {/* Gradient overlay with smooth fade and blur */}
                 <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-card via-card/60 to-transparent" />
 
                 {/* Title Overlay */}
-                <div className="absolute bottom-0 left-0 w-full p-3">
+                <div className="absolute bottom-0 left-0 w-full p-2">
                     <h3 className="truncate text-[15px] font-semibold tracking-tight drop-shadow-md">
                         {wallpaper.title}
                     </h3>
@@ -68,7 +69,7 @@ export function WallpaperCard({
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <div className={cn(
-                                "absolute top-2 right-2 size-2.5 rounded-full ring-1 ring-black/20",
+                                "absolute top-2 right-2 size-2.5 rounded-full ring-1 ring-black/20 ",
                                 COMPATIBILITY_CONFIG[compatibilityStatus].bgColor
                             )} />
                         </TooltipTrigger>
