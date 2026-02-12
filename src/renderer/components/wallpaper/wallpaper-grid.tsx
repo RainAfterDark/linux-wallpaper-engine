@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion"
 import { WallpaperCard, type Wallpaper } from "./wallpaper-card"
-import { GridHeader } from "./grid-header"
+import { GridHeader } from "./wallpaper-grid-header"
 import { trpc } from "@/lib/trpc"
 import { AlertCircle, FolderOpen } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"

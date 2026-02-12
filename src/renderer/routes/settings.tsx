@@ -146,7 +146,6 @@ function SettingsPage() {
 
                 {/* Compatibility Scan Section */}
                 <SettingsSection
-                    id="onboarding-compatibility-scan"
                     icon={ScanSearch}
                     title="Compatibility"
                     description="Test wallpapers for Linux compatibility"
