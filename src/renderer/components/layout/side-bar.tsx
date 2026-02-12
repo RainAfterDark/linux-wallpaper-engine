@@ -17,6 +17,7 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
+import { useTheme } from "../theme-provider"
 
 const navItems = [
     { to: "/", icon: Download, label: "Installed" },
@@ -32,12 +33,12 @@ interface SidebarProps {
 export function Sidebar({ className }: SidebarProps) {
     const router = useRouterState()
     const currentPath = router.location.pathname
-
+    const isLightTheme = useTheme().mode.includes("light")
     return (
         <SidebarPrimitive collapsible="icon" className={cn("glass", className)}>
             <SidebarHeader className="gap-0 p-0">
                 <div className="flex h-12 items-center justify-center border-b border-border/65 px-2 group-data-[collapsible=icon]:px-0">
-                    <div className="flex items-center justify-center shrink-0 rounded-md p-1">
+                    <div className={cn("flex items-center justify-center shrink-0 rounded-md p-1", isLightTheme && "invert-[0.2]")}>
                         <img
                             src={logoImage}
                             alt="Wallpaper Engine Logo"
