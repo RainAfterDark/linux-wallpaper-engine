@@ -1,5 +1,5 @@
 import { RefreshCw } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { LoadingButton } from "@/components/loading-button"
 
 interface RefreshButtonProps {
     onClick: () => void
@@ -8,15 +8,16 @@ interface RefreshButtonProps {
 
 export function RefreshButton({ onClick, isLoading = false }: RefreshButtonProps) {
     return (
-        <Button
-            variant="outline"
+        <LoadingButton
+            variant="ghost"
             size="sm"
             onClick={onClick}
-            disabled={isLoading}
-            className="bg-background"
+            isLoading={isLoading}
+            loadingText="Refreshing..."
+            className="ring-1 ring-foreground/20 hover:ring-foreground/40"
         >
-            <RefreshCw className={`size-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className="size-4 mr-2" />
             Refresh
-        </Button>
+        </LoadingButton>
     )
 }

@@ -3,58 +3,19 @@ import { promisify } from 'node:util'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import { glob } from 'glob'
-import Store from 'electron-store'
 import { displayService } from './display'
 import { settingsService } from './settings'
-import { STEAM_PATHS, CACHE_TTL, type WallpaperOverrides } from '../../shared/constants'
+import { storeService } from './store'
+import { STEAM_PATHS, CACHE_TTL, type WallpaperOverrides, type Wallpaper, type ApplyWallpaperOptions } from '../../shared/constants'
 import { CompatibilityService } from './compatibility'
 
 const execAsync = promisify(exec)
 
-// Types
-export interface Wallpaper {
-  id: string
-  workshopId?: string
-  title: string
-  author: string
-  type: 'scene' | 'video' | 'web' | 'application'
-  thumbnail: string
-  previewUrl?: string
-  resolution: { width: number; height: number }
-  fileSize: number
-  tags: string[]
-  installed: boolean
-  path: string
-}
-
-export interface ApplyWallpaperOptions {
-  backgroundId: string
-  screen?: string
-  scaling?: 'default' | 'stretch' | 'fit' | 'fill'
-  fps?: number
-  volume?: number
-  silent?: boolean
-  noAutomute?: boolean
-  noAudioProcessing?: boolean
-  disableMouse?: boolean
-  disableParallax?: boolean
-  noFullscreenPause?: boolean
-  windowed?: { x: number; y: number; width: number; height: number }
-}
+export type { Wallpaper, ApplyWallpaperOptions }
 
 export interface GetWallpapersOptions {
   search?: string
-  filter?: 'installed' | 'workshop' | 'all'
   refresh?: boolean
-}
-
-interface ActiveWallpapersStore {
-  activeWallpapers: Record<string, ApplyWallpaperOptions>
-}
-
-// Store for per-wallpaper setting overrides (keyed by wallpaper path)
-interface WallpaperOverridesStore {
-  overrides: Record<string, WallpaperOverrides>
 }
 
 // TODO: simplify active wallpaper and scan/get logic 
@@ -65,23 +26,10 @@ class WallpaperService {
   private cacheTimestamp: number | null = null
   private runningProcesses: Map<string, ChildProcess> = new Map()
   private activeWallpapers: Map<string, ApplyWallpaperOptions> = new Map()
-  private store: Store<ActiveWallpapersStore>
-  private overridesStore: Store<WallpaperOverridesStore>
+  private store = storeService.activeWallpapers
+  private overridesStore = storeService.wallpaperOverrides
 
   private constructor() {
-    this.store = new Store<ActiveWallpapersStore>({
-      name: 'active-wallpapers',
-      defaults: {
-        activeWallpapers: {},
-      },
-    })
-    this.overridesStore = new Store<WallpaperOverridesStore>({
-      name: 'wallpaper-overrides',
-      defaults: {
-        overrides: {},
-      },
-    })
-    CompatibilityService.init(this.overridesStore)
     this.restoreActiveWallpapers()
   }
 
@@ -255,6 +203,15 @@ class WallpaperService {
               // Ignore size errors
             }
 
+            // Get directory modification time as date added
+            let dateAdded = 0
+            try {
+              const stat = await fs.stat(wallpaperPath)
+              dateAdded = stat.mtimeMs
+            } catch {
+              // Ignore stat errors
+            }
+
             // Determine wallpaper type
             let type: Wallpaper['type'] = 'scene'
             if (project.type) {
@@ -286,6 +243,7 @@ class WallpaperService {
               previewUrl: project.preview ? path.join(wallpaperPath, project.preview) : undefined,
               resolution,
               fileSize,
+              dateAdded,
               tags: project.tags ?? [],
               installed: true,
               path: wallpaperPath,
@@ -347,7 +305,7 @@ class WallpaperService {
   }
 
   async getWallpapers(options: GetWallpapersOptions = {}): Promise<Wallpaper[]> {
-    const { search, filter = 'all', refresh = false } = options
+    const { search, refresh = false } = options
 
     // Check if we need to refresh cache
     const now = Date.now()
@@ -359,13 +317,6 @@ class WallpaperService {
     }
 
     let filtered = this.wallpaperCache
-
-    // Apply filter
-    if (filter === 'installed') {
-      filtered = filtered.filter(w => w.installed)
-    } else if (filter === 'workshop') {
-      filtered = filtered.filter(w => !w.installed)
-    }
 
     // Apply search
     if (search?.trim()) {

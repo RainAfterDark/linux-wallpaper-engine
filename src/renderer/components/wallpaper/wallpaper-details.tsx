@@ -65,27 +65,24 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
     return (
         <div id="wallpaper-details" className="sticky top-0 max-h-[85vh] w-80 shrink-0 overflow-y-auto rounded-xl border border-border bg-card glass scrollbar-thin ">
             {/* Preview */}
+            {/* Close button — direct child of scroll container so sticky works */}
+            <div className="sticky top-2 z-10 flex justify-end pr-2 h-0">
+                <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className="size-7 bg-black/50 text-white hover:bg-black/70"
+                    onClick={onClose}
+                >
+                    <X className="size-4" />
+                </Button>
+            </div>
+
+            {/* Preview */}
             <WallpaperThumbnail
                 src={wallpaper.thumbnail}
                 alt={wallpaper.title}
-
                 containerClassName="rounded-t-xl"
-            >
-                <div
-                    className="absolute inset-0"
-                >
-
-                    {/* Close button */}
-                    <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        className="absolute right-2 top-2 size-7 bg-black/50 text-white hover:bg-black/70"
-                        onClick={onClose}
-                    >
-                        <X className="size-4" />
-                    </Button>
-                </div>
-            </WallpaperThumbnail>
+            />
 
             {/* Info */}
             <div className="p-4">

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { trpc } from '../trpc'
-import { wallpaperService, type ApplyWallpaperOptions } from '../../services/wallpaper'
+import { wallpaperService } from '../../services/wallpaper'
+import { type ApplyWallpaperOptions } from '../../../shared/constants'
 import { settingsService } from '../../services/settings'
 import { CompatibilityService } from '../../services/compatibility'
 
@@ -15,7 +16,6 @@ export const wallpaperRouter = trpc.router({
     .input(
       z.object({
         search: z.string().optional(),
-        filter: z.enum(['installed', 'workshop', 'all']).optional(),
         refresh: z.boolean().default(false),
       }),
     )

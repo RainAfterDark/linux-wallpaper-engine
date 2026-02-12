@@ -1,21 +1,19 @@
-import * as React from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { WallpaperCard, type Wallpaper } from "./wallpaper-card"
-import { WallpaperDetails } from "./wallpaper-details"
 import { RefreshButton } from "./refresh-button"
 import { trpc } from "@/lib/trpc"
-import { Loader2, AlertCircle, FolderOpen } from "lucide-react"
+import { AlertCircle, FolderOpen } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useDebounce } from "@uidotdev/usehooks"
 import { useSearch } from "@/contexts/search-context"
 import { useWallpaperBackground } from "@/contexts/wallpaper-background-context"
+import { useState, useMemo, useEffect, useCallback, lazy, Suspense } from "react"
 
-interface WallpaperGridProps {
-    filter?: "installed" | "workshop" | "all"
-}
+const WallpaperDetails = lazy(() => import("./wallpaper-details").then(m => ({ default: m.WallpaperDetails })))
 
-export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
-    const [selectedWallpaper, setSelectedWallpaper] =
-        React.useState<Wallpaper | null>(null)
+export function WallpaperGrid() {
+    const [selectedWallpaper, setSelectedWallpaper] = useState<Wallpaper | null>(null)
+    const [detailsVisible, setDetailsVisible] = useState(false)
     const { searchQuery, filterType, filterTags, sortBy, sortOrder, setAvailableTags, filterCompatibility } = useSearch()
     const debouncedSearch = useDebounce(searchQuery, 300)
     const { setSelectedUrl } = useWallpaperBackground()
@@ -29,12 +27,11 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
         error,
         refetch,
     } = trpc.wallpaper.getWallpapers.useQuery({
-        filter,
         search: debouncedSearch || undefined,
     })
 
     // Transform, filter and sort wallpapers
-    const wallpapers: Wallpaper[] = React.useMemo(() => {
+    const wallpapers: Wallpaper[] = useMemo(() => {
         if (!data) return []
 
         let result = data.map((w) => ({
@@ -47,28 +44,27 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
             previewUrl: w.previewUrl ? `local-file://${w.previewUrl}` : undefined,
             resolution: w.resolution,
             fileSize: w.fileSize,
+            dateAdded: w.dateAdded,
             tags: w.tags,
             installed: w.installed,
             path: w.path,
         }))
 
-        // Apply type filter
-        if (filterType !== "all") {
-            result = result.filter(w => w.type === filterType)
-        }
+        // Apply all filters in a single pass
+        const hasTypeFilter = filterType !== "all"
+        const hasTagFilter = filterTags.length > 0
+        const hasCompatFilter = filterCompatibility.length > 0 && compatibilityMap
+        const compatSet = hasCompatFilter ? new Set(filterCompatibility) : null
 
-        // Apply tag filter (wallpaper must have ALL selected tags)
-        if (filterTags.length > 0) {
-            result = result.filter(w =>
-                filterTags.some(tag => w.tags?.includes(tag))
-            )
-        }
-
-        // Apply compatibility filter (show only selected statuses)
-        if (filterCompatibility.length > 0 && compatibilityMap) {
+        if (hasTypeFilter || hasTagFilter || hasCompatFilter) {
             result = result.filter(w => {
-                const status = compatibilityMap[w.path ?? ''] ?? 'unknown'
-                return filterCompatibility.includes(status)
+                if (hasTypeFilter && w.type !== filterType) return false
+                if (hasTagFilter && !filterTags.some(tag => w.tags?.includes(tag))) return false
+                if (compatSet && compatibilityMap) {
+                    const status = compatibilityMap[w.path ?? ''] ?? 'unknown'
+                    if (!compatSet.has(status)) return false
+                }
+                return true
             })
         }
 
@@ -86,6 +82,9 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
                 case "recent":
                     comparison = b.id.localeCompare(a.id)
                     break
+                case "date":
+                    comparison = a.dateAdded - b.dateAdded
+                    break
             }
 
             return sortOrder === "asc" ? comparison : -comparison
@@ -95,18 +94,22 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
     }, [data, filterType, filterTags, sortBy, sortOrder, filterCompatibility, compatibilityMap])
 
     // Sync selected wallpaper thumbnail as blurred page background
-    React.useEffect(() => {
+    useEffect(() => {
         setSelectedUrl(selectedWallpaper?.thumbnail ?? null)
     }, [selectedWallpaper, setSelectedUrl])
 
 
     // Extract and set available tags from raw data (before filtering)
-    React.useEffect(() => {
+    useEffect(() => {
         if (!data) return
         const allTags = data.flatMap(w => w.tags ?? [])
         const uniqueTags = [...new Set(allTags)].sort()
         setAvailableTags(uniqueTags)
     }, [data, setAvailableTags])
+
+    const toggleWallpaper = useCallback((w: Wallpaper) => {
+        setSelectedWallpaper(prev => prev?.id === w.id ? null : w)
+    }, [])
 
     const handleRefresh = () => {
         refetch()
@@ -115,15 +118,11 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
     // Loading state
     if (isLoading) {
         return (
-            <motion.div
-                className="flex flex-col items-center justify-center py-20 text-muted-foreground"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-            >
-                <Loader2 className="size-8 animate-spin mb-4" />
-                <p>Scanning for wallpapers...</p>
-            </motion.div>
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+                {Array.from({ length: 12 }).map((_, i) => (
+                    <Skeleton key={i} className="aspect-[4/3] rounded-xl" />
+                ))}
+            </div>
         )
     }
 
@@ -178,7 +177,7 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
             <div className="flex items-start gap-6 flex-1">
                 <div
                     id="onboarding-wallpaper-grid"
-                    className={`grid flex-1 gap-4 h-fit ${selectedWallpaper
+                    className={`grid flex-1 gap-4 h-fit transition-all duration-300 ${detailsVisible
                         ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
                         : "grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
                         }`}
@@ -188,14 +187,14 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
                             key={wallpaper.id}
                             wallpaper={wallpaper}
                             selected={selectedWallpaper?.id === wallpaper.id}
-                            onClick={setSelectedWallpaper}
+                            onClick={toggleWallpaper}
                             compatibilityStatus={compatibilityMap?.[wallpaper.path ?? '']}
                             showCompatibilityDot={settings?.showCompatibilityDot ?? true}
                         />
                     ))}
                 </div>
 
-                <AnimatePresence mode="wait">
+                <AnimatePresence mode="wait" onExitComplete={() => setDetailsVisible(false)}>
                     {selectedWallpaper && (
                         <motion.div
                             key={selectedWallpaper.id}
@@ -204,11 +203,14 @@ export function WallpaperGrid({ filter = "all" }: WallpaperGridProps) {
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -40 }}
                             transition={{ duration: 0.3, ease: "easeOut" }}
+                            onAnimationStart={() => setDetailsVisible(true)}
                         >
-                            <WallpaperDetails
-                                wallpaper={selectedWallpaper}
-                                onClose={() => setSelectedWallpaper(null)}
-                            />
+                            <Suspense fallback={<Skeleton className="w-80 h-96 rounded-xl" />}>
+                                <WallpaperDetails
+                                    wallpaper={selectedWallpaper}
+                                    onClose={() => setSelectedWallpaper(null)}
+                                />
+                            </Suspense>
                         </motion.div>
                     )}
                 </AnimatePresence>

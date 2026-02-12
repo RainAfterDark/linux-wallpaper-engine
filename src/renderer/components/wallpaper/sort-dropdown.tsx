@@ -9,11 +9,11 @@ import {
     DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
-import { useSearch } from "@/contexts/search-context"
+import { useSort } from "@/contexts/search-context"
 import { SORT_OPTIONS } from "../../../shared/constants"
 
 export function SortDropdown() {
-    const { sortBy, setSortBy, sortOrder, setSortOrder } = useSearch()
+    const { sortBy, setSortBy, sortOrder, setSortOrder } = useSort()
 
     const toggleSortOrder = () => {
         setSortOrder(sortOrder === "asc" ? "desc" : "asc")

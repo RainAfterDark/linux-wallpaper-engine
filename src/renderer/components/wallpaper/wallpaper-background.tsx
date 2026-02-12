@@ -2,6 +2,8 @@ import { useWallpaperBackground } from "@/contexts/wallpaper-background-context"
 import { useStaticFrame } from "@/hooks/use-static-frame"
 import { AnimatePresence, motion } from "framer-motion"
 
+const backgroundOverlay = <div className="absolute inset-0 bg-background/30" />
+
 export function WallpaperBackground() {
   const { backgroundUrl } = useWallpaperBackground()
   const staticUrl = useStaticFrame(backgroundUrl)
@@ -22,7 +24,7 @@ export function WallpaperBackground() {
           />
         )}
       </AnimatePresence>
-      <div className="absolute inset-0 bg-background/30" />
+      {backgroundOverlay}
     </div>
   )
 }

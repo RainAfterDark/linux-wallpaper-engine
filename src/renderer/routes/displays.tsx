@@ -3,7 +3,7 @@ import { Monitor, Plus, Loader2, AlertCircle, Info } from "lucide-react"
 import { WallpaperThumbnail } from "@/components/wallpaper/wallpaper-thumbnail"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { trpc } from "@/lib/trpc"
-import * as React from "react"
+import { useMemo } from "react"
 
 export const Route = createFileRoute("/displays")({
     component: DisplaysPage,
@@ -27,7 +27,7 @@ function DisplaysPage() {
     })
 
     // Transform backend displays to our monitor format
-    const monitors: DisplayMonitor[] = React.useMemo(() => {
+    const monitors: DisplayMonitor[] = useMemo(() => {
         if (!displays) return []
         return displays.map((d) => {
             // Find active wallpaper for this display
@@ -158,7 +158,7 @@ function DisplaysPage() {
                                     </TooltipTrigger>
                                     <TooltipContent side="left" className="max-w-xs">
                                         <p className="text-sm">
-                                            Select a wallpaper from the gallery to apply it here. Use per-wallpaper overrides to customize settings for each wallpaper.
+                                            Select a wallpaper from the gallery to apply it here. Use per-wallpaper settings to customize settings for each wallpaper.
                                         </p>
                                     </TooltipContent>
                                 </Tooltip>

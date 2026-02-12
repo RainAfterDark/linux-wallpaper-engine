@@ -1,21 +1,14 @@
-import Store from 'electron-store'
 import { app } from 'electron'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { DEFAULT_SETTINGS, type AppSettings } from '../../shared/constants'
+import { storeService } from './store'
 
 export type { AppSettings }
 
 class SettingsService {
   private static instance: SettingsService | null = null
-  private store: Store<AppSettings>
-
-  private constructor() {
-    this.store = new Store<AppSettings>({
-      name: 'settings',
-      defaults: DEFAULT_SETTINGS,
-    })
-  }
+  private store = storeService.settings
 
   static getInstance(): SettingsService {
     if (!SettingsService.instance) {

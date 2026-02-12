@@ -16,7 +16,6 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 
 const navItems = [
@@ -35,7 +34,7 @@ export function Sidebar({ className }: SidebarProps) {
     const currentPath = router.location.pathname
 
     return (
-        <SidebarPrimitive collapsible="icon" className={cn("", className)}>
+        <SidebarPrimitive collapsible="icon" className={cn("glass", className)}>
             <SidebarHeader className="gap-0 p-0">
                 <div className="flex h-12 items-center justify-center border-b border-border/65 px-2 group-data-[collapsible=icon]:px-0">
                     <div className="flex items-center justify-center shrink-0 rounded-md p-1">

@@ -23,8 +23,10 @@ import { SettingsSection } from "@/components/settings/settings-section"
 import { SettingRow } from "@/components/settings/setting-row"
 import { trpc } from "@/lib/trpc"
 import { useTheme } from "@/components/theme-provider"
-import { type AppSettings, SCALING_OPTIONS, getFpsOptions, THEME_OPTIONS } from "../../shared/constants"
+import { type AppSettings, SCALING_OPTIONS, THEME_OPTIONS } from "../../shared/constants"
+import { getFpsOptions } from "@/lib/utils"
 import { CompatibilityScanRow } from "@/components/settings/compatibility-scan-row"
+import { LoadingButton } from "@/components/loading-button"
 export const Route = createFileRoute("/settings")({
     component: SettingsPage,
 })
@@ -84,16 +86,17 @@ function SettingsPage() {
                         Configure global application preferences
                     </p>
                 </div>
-                <Button
-                    variant="outline"
+                <LoadingButton
+                    variant="ghost"
                     size="sm"
                     onClick={() => resetMutation.mutate()}
-                    disabled={resetMutation.isPending}
-                    className="bg-background"
+                    isLoading={resetMutation.isPending}
+                    loadingText="Resetting..."
+                    className="ring-1 ring-foreground/20 hover:ring-foreground/40"
                 >
                     <RotateCcw className="size-4 mr-2" />
                     Reset to Defaults
-                </Button>
+                </LoadingButton>
             </div>
 
             <div className="space-y-6">

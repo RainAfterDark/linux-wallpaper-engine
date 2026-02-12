@@ -1,23 +1,10 @@
+import { memo } from "react"
 import { cn } from "@/lib/utils"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { WallpaperThumbnail } from "./wallpaper-thumbnail"
-import { COMPATIBILITY_CONFIG, type CompatibilityStatus } from "../../../shared/constants"
+import { COMPATIBILITY_CONFIG, type CompatibilityStatus, type Wallpaper } from "../../../shared/constants"
 
-export interface Wallpaper {
-    id: string
-    workshopId?: string
-    title: string
-    author: string
-    type: "scene" | "video" | "web" | "application"
-    thumbnail: string
-    previewUrl?: string
-    resolution: { width: number; height: number }
-    fileSize: number
-    rating?: number
-    tags: string[]
-    installed: boolean
-    path?: string
-}
+export type { Wallpaper }
 
 interface WallpaperCardProps {
     wallpaper: Wallpaper
@@ -28,7 +15,7 @@ interface WallpaperCardProps {
 }
 
 
-export function WallpaperCard({
+export const WallpaperCard = memo(function WallpaperCard({
     wallpaper,
     onClick,
     selected,
@@ -39,9 +26,9 @@ export function WallpaperCard({
     return (
         <div
             className={cn(
-                "group relative overflow-hidden rounded-xl border bg-card transition-all duration-200 cursor-pointer glass",
+                "cv-auto group relative overflow-hidden rounded-xl border bg-card transition-all duration-200 cursor-pointer glass",
                 selected
-                    ? "border-primary ring-2 ring-primary/20"
+                    ? "!border-primary ring-2 ring-primary/20"
                     : "border-border hover:border-ring/50 hover:shadow-lg"
             )}
             onClick={() => onClick?.(wallpaper)}
@@ -78,4 +65,4 @@ export function WallpaperCard({
             </WallpaperThumbnail>
         </div>
     )
-}
+})

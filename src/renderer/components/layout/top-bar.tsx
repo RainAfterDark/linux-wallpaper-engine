@@ -1,15 +1,15 @@
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { useSearch } from "@/contexts/search-context"
+import { useSearchQuery } from "@/contexts/search-context"
 import { FiltersDropdown } from "../wallpaper/filters-dropdown"
 import { SortDropdown } from "../wallpaper/sort-dropdown"
 
 // TODO: Move to wallpaper grid
 export function TopBar() {
-    const { searchQuery, setSearchQuery } = useSearch()
+    const { searchQuery, setSearchQuery } = useSearchQuery()
 
     return (
-        <header id="onboarding-topbar" className="relative flex h-12 items-center justify-between bg-background border-b border-border/50 px-4">
+        <header id="onboarding-topbar" className="relative flex h-12 items-center justify-between bg-background border-b border-border/50 px-4 py-2">
             {/* Subtle top highlight */}
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" />
 

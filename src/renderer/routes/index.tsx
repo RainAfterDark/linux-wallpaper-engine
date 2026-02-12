@@ -13,7 +13,7 @@ function InstalledPage() {
     return (
         <div className="h-full p-6">
             <ScanReminderBanner />
-            <WallpaperGrid filter="installed" />
+            <WallpaperGrid />
         </div>
     )
 }

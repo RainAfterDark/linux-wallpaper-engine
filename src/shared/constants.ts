@@ -49,6 +49,7 @@ export type WallpaperFilterType = 'all' | WallpaperType
 
 export const SORT_OPTIONS = [
   { label: 'Name', value: 'name' },
+  { label: 'Date Added', value: 'date' },
   { label: 'Size', value: 'size' },
   { label: 'Recent', value: 'recent' },
 ] as const
@@ -148,27 +149,38 @@ export const DEFAULT_SETTINGS: AppSettings = {
 export const BASE_FPS_OPTIONS = [30, 60, 90, 120, 144, 165, 240, 360] as const
 export type BaseFpsOption = typeof BASE_FPS_OPTIONS[number]
 
-/**
- * Generate FPS options based on the maximum refresh rate
- * @param maxRefreshRate - Maximum refresh rate from displays
- * @param currentFps - Current FPS value to ensure it's included in options
- * @returns Array of FPS options that don't exceed the max refresh rate, with max as final option
- */
-export function getFpsOptions(maxRefreshRate: number, currentFps?: number): number[] {
-  const filtered = BASE_FPS_OPTIONS.filter(fps => fps <= maxRefreshRate)
-  const options: Set<number> = new Set(filtered)
 
-  // Add the max refresh rate if it's not already included
-  if (maxRefreshRate > 0) {
-    options.add(maxRefreshRate)
-  }
+// Wallpaper data shape returned by scanning
+export interface Wallpaper {
+  id: string
+  workshopId?: string
+  title: string
+  author: string
+  type: WallpaperType
+  thumbnail: string
+  previewUrl?: string
+  resolution: { width: number; height: number }
+  fileSize: number
+  dateAdded: number
+  tags: string[]
+  installed: boolean
+  path: string
+}
 
-  // Ensure current FPS is always included (important for maintaining selection)
-  if (currentFps && currentFps > 0) {
-    options.add(currentFps)
-  }
-
-  return Array.from(options).sort((a, b) => a - b)
+// Options for applying a wallpaper via the backend
+export interface ApplyWallpaperOptions {
+  backgroundId: string
+  screen?: string
+  scaling?: ScalingOption
+  fps?: number
+  volume?: number
+  silent?: boolean
+  noAutomute?: boolean
+  noAudioProcessing?: boolean
+  disableMouse?: boolean
+  disableParallax?: boolean
+  noFullscreenPause?: boolean
+  windowed?: { x: number; y: number; width: number; height: number }
 }
 
 // Per-wallpaper setting overrides (all optional, falls back to global settings)

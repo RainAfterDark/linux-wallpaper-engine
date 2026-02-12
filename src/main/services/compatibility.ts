@@ -1,10 +1,6 @@
 import { spawn, type ChildProcess } from 'node:child_process'
-import Store from 'electron-store'
 import { type WallpaperOverrides, type CompatibilityStatus } from '../../shared/constants'
-
-interface WallpaperOverridesStore {
-  overrides: Record<string, WallpaperOverrides>
-}
+import { storeService } from './store'
 
 interface ScanProgress {
   running: boolean
@@ -44,23 +40,12 @@ const MINOR_PATTERNS = [
 
 class CompatibilityService {
   private static instance: CompatibilityService | null = null
-  private overridesStore: Store<WallpaperOverridesStore>
+  private overridesStore = storeService.wallpaperOverrides
   private scanProgress: ScanProgress = { ...DEFAULT_SCAN_PROGRESS }
-
-  private constructor(overridesStore: Store<WallpaperOverridesStore>) {
-    this.overridesStore = overridesStore
-  }
-
-  static init(overridesStore: Store<WallpaperOverridesStore>): CompatibilityService {
-    if (!CompatibilityService.instance) {
-      CompatibilityService.instance = new CompatibilityService(overridesStore)
-    }
-    return CompatibilityService.instance
-  }
 
   static getInstance(): CompatibilityService {
     if (!CompatibilityService.instance) {
-      throw new Error('CompatibilityService not initialized. Call init() first.')
+      CompatibilityService.instance = new CompatibilityService()
     }
     return CompatibilityService.instance
   }

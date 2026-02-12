@@ -7,16 +7,13 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
-import { useSearch, type WallpaperFilterType } from "@/contexts/search-context"
+import { useFilter, type WallpaperFilterType } from "@/contexts/search-context"
 import { FilterSection } from "./filter-section"
-import { COMPATIBILITY_OPTIONS, type CompatibilityStatus } from "../../../shared/constants"
+import { COMPATIBILITY_OPTIONS, WALLPAPER_TYPE_LABELS, type CompatibilityStatus } from "../../../shared/constants"
 
 const TYPE_ITEMS: { key: WallpaperFilterType; label: string }[] = [
     { key: "all", label: "All Types" },
-    { key: "scene", label: "Scene" },
-    { key: "video", label: "Video" },
-    { key: "web", label: "Web" },
-    { key: "application", label: "Application" },
+    ...Object.entries(WALLPAPER_TYPE_LABELS).map(([key, label]) => ({ key: key as WallpaperFilterType, label })),
 ]
 
 const COMPAT_ITEMS = COMPATIBILITY_OPTIONS.map((opt) => ({
@@ -36,7 +33,7 @@ export function FiltersDropdown() {
         filterCompatibility,
         toggleFilterCompatibility,
         setFilterCompatibility,
-    } = useSearch()
+    } = useFilter()
 
     const activeFilterCount =
         (filterType !== "all" ? 1 : 0) +
