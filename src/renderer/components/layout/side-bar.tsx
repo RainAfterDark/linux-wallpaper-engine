@@ -38,7 +38,7 @@ export function Sidebar({ className }: SidebarProps) {
         <SidebarPrimitive collapsible="icon" className={cn("glass", className)}>
             <SidebarHeader className="gap-0 p-0">
                 <div className="flex h-12 items-center justify-center border-b border-border/65 px-2 group-data-[collapsible=icon]:px-0">
-                    <div className={cn("flex items-center justify-center shrink-0 rounded-md p-1", isLightTheme && "invert-[0.2]")}>
+                    <div className={cn("flex items-center justify-center shrink-0 rounded-md p-1", isLightTheme && "invert-[0.1]")}>
                         <img
                             src={logoImage}
                             alt="Wallpaper Engine Logo"
