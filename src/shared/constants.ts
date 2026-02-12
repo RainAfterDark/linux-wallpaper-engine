@@ -130,7 +130,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   lastWallpaperId: null,
   lastWallpaperScreen: null,
   showCompatibilityDot: true,
-  showStatusBar: false,
+  showStatusBar: true,
   dynamicBackground: true,
   onboardingComplete: false,
   dismissedScanReminder: false,
