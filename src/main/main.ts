@@ -23,6 +23,8 @@ const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    show: false,
+    backgroundColor: '#09090b',
     autoHideMenuBar: true,
     icon: path.join(__dirname, '../../assests/transperent-logo.png'),
     webPreferences: {
@@ -30,6 +32,10 @@ const createWindow = () => {
       contextIsolation: true,
       nodeIntegration: false,
     },
+  })
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
   })
 
   // and load the index.html of the app.
