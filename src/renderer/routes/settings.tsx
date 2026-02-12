@@ -136,12 +136,12 @@ function SettingsPage() {
                             onCheckedChange={(checked) => updateSetting("launchOnLogin", checked)}
                         />
                     </SettingRow>
-                    <SettingRow label="Minimize on close">
+                    {/* <SettingRow label="Minimize on close">
                         <Switch
                             checked={settings.minimizeOnClose}
                             onCheckedChange={(checked) => updateSetting("minimizeOnClose", checked)}
                         />
-                    </SettingRow>
+                    </SettingRow> */}
                 </SettingsSection>
 
                 {/* Compatibility Scan Section */}
