@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion"
 import { WallpaperCard, type Wallpaper } from "./wallpaper-card"
-import { RefreshButton } from "./refresh-button"
+import { GridHeader } from "./grid-header"
 import { trpc } from "@/lib/trpc"
 import { AlertCircle, FolderOpen } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -118,10 +118,13 @@ export function WallpaperGrid() {
     // Loading state
     if (isLoading) {
         return (
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-                {Array.from({ length: 12 }).map((_, i) => (
-                    <Skeleton key={i} className="aspect-[4/3] rounded-xl" />
-                ))}
+            <div className="flex flex-col h-full">
+                <GridHeader onRefresh={handleRefresh} isLoading={isLoading} />
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+                    {Array.from({ length: 12 }).map((_, i) => (
+                        <Skeleton key={i} className="aspect-[4/3] rounded-xl" />
+                    ))}
+                </div>
             </div>
         )
     }
@@ -129,50 +132,48 @@ export function WallpaperGrid() {
     // Error state
     if (error) {
         return (
-            <motion.div
-                className="flex flex-col items-center justify-center py-20 text-destructive"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-            >
-                <AlertCircle className="size-8 mb-4" />
-                <p className="font-medium">Failed to load wallpapers</p>
-                <p className="text-sm text-muted-foreground mt-1">{error.message}</p>
-            </motion.div>
+            <div className="flex flex-col h-full">
+                <GridHeader onRefresh={handleRefresh} isLoading={isLoading} />
+                <motion.div
+                    className="flex flex-col items-center justify-center py-20 text-destructive"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                >
+                    <AlertCircle className="size-8 mb-4" />
+                    <p className="font-medium">Failed to load wallpapers</p>
+                    <p className="text-sm text-muted-foreground mt-1">{error.message}</p>
+                </motion.div>
+            </div>
         )
     }
 
     // Empty state
     if (wallpapers.length === 0) {
         return (
-            <motion.div
-                className="flex flex-col items-center justify-center py-20 text-muted-foreground"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-            >
-                <FolderOpen className="size-12 mb-4 opacity-50" />
-                <p className="font-medium">No wallpapers found</p>
-                <p className="text-sm mt-1">
-                    {searchQuery
-                        ? "Try a different search term"
-                        : "Install wallpapers from Steam Workshop via Wallpaper Engine"}
-                </p>
-            </motion.div>
+            <div className="flex flex-col h-full">
+                <GridHeader onRefresh={handleRefresh} isLoading={isLoading} />
+                <motion.div
+                    className="flex flex-col items-center justify-center py-20 text-muted-foreground"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                >
+                    <FolderOpen className="size-12 mb-4 opacity-50" />
+                    <p className="font-medium">No wallpapers found</p>
+                    <p className="text-sm mt-1">
+                        {searchQuery
+                            ? "Try a different search term"
+                            : "Install wallpapers from Steam Workshop via Wallpaper Engine"}
+                    </p>
+                </motion.div>
+            </div>
         )
     }
 
     return (
         <div className="flex flex-col h-full">
-            <div className="mb-6 flex flex-row items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold">Installed</h1>
-                    <p className="text-muted-foreground">
-                        Wallpapers downloaded to your system
-                    </p>
-                </div>
-                <RefreshButton onClick={handleRefresh} isLoading={isLoading} />
-            </div>
+            <GridHeader onRefresh={handleRefresh} isLoading={isLoading} />
 
             <div className="flex items-start gap-6 flex-1">
                 <div
