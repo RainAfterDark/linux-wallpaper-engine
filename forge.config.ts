@@ -1,29 +1,46 @@
-import type { ForgeConfig } from '@electron-forge/shared-types';
-import { MakerSquirrel } from '@electron-forge/maker-squirrel';
-import { MakerZIP } from '@electron-forge/maker-zip';
-import { MakerDeb } from '@electron-forge/maker-deb';
-import { MakerRpm } from '@electron-forge/maker-rpm';
-import { VitePlugin } from '@electron-forge/plugin-vite';
-import { FusesPlugin } from '@electron-forge/plugin-fuses';
-import { FuseV1Options, FuseVersion } from '@electron/fuses';
+import type { ForgeConfig } from '@electron-forge/shared-types'
+import { MakerDeb } from '@electron-forge/maker-deb'
+import { MakerRpm } from '@electron-forge/maker-rpm'
+import { MakerFlatpak } from '@electron-forge/maker-flatpak'
+import { VitePlugin } from '@electron-forge/plugin-vite'
+import { FusesPlugin } from '@electron-forge/plugin-fuses'
+import { FuseV1Options, FuseVersion } from '@electron/fuses'
 
 const config: ForgeConfig = {
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'jagrat7',
+          name: 'linux-wallpaper-engine'
+        },
+        prerelease: false,
+        draft: false
+      }
+    }
+  ],
   packagerConfig: {
     asar: true,
     icon: './assests/transperent-logo',
+    executableName: 'linux-wallpaper-engine',
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
-    new MakerZIP({}, ['darwin']),
-    // new MakerRpm({
-    //   options: {
-    //     icon: './assests/transperent-logo.png',
-    //   },
-    // }),
     new MakerDeb({
       options: {
         icon: './assests/transperent-logo.png',
+      },
+    }),
+    new MakerRpm({
+      options: {
+        icon: './assests/transperent-logo.png',
+      },
+    }),
+    new MakerFlatpak({
+      options: {
+        categories: ['Utility'],
+        files: [],
       },
     }),
   ],

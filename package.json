@@ -1,8 +1,13 @@
 {
-  "name": "my-app",
-  "productName": "my-app",
-  "version": "1.0.0",
-  "description": "My Electron application description",
+  "name": "linux-wallpaper-engine",
+  "productName": "Linux Wallpaper Engine",
+  "version": "0.1.1",
+  "description": "A modern desktop GUI for linux-wallpaperengine — browse, manage, and apply your Steam Wallpaper Engine wallpapers on Linux.",
+  "homepage": "https://github.com/jagrat7/linux-wallpaper-engine",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jagrat7/linux-wallpaper-engine.git"
+  },
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
@@ -11,25 +16,23 @@
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx ."
   },
-  "keywords": [],
+  "keywords": ["wallpaper", "linux", "electron", "wallpaper-engine", "desktop", "engine"],
   "author": {
-    "name": "jagrat7",
-    "email": "jagratrao@gmail.com"
+    "name": "jagrat7"
   },
   "license": "MIT",
   "devDependencies": {
     "@electron-forge/cli": "^7.10.2",
     "@electron-forge/maker-deb": "^7.10.2",
+    "@electron-forge/maker-flatpak": "^7.11.1",
     "@electron-forge/maker-rpm": "^7.10.2",
-    "@electron-forge/maker-squirrel": "^7.10.2",
-    "@electron-forge/maker-zip": "^7.10.2",
     "@electron-forge/plugin-auto-unpack-natives": "^7.10.2",
     "@electron-forge/plugin-fuses": "^7.10.2",
     "@electron-forge/plugin-vite": "^7.10.2",
+    "@electron-forge/publisher-github": "^7.11.1",
     "@electron/fuses": "^1.8.0",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/router-plugin": "^1.147.2",
-    "@types/electron-squirrel-startup": "^1.0.2",
     "@types/node": "^25.0.6",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
@@ -62,7 +65,6 @@
     "@uidotdev/usehooks": "^2.4.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "electron-squirrel-startup": "^1.0.1",
     "electron-store": "^11.0.2",
     "framer-motion": "^12.34.0",
     "glob": "^13.0.0",

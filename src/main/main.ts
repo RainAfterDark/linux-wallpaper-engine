@@ -1,15 +1,9 @@
 import { app, BrowserWindow, protocol, net } from 'electron'
 import path from 'node:path'
-import started from 'electron-squirrel-startup'
 import { createIPCHandler } from 'trpc-electron/main'
 import { createTrpcContext } from './trpc/context.ts'
 import { appRouter } from './trpc/router.ts'
 import { settingsService } from './services/settings.ts'
-
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (started) {
-  app.quit()
-}
 
 // Register the local-file protocol for serving local wallpaper images
 protocol.registerSchemesAsPrivileged([
