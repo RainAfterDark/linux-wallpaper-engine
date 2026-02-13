@@ -11,10 +11,14 @@ interface OnboardingWrapperProps {
 
 function OnboardingTourStarter({ children }: { children: React.ReactNode }) {
     const { data: settings, isLoading } = trpc.settings.get.useQuery()
-    const { startOnborda, isOnbordaVisible } = useOnborda()
+    const { startOnborda, closeOnborda, isOnbordaVisible } = useOnborda()
     const navigate = useNavigate()
     const pathname = useRouterState().location.pathname
     const hasStarted = useRef(false)
+    const utils = trpc.useUtils()
+    const updateSettings = trpc.settings.update.useMutation({
+        onSuccess: () => utils.settings.get.invalidate(),
+    })
 
     const shouldStart = !isLoading && settings && !settings.onboardingComplete && !hasStarted.current
 
@@ -38,6 +42,19 @@ function OnboardingTourStarter({ children }: { children: React.ReactNode }) {
         }, 800)
         return () => clearTimeout(timer)
     }, [shouldStart, pathname])
+
+    // Close onboarding on Escape key
+    useEffect(() => {
+        if (!isOnbordaVisible) return
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                updateSettings.mutate({ onboardingComplete: true })
+                closeOnborda()
+            }
+        }
+        window.addEventListener("keydown", handleKeyDown)
+        return () => window.removeEventListener("keydown", handleKeyDown)
+    }, [isOnbordaVisible])
 
     // Reset when user clicks "Restart Tour" (onboardingComplete transitions true → false)
     const prevOnboardingComplete = useRef(settings?.onboardingComplete)

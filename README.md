@@ -95,7 +95,7 @@ flatpak install ./linux-wallpaper-engine_<version>_x64.flatpak
 
 - Playlist support — cycle through wallpapers on a schedule or shuffle, probably using cron jobs or something similar.
 - A single installation for both the backend and the UI.
-
+- Make per-wallpaper settings dynamic
 ---
 
 ## Contributing
