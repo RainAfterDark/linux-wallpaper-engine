@@ -69,7 +69,7 @@ export function CompatibilityScanRow() {
     }, {} as Record<string, number>)
 
     return (
-        <div id="onboarding-compatibility-scan">
+        <div >
             <div className="px-4 py-3 space-y-3">
                 {isScanning && progress?.running ? (
                     <div className="space-y-3">
