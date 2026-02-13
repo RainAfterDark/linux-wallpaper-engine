@@ -296,13 +296,13 @@ function SettingsPage() {
                                 Linux Wallpaper Engine UI v1.0.0
                             </p>
                         </div>
-                        <Button
+                        {/* <Button
                             variant="outline"
                             size="sm"
                             onClick={() => updateSetting("onboardingComplete", false)}
                         >
                             Tutorial
-                        </Button>
+                        </Button> */}
                     </div>
                 </div>
             </div>

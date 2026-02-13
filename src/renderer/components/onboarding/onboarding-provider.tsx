@@ -18,6 +18,8 @@ function OnboardingTourStarter({ children }: { children: React.ReactNode }) {
 
     const shouldStart = !isLoading && settings && !settings.onboardingComplete && !hasStarted.current
 
+    const maximizeWindow = trpc.window.maximize.useMutation()
+
     useEffect(() => {
         if (!shouldStart) return
 
@@ -26,6 +28,9 @@ function OnboardingTourStarter({ children }: { children: React.ReactNode }) {
             navigate({ to: "/" })
             return
         }
+
+        // Maximize the window so all onboarding targets are visible
+        maximizeWindow.mutate()
 
         const timer = setTimeout(() => {
             hasStarted.current = true
