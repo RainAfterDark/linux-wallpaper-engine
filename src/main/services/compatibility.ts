@@ -1,42 +1,13 @@
 import { spawn, type ChildProcess } from 'node:child_process'
-import { type WallpaperOverrides, type CompatibilityStatus } from '../../shared/constants'
+import {
+  type WallpaperOverrides,
+  type CompatibilityStatus,
+  type ScanProgress,
+  DEFAULT_SCAN_PROGRESS,
+  BROKEN_PATTERNS,
+  MINOR_PATTERNS,
+} from '../../shared/constants'
 import { storeService } from './store'
-
-interface ScanProgress {
-  running: boolean
-  current: string
-  total: number
-  scanned: number
-  aborted: boolean
-}
-
-const DEFAULT_SCAN_PROGRESS: ScanProgress = {
-  running: false,
-  current: '',
-  total: 0,
-  scanned: 0,
-  aborted: false,
-}
-
-const BROKEN_PATTERNS = [
-  /segmentation fault/i,
-  /segfault/i,
-  /failed to initialize glfw/i,
-  /glfw.*error/i,
-  /abort.*core dumped/i,
-  /cannot open display/i,
-]
-
-const MINOR_PATTERNS = [
-  /missing texture/i,
-  /missing shader/i,
-  /missing material/i,
-  /scenescript/i,
-  /cannot find/i,
-  /warning/i,
-  /not supported/i,
-  /failed to load/i,
-]
 
 class CompatibilityService {
   private static instance: CompatibilityService | null = null

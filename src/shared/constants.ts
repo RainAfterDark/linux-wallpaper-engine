@@ -210,3 +210,41 @@ export const STEAM_PATHS = [
 ]
 
 export const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+// Compatibility scan progress
+export interface ScanProgress {
+  running: boolean
+  current: string
+  total: number
+  scanned: number
+  aborted: boolean
+}
+
+export const DEFAULT_SCAN_PROGRESS: ScanProgress = {
+  running: false,
+  current: '',
+  total: 0,
+  scanned: 0,
+  aborted: false,
+}
+
+// Patterns used to classify wallpaper stderr output during compatibility scanning
+export const BROKEN_PATTERNS = [
+  /segmentation fault/i,
+  /segfault/i,
+  /failed to initialize glfw/i,
+  /glfw.*error/i,
+  /abort.*core dumped/i,
+  /cannot open display/i,
+]
+
+export const MINOR_PATTERNS = [
+  /missing texture/i,
+  /missing shader/i,
+  /missing material/i,
+  /scenescript/i,
+  /cannot find/i,
+  /warning/i,
+  /not supported/i,
+  /failed to load/i,
+]
