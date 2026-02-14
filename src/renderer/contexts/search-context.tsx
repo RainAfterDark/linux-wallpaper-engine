@@ -8,7 +8,7 @@ import type {
 } from "../../shared/constants"
 
 export type { WallpaperFilterType, SortBy, SortOrder }
-
+// TODO: - Conver to a hook, provider is not longer needed
 // --- Search query context (search input only) ---
 
 interface SearchQueryContextType {
@@ -32,8 +32,9 @@ const SortContext = createContext<SortContextType | undefined>(undefined)
 // --- Filter context ---
 
 interface FilterContextType {
-  filterType: WallpaperFilterType
-  setFilterType: (type: WallpaperFilterType) => void
+  filterType: WallpaperFilterType[]
+  setFilterType: (types: WallpaperFilterType[]) => void
+  toggleFilterType: (type: WallpaperFilterType) => void
   filterTags: string[]
   setFilterTags: (tags: string[]) => void
   toggleTag: (tag: string) => void
@@ -53,7 +54,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   const updateSettings = trpc.settings.update.useMutation()
 
   const [searchQuery, setSearchQuery] = useState("")
-  const [filterType, setFilterType] = useState<WallpaperFilterType>("all")
+  const [filterType, setFilterType] = useState<WallpaperFilterType[]>([])
   const [filterTags, setFilterTags] = useState<string[]>([])
   const [availableTags, setAvailableTags] = useState<string[]>([])
   const [sortBy, setSortBy] = useState<SortBy>("name")
@@ -64,7 +65,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   // Load persisted preferences on mount
   useEffect(() => {
     if (settings && !initialized) {
-      setFilterType(settings.filterType)
+      setFilterType(settings.filterType ?? [])
       setFilterTags(settings.filterTags)
       setFilterCompatibility(settings.filterCompatibility)
       setSortBy(settings.sortBy)
@@ -106,9 +107,19 @@ export function SearchProvider({ children }: { children: ReactNode }) {
 
   // --- Filter handlers ---
 
-  const handleSetFilterType = useCallback((type: WallpaperFilterType) => {
-    setFilterType(type)
-    persist({ filterType: type })
+  const handleSetFilterType = useCallback((types: WallpaperFilterType[]) => {
+    setFilterType(types)
+    persist({ filterType: types })
+  }, [persist])
+
+  const handleToggleFilterType = useCallback((type: WallpaperFilterType) => {
+    setFilterType(prev => {
+      const next = prev.includes(type)
+        ? prev.filter(t => t !== type)
+        : [...prev, type]
+      persist({ filterType: next })
+      return next
+    })
   }, [persist])
 
   const handleSetFilterTags = useCallback((tags: string[]) => {
@@ -144,6 +155,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   const filterValue = useMemo(() => ({
     filterType,
     setFilterType: handleSetFilterType,
+    toggleFilterType: handleToggleFilterType,
     filterTags,
     setFilterTags: handleSetFilterTags,
     toggleTag: handleToggleTag,
@@ -152,7 +164,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     filterCompatibility,
     setFilterCompatibility: handleSetFilterCompatibility,
     toggleFilterCompatibility: handleToggleFilterCompatibility,
-  }), [filterType, filterTags, availableTags, filterCompatibility, handleSetFilterType, handleSetFilterTags, handleToggleTag, handleSetFilterCompatibility, handleToggleFilterCompatibility])
+  }), [filterType, filterTags, availableTags, filterCompatibility, handleSetFilterType, handleToggleFilterType, handleSetFilterTags, handleToggleTag, handleSetFilterCompatibility, handleToggleFilterCompatibility])
 
   return (
     <SearchQueryContext.Provider value={searchQueryValue}>

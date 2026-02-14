@@ -12,7 +12,6 @@ import { FilterSection } from "./filter-section"
 import { COMPATIBILITY_OPTIONS, WALLPAPER_TYPE_LABELS, type CompatibilityStatus } from "../../../shared/constants"
 
 const TYPE_ITEMS: { key: WallpaperFilterType; label: string }[] = [
-    { key: "all", label: "All Types" },
     ...Object.entries(WALLPAPER_TYPE_LABELS).map(([key, label]) => ({ key: key as WallpaperFilterType, label })),
 ]
 
@@ -26,6 +25,7 @@ export function FiltersDropdown() {
     const {
         filterType,
         setFilterType,
+        toggleFilterType,
         filterTags,
         toggleTag,
         setFilterTags,
@@ -36,13 +36,13 @@ export function FiltersDropdown() {
     } = useFilter()
 
     const activeFilterCount =
-        (filterType !== "all" ? 1 : 0) +
+        filterType.length +
         filterTags.length +
         filterCompatibility.length
 
     const handleClearAll = (e: React.MouseEvent) => {
         e.stopPropagation()
-        setFilterType("all")
+        setFilterType([])
         setFilterTags([])
         setFilterCompatibility([])
     }
@@ -89,8 +89,12 @@ export function FiltersDropdown() {
                 <FilterSection
                     label="Type"
                     items={TYPE_ITEMS}
-                    selected={[filterType]}
-                    onToggle={(key) => setFilterType(key as WallpaperFilterType)}
+                    selected={filterType}
+                    onToggle={(key) => toggleFilterType(key as WallpaperFilterType)}
+                    multi
+                    badge={filterType.length > 0 ? (
+                        <span className="text-primary">{filterType.length} selected</span>
+                    ) : undefined}
                 />
 
                 {availableTags.length > 0 && (

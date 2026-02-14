@@ -95,7 +95,7 @@ export interface AppSettings {
   dismissedScanReminder: boolean
 
   // Persisted filter & sort preferences
-  filterType: WallpaperFilterType
+  filterType: WallpaperFilterType[]
   filterTags: string[]
   filterCompatibility: CompatibilityStatus[]
   sortBy: SortBy
@@ -136,7 +136,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   dismissedScanReminder: false,
 
   // Filters & sort
-  filterType: 'all',
+  filterType: [],
   filterTags: [],
   filterCompatibility: [],
   sortBy: 'name',

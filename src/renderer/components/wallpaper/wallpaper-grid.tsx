@@ -51,14 +51,15 @@ export function WallpaperGrid() {
         }))
 
         // Apply all filters in a single pass
-        const hasTypeFilter = filterType !== "all"
+        const hasTypeFilter = filterType.length > 0
+        const typeSet = hasTypeFilter ? new Set(filterType) : null
         const hasTagFilter = filterTags.length > 0
         const hasCompatFilter = filterCompatibility.length > 0 && compatibilityMap
         const compatSet = hasCompatFilter ? new Set(filterCompatibility) : null
 
         if (hasTypeFilter || hasTagFilter || hasCompatFilter) {
             result = result.filter(w => {
-                if (hasTypeFilter && w.type !== filterType) return false
+                if (typeSet && !typeSet.has(w.type)) return false
                 if (hasTagFilter && !filterTags.some(tag => w.tags?.includes(tag))) return false
                 if (compatSet && compatibilityMap) {
                     const status = compatibilityMap[w.path ?? ''] ?? 'unknown'

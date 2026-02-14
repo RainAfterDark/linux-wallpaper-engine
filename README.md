@@ -1,22 +1,23 @@
 
 ## Overview
 
-This is a modern UI wrapper for [linux-wallpaperengine](https://github.com/Almamu/linux-wallpaperengine). This app has most features of [linux-wallpaperengine](https://github.com/Almamu/linux-wallpaperengine) plus some additional features for a better user experience. Also a shoutout to [simple-linux-wallpaperengine-gui](https://github.com/Maxnights/simple-linux-wallpaperengine-gui), which I referenced for CLI commands.
+This is a modern UI wrapper for [linux-wallpaperengine](https://github.com/Almamu/linux-wallpaperengine). This app has most features of [linux-wallpaperengine](https://github.com/Almamu/linux-wallpaperengine) plus some additional features(like compatibility tagging for wallpapers) for a better user experience. Also a shoutout to [simple-linux-wallpaperengine-gui](https://github.com/Maxnights/simple-linux-wallpaperengine-gui), which I referenced for CLI commands.
 
 ![Overview](docs/preview.gif)
----
-
-- [Overview](#overview)
-- [Installation](#installation)
-- [Features](#features)
-- [Future Features](#future-features)
-- [Contributing](#contributing)
-- [License](#license)
-
 
 ---
 
-## Installation
+### 📑 Table of Contents
+
+- [Installation](#-installation)
+- [Features](#-features)
+- [Future Features](#-future-features)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+---
+
+## 📦 Installation
 
 ### 1. Wallpaper Engine (Steam)
 
@@ -44,9 +45,9 @@ sudo ln -sf /path/to/your/build/linux-wallpaperengine /usr/local/bin/linux-wallp
 
 ### 3. Linux Wallpaper Engine UI
 
-#### Debian / Ubuntu (.deb)
+Grab the latest package from [GitHub Releases](https://github.com/jagrat7/linux-wallpaper-engine/releases) for your distro.
 
-Download the latest `.deb` from [GitHub Releases](https://github.com/jagrat7/linux-wallpaper-engine/releases), then:
+#### Debian / Ubuntu (.deb)
 
 ```bash
 sudo apt install ./linux-wallpaper-engine_<version>_amd64.deb
@@ -63,22 +64,26 @@ sudo dnf install ./linux-wallpaper-engine-<version>.x86_64.rpm
 ```bash
 flatpak install ./linux-wallpaper-engine_<version>_x64.flatpak
 ```
+
 ---
 
-## Features
+## ✨ Features
 
-- **Wallpaper Gallery** — Browse all your Steam Workshop wallpapers in a responsive, animated grid with thumbnails
+- **Wallpaper Gallery** — Browse all your Steam Workshop wallpapers in a responsive, animated grid with thumbnails. You can add filters and sorts to make it easier to find the wallpapers you want.
 ![Wallpaper Gallery](docs/grid.png)
+<br />
 - **Multi-Monitor Support** — Detect all connected displays, apply different wallpapers per screen, and view your monitor layout at a glance
 ![Multi-Monitor Support](docs/displays.png)
-
-- **Compatibility Scanner** — Bulk-test your entire library for Linux compatibility and see at-a-glance status dots (Perfect / Minor / Major / Broken)
+<br />
+- **Compatibility/Errors Tags** —  You can manually tag the wallpapers as compatible or not from the settings or run the compatibility scanner to bulk-tag them, it's not 100% accurate but it will get you close. You can filter out wallpapers with errors or compatibility issues so you don't see them in the gallery.
+![Compatibility Tag](docs/comp-tag.png)
 ![Compatibility Scanner](docs/comp-scan.png)
+<br />
 - **Theming** — Choose from Light, Dark, Steam, Hard Light, or System themes
 ![Theming](docs/dark.png)
 ![Theming](docs/steam.png)
 ![Theming](docs/light-mode.png)
-
+<br />
 - **Settings** — Comprehensive options to tailor the application to your needs:
   - **Performance**: Manage resource usage with FPS limits, auto-pause on fullscreen, and startup preferences.
   - **Compatibility**: Built-in tool to scan and verify which Steam Workshop wallpapers run natively on Linux.
@@ -87,19 +92,19 @@ flatpak install ./linux-wallpaper-engine_<version>_x64.flatpak
   - **Appearance**: Switch themes (Light, Dark, Steam-like) and customize UI elements like the status bar.
 ![Settings](docs/settings.png)
 
-## Future Features
+## 🔮 Future Features
 
-- Playlist support — cycle through wallpapers on a schedule or shuffle, probably using cron jobs or something similar.
+- Playlist support, cycle through wallpapers on a schedule or shuffle, probably using cron jobs or something similar.
 - A single installation for both the backend and the UI.
-- Make per-wallpaper settings dynamic
+- Make per-wallpaper settings dynamic.
 
 ---
 
-## Contributing
+## 🤝 Contributing & Feedback
 
-Contributions are welcome! Feel free to open an issue or submit a pull request.
+Contributions and feedback are welcome! Open an [issue](https://github.com/jagrat7/linux-wallpaper-engine/issues) or submit a pull request.
 
-### Development
+### 🛠️ Development
 
 ```bash
 # Clone the repo
@@ -113,6 +118,6 @@ bun install
 bun start
 ```
 
-## License
+## 📄 License
 
 [MIT](LICENSE)

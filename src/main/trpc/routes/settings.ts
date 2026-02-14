@@ -43,7 +43,7 @@ const settingsSchema = z.object({
   dismissedScanReminder: z.boolean().optional(),
 
   // Persisted filter & sort preferences
-  filterType: z.enum(['all', 'scene', 'video', 'web', 'application']).optional(),
+  filterType: z.array(z.enum(['all', 'scene', 'video', 'web', 'application'])).optional(),
   filterTags: z.array(z.string()).optional(),
   filterCompatibility: z.array(z.enum(['unknown', 'broken', 'major', 'minor', 'perfect'])).optional(),
   sortBy: z.enum(['name', 'size', 'recent']).optional(),
