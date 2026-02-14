@@ -71,25 +71,34 @@ flatpak install ./linux-wallpaper-engine_<version>_x64.flatpak
 
 - **Wallpaper Gallery** — Browse all your Steam Workshop wallpapers in a responsive, animated grid with thumbnails. You can add filters and sorts to make it easier to find the wallpapers you want.
 ![Wallpaper Gallery](docs/grid.png)
+
 <br />
+
 - **Multi-Monitor Support** — Detect all connected displays, apply different wallpapers per screen, and view your monitor layout at a glance
 ![Multi-Monitor Support](docs/displays.png)
+
 <br />
+
 - **Compatibility/Errors Tags** —  You can manually tag the wallpapers as compatible or not from the settings or run the compatibility scanner to bulk-tag them, it's not 100% accurate but it will get you close. You can filter out wallpapers with errors or compatibility issues so you don't see them in the gallery.
 ![Compatibility Tag](docs/comp-tag.png)
 ![Compatibility Scanner](docs/comp-scan.png)
+
 <br />
+
 - **Theming** — Choose from Light, Dark, Steam, Hard Light, or System themes
 ![Theming](docs/dark.png)
 ![Theming](docs/steam.png)
 ![Theming](docs/light-mode.png)
+
 <br />
+
 - **Settings** — Comprehensive options to tailor the application to your needs:
   - **Performance**: Manage resource usage with FPS limits, auto-pause on fullscreen, and startup preferences.
   - **Compatibility**: Built-in tool to scan and verify which Steam Workshop wallpapers run natively on Linux.
   - **Audio**: Control master volume, mute rules, and enable audio processing for reactive wallpapers.
   - **Display**: Adjust default scaling, toggle mouse interactions, and manage parallax effects.
   - **Appearance**: Switch themes (Light, Dark, Steam-like) and customize UI elements like the status bar.
+  
 ![Settings](docs/settings.png)
 
 ## 🔮 Future Features
@@ -117,7 +126,8 @@ bun install
 # Start the app
 bun start
 ```
+You can check out my [react-electron-template](https://github.com/jagrat7/react-electron-template) for a more detailed how setup the app.
 
 ## 📄 License
 
-[MIT](LICENSE)
+[MIT](LICENSE) do whatever you want with it.
