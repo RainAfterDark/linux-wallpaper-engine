@@ -96,6 +96,6 @@ CLAUDE.md
 
 .claude 
 
-.tanstack
+.tanstack/*
 
 docs/react-best-practices-audit.md
