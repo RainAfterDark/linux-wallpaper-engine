@@ -1,5 +1,7 @@
 
+
 ## Overview
+[![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/jagrat7/linux-wallpaper-engine/total?style=flat-square&logo=github&label=Downloads)](https://github.com/jagrat7/linux-wallpaper-engine/releases) [![GitHub Release](https://img.shields.io/github/v/release/jagrat7/linux-wallpaper-engine?style=flat-square&logo=github)](https://github.com/jagrat7/linux-wallpaper-engine/releases/latest)
 
 This is a modern UI wrapper for [linux-wallpaperengine](https://github.com/Almamu/linux-wallpaperengine). This app has most features of [linux-wallpaperengine](https://github.com/Almamu/linux-wallpaperengine) plus some additional features(like compatibility tagging for wallpapers) for a better user experience. Also a shoutout to [simple-linux-wallpaperengine-gui](https://github.com/Maxnights/simple-linux-wallpaperengine-gui), which I referenced for CLI commands.
 
