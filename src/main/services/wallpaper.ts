@@ -18,7 +18,7 @@ export interface GetWallpapersOptions {
   refresh?: boolean
 }
 
-// TODO: simplify active wallpaper and scan/get logic 
+// TODO: Simplify and organize this monstrosity 💀
 class WallpaperService {
   private static instance: WallpaperService | null = null
 

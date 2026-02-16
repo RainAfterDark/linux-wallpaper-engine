@@ -8,7 +8,7 @@ import type {
 } from "../../shared/constants"
 
 export type { WallpaperFilterType, SortBy, SortOrder }
-// TODO: - Conver to a hook, provider is not longer needed
+// TODO: - Convert to a hook, provider is not longer needed
 // --- Search query context (search input only) ---
 
 interface SearchQueryContextType {
