@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useDebounce } from "@uidotdev/usehooks"
 import { useSearch } from "@/contexts/search-context"
 import { useWallpaperBackground } from "@/contexts/wallpaper-background-context"
-import { useState, useMemo, useEffect, useCallback, lazy, Suspense } from "react"
+import { useState, useMemo, useEffect, useCallback, useRef, lazy, Suspense } from "react"
 
 const WallpaperDetails = lazy(() => import("./wallpaper-details").then(m => ({ default: m.WallpaperDetails })))
 
@@ -22,6 +22,10 @@ export function WallpaperGrid() {
     const { data: compatibilityMap } = trpc.wallpaper.getCompatibilityMap.useQuery()
     const { data: settings } = trpc.settings.get.useQuery()
 
+    // Throttle wallpaper selection to prevent UI freezing from rapid clicks
+    const lastClickTime = useRef(0)
+    const THROTTLE_MS = 150
+    
     const {
         data,
         isLoading,
@@ -109,7 +113,14 @@ export function WallpaperGrid() {
         setAvailableTags(uniqueTags)
     }, [data, setAvailableTags])
 
+
+    
     const toggleWallpaper = useCallback((w: Wallpaper) => {
+        const now = Date.now()
+        if (now - lastClickTime.current < THROTTLE_MS) {
+            return // Ignore rapid clicks
+        }
+        lastClickTime.current = now
         setSelectedWallpaper(prev => prev?.id === w.id ? null : w)
     }, [])
 
