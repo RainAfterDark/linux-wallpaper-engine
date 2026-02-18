@@ -2,12 +2,13 @@ import type { ChildProcess } from 'node:child_process'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import { glob } from 'glob'
-import { displayService } from './display'
-import { settingsService } from './settings'
-import { storeService } from './store'
-import { hostSpawn, hostExecAsync } from './flatpak'
-import { STEAM_PATHS, CACHE_TTL, type WallpaperOverrides, type Wallpaper, type ApplyWallpaperOptions } from '../../shared/constants'
-import { CompatibilityService } from './compatibility'
+import { displayService } from '../display'
+import { settingsService } from '../settings'
+import { storeService } from '../store'
+import { hostSpawn, hostExecAsync } from '../flatpak'
+import { STEAM_PATHS, CACHE_TTL, type WallpaperOverrides, type Wallpaper, type ApplyWallpaperOptions } from '../../../shared/constants'
+import { CompatibilityService } from '../compatibility'
+import { parseImageHeader } from './wallpaper.utils'
 
 export type { Wallpaper, ApplyWallpaperOptions }
 
@@ -268,9 +269,10 @@ class WallpaperService {
       const files = await fs.readdir(wallpaperPath)
 
       // Look for video files first
-      const videoFile = files.find(f =>
-        f.endsWith('.mp4') || f.endsWith('.webm') || f.endsWith('.avi') || f.endsWith('.mkv')
-      )
+      const videoFile = files.find(f => {
+        const file = f.toLowerCase()
+        return file.endsWith('.mp4') || file.endsWith('.webm') || file.endsWith('.avi') || file.endsWith('.mkv')
+      })
 
       if (videoFile) {
         const videoPath = path.join(wallpaperPath, videoFile)
@@ -281,10 +283,11 @@ class WallpaperService {
         }
       } else {
         // Look for image files (excluding preview thumbnails)
-        const imageFile = files.find(f =>
-          (f.endsWith('.png') || f.endsWith('.jpg') || f.endsWith('.jpeg') || f.endsWith('.bmp')) &&
-          !f.toLowerCase().includes('preview')
-        )
+        const imageFile = files.find(f => {
+          const file = f.toLowerCase()
+          return (file.endsWith('.png') || file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.bmp')) &&
+            !file.includes('preview')
+        })
 
         if (imageFile) {
           const imagePath = path.join(wallpaperPath, imageFile)
@@ -293,6 +296,7 @@ class WallpaperService {
           if (match) {
             return { width: parseInt(match[1], 10), height: parseInt(match[2], 10) }
           }
+          return parseImageHeader(imagePath)
         }
       }
     } catch {
