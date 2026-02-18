@@ -74,10 +74,10 @@ export function FiltersDropdown() {
             </DropdownMenuTrigger>
             <DropdownMenuContent
                 align="end"
-                className="w-56 rounded-xl border-border bg-popover"
+                className="w-56 rounded-xl border-border bg-popover scrollbar-styled"
             >
                 {/* Header with Clear All */}
-                <div className="flex items-center justify-between px-2 py-1.5">
+                <div className="flex items-center justify-between px-2 py-1.5 ">
                     <span className="text-[10px] uppercase tracking-widest text-muted-foreground/60">Filters</span>
                     {activeFilterCount > 0 && (
                         <Button
@@ -91,7 +91,7 @@ export function FiltersDropdown() {
                         </Button>
                     )}
                 </div>
-                
+
                 <FilterSection
                     label="Type"
                     items={TYPE_ITEMS}
