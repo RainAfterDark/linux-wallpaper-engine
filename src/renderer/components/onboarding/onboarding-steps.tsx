@@ -4,7 +4,8 @@ import {
     Search,
     Monitor,
     Settings2,
-    AlertTriangle
+    AlertTriangle,
+    Shuffle
 } from "lucide-react"
 
 export const ONBOARDING_TOUR_ID = "welcome-tour"
@@ -53,19 +54,37 @@ export const onboardingSteps: { tour: string, steps: Step[] }[] = [
                 showControls: true,
                 pointerPadding: 8,
                 pointerRadius: 12,
-                nextRoute: "/displays",
+                nextRoute: "/playlists",
             },
 
-            // === Displays Page (/displays) — Step 2 ===
+            // === Playlists Page (/playlists) — Step 2 ===
+            {
+                icon: <Shuffle className="size-5" />,
+                title: "Playlists",
+                content: (
+                    <div className="space-y-2">
+                        <p>
+                            Create <strong>playlists</strong> to rotate wallpapers automatically.
+                            Set custom timing and shuffle modes for variety.
+                        </p>
+                    </div>
+                ),
+                selector: "#onboarding-playlists",
+                side: "bottom",
+                showControls: true,
+                pointerPadding: 10,
+                pointerRadius: 12,
+                nextRoute: "/displays",
+                prevRoute: "/",
+            },
+
+            // === Displays Page (/displays) — Step 3 ===
             {
                 icon: <Monitor className="size-5" />,
                 title: "Manage Displays",
                 content: (
                     <p>
                         View your physical monitor layout and manage per-display settings.
-                        You can set individual wallpapers, change scaling modes (Cover,
-                        Contain, Stretch), and view resolution details for each
-                        connected screen.
                     </p>
                 ),
                 selector: "#onboarding-display-layout",
@@ -77,7 +96,7 @@ export const onboardingSteps: { tour: string, steps: Step[] }[] = [
                 prevRoute: "/",
             },
 
-            // === Settings Page (/settings) — Steps 3-4 ===
+            // === Settings Page (/settings) — Steps 4-5 ===
             {
                 icon: <Settings2 className="size-5" />,
                 title: "Settings",
@@ -116,7 +135,7 @@ export const onboardingSteps: { tour: string, steps: Step[] }[] = [
                     </div>
                 ),
                 selector: "#onboarding-compatibility-scan",
-                side: "top",
+                side: "bottom",
                 showControls: true,
                 pointerPadding: 10,
                 pointerRadius: 12,

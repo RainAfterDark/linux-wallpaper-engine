@@ -27,6 +27,13 @@ import { getFpsOptions } from "@/lib/utils"
 import { CompatibilityScanRow } from "@/components/settings/compatibility-scan-row"
 import { LoadingButton } from "@/components/loading-button"
 import { PageHeader } from "@/components/page-header"
+import { lazy, Suspense } from "react"
+
+// Dev-only flag to show onboarding test button
+const DEV_SHOW_ONBOARDING_TEST = true
+
+const DevOnboardingTest = lazy(() => import("@/components/settings/dev-onboarding-test").then(m => ({ default: m.DevOnboardingTest })))
+
 export const Route = createFileRoute("/settings")({
     component: SettingsPage,
 })
@@ -283,6 +290,12 @@ function SettingsPage() {
 
                 </SettingsSection>
 
+                {/* Dev-only: Test Onboarding */}
+                {DEV_SHOW_ONBOARDING_TEST && (
+                    <Suspense fallback={null}>
+                        <DevOnboardingTest />
+                    </Suspense>
+                )}
             </div>
         </div>
     )
