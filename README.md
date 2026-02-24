@@ -67,7 +67,7 @@ sudo dnf install ./linux-wallpaper-engine-<version>.x86_64.rpm
 flatpak install --user ./com.github.jagrat7.LinuxWallpaperEngine_stable_x86_64.flatpak
 ```
 
----
+
 
 ## ✨ Features
 
@@ -110,11 +110,9 @@ flatpak install --user ./com.github.jagrat7.LinuxWallpaperEngine_stable_x86_64.f
 
 ## 🔮 Future Features
 
-- Playlist support, cycle through wallpapers on a schedule or shuffle, probably using cron jobs or something similar.
 - A single installation for both the backend and the UI.
 - Make per-wallpaper settings dynamic.
 
----
 
 ## 🤝 Contributing & Feedback
 
