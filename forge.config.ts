@@ -17,7 +17,8 @@ const config: ForgeConfig = {
           name: 'linux-wallpaper-engine'
         },
         prerelease: false,
-        draft: false
+        draft: false,
+        generateReleaseNotes: true,
       }
     }
   ],
