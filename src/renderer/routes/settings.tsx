@@ -30,7 +30,7 @@ import { PageHeader } from "@/components/page-header"
 import { lazy, Suspense } from "react"
 
 // Dev-only flag to show onboarding test button
-const DEV_SHOW_ONBOARDING_TEST = true
+const DEV_SHOW_ONBOARDING_TEST = false
 
 const DevOnboardingTest = lazy(() => import("@/components/settings/dev-onboarding-test").then(m => ({ default: m.DevOnboardingTest })))
 
