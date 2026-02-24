@@ -1,22 +1,12 @@
-import * as React from "react"
+import { useState } from "react"
 import {
     X,
     Monitor,
     HardDrive,
     Layers,
-    Square,
-    Loader2,
-    ChevronDown,
     ShieldCheck,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
     Select,
     SelectContent,
@@ -30,6 +20,7 @@ import { trpc } from "@/lib/trpc"
 import { formatFileSize } from "@/lib/utils"
 import { WallpaperThumbnail } from "./wallpaper-thumbnail"
 import { COMPATIBILITY_OPTIONS, type CompatibilityStatus, WALLPAPER_TYPE_LABELS } from "../../../shared/constants"
+import { ApplyButton } from "./apply-button"
 
 interface WallpaperDetailsProps {
     wallpaper: Wallpaper
@@ -39,11 +30,18 @@ interface WallpaperDetailsProps {
 
 
 export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) {
-    const [isApplying, setIsApplying] = React.useState(false)
-
-    const { data: displays } = trpc.display.list.useQuery()
+    const [isApplying, setIsApplying] = useState(false)
     const applyMutation = trpc.wallpaper.setWallpaper.useMutation()
     const stopMutation = trpc.wallpaper.stopWalpaper.useMutation()
+    const utils = trpc.useUtils()
+
+    const { data: activeWallpapers = [] } = trpc.wallpaper.getActiveWallpaper.useQuery(undefined, {
+        refetchInterval: 5000,
+    })
+
+    const isActive = activeWallpapers.some(
+        w => w.wallpaper.backgroundId === (wallpaper.path ?? wallpaper.id)
+    )
 
     const handleApply = async (screen?: string) => {
         if (!wallpaper.path && !wallpaper.id) return
@@ -53,13 +51,17 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
                 backgroundId: wallpaper.path || wallpaper.id,
                 screen,
             })
+            await utils.wallpaper.getActiveWallpaper.invalidate()
+            await utils.playlist.active.invalidate()
         } finally {
             setIsApplying(false)
         }
     }
 
-    const handleStop = async () => {
-        await stopMutation.mutateAsync({})
+    const handleStop = async (screen?: string) => {
+        await stopMutation.mutateAsync({ screen })
+        await utils.wallpaper.getActiveWallpaper.invalidate()
+        await utils.playlist.active.invalidate()
     }
 
     return (
@@ -89,66 +91,15 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
                 <h2 className="text-lg font-semibold">{wallpaper.title}</h2>
                 <p className="text-sm text-muted-foreground">by {wallpaper.author}</p>
 
-                {/* Action buttons */}
-                <div className="mt-4 flex gap-2">
-                    <div className="flex flex-1">
-                        <Button
-                            className="flex-1 gap-2 rounded-r-none"
-                            onClick={() => handleApply()}
-                            disabled={isApplying}
-                        >
-                            {isApplying ? (
-                                <Loader2 className="size-4 animate-spin" />
-                            ) : (
-                                <Monitor className="size-4" />
-                            )}
-                            {isApplying ? "Applying..." : "Apply"}
-                        </Button>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    className="rounded-l-none border-l border-primary-foreground/20 px-2"
-                                    disabled={isApplying}
-                                >
-                                    <ChevronDown className="size-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48">
-
-                                {displays && displays.length > 0 && (
-                                    <>
-                                        {displays.map((display) => (
-                                            <DropdownMenuItem
-                                                key={display.name}
-                                                onClick={() => handleApply(display.name)}
-                                            >
-                                                <Monitor className="size-4" />
-                                                {display.name}
-                                                {display.primary && (
-                                                    <span className="ml-auto text-xs text-muted-foreground">Primary</span>
-                                                )}
-                                            </DropdownMenuItem>
-
-                                        ))}
-                                        <DropdownMenuSeparator />
-                                    </>
-                                )}
-                                <DropdownMenuItem onClick={() => handleApply()}>
-                                    <Monitor className="size-4" />
-                                    All
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={handleStop}
-                        disabled={stopMutation.isPending}
-                        title="Stop wallpaper"
-                    >
-                        <Square className="size-4" />
-                    </Button>
+                {/* Action button */}
+                <div className="mt-4">
+                    <ApplyButton
+                        onApply={handleApply}
+                        onStop={handleStop}
+                        isApplying={isApplying}
+                        isActive={isActive}
+                        className="w-full"
+                    />
                 </div>
 
                 {/* Details */}
