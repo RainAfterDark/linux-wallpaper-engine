@@ -14,7 +14,7 @@ This is a modern UI wrapper for [linux-wallpaperengine](https://github.com/Almam
 - [Installation](#-installation)
 - [Features](#-features)
 - [Future Features](#-future-features)
-- [Contributing](#-contributing)
+- [Contributing & Feedback](#-contributing--feedback)
 - [License](#-license)
 
 ---
