@@ -56,7 +56,10 @@ function PlaylistsPage() {
         setApplyingPlaylist(playlistName)
         try {
             await applyMutation.mutateAsync({ playlistName, screen })
-            await utils.playlist.active.invalidate()
+            await Promise.all([
+                utils.playlist.active.invalidate(),
+                utils.playlist.list.invalidate(),
+            ])
         } finally {
             setApplyingPlaylist(null)
         }
@@ -87,8 +90,20 @@ function PlaylistsPage() {
 
     const filteredPlaylists = useMemo(() => {
         const query = searchQuery.trim().toLowerCase()
-        if (!query) return playlists
-        return playlists.filter(p => p.name.toLowerCase().includes(query))
+        const filtered = query
+            ? playlists.filter(p => p.name.toLowerCase().includes(query))
+            : [...playlists]
+
+        // Sort by lastAppliedAt (highest precedence), then updatedAt
+        return filtered.sort((a, b) => {
+            const appliedA = a.lastAppliedAt ?? 0
+            const appliedB = b.lastAppliedAt ?? 0
+            if (appliedA !== appliedB) return appliedB - appliedA
+
+            const updatedA = a.updatedAt ?? 0
+            const updatedB = b.updatedAt ?? 0
+            return updatedB - updatedA
+        })
     }, [playlists, searchQuery])
 
     if (isLoading) {

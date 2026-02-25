@@ -135,7 +135,7 @@ class PlaylistService {
         }
       }
 
-      config.steamuser.general.playlists.push(playlist)
+      config.steamuser.general.playlists.push({ ...playlist, updatedAt: Date.now() })
       await this.writeConfig(config)
 
       return { success: true }
@@ -173,7 +173,7 @@ class PlaylistService {
         }
       }
 
-      config.steamuser.general.playlists[index] = playlist
+      config.steamuser.general.playlists[index] = { ...playlist, updatedAt: Date.now() }
       await this.writeConfig(config)
 
       return { success: true }
@@ -201,6 +201,20 @@ class PlaylistService {
       return { success: true }
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Failed to delete playlist' }
+    }
+  }
+
+  /** Lightweight timestamp update — skips item-path validation so it can't silently fail. */
+  async stampLastApplied(name: string): Promise<void> {
+    try {
+      const config = await this.readConfig()
+      const playlist = config.steamuser?.general?.playlists?.find(p => p.name === name)
+      if (!playlist) return
+
+      playlist.lastAppliedAt = Date.now()
+      await this.writeConfig(config)
+    } catch {
+      // Best-effort — don't block the apply flow
     }
   }
 }

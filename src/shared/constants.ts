@@ -295,6 +295,8 @@ export interface Playlist {
   name: string
   items: string[] // wallpaper paths
   settings: PlaylistSettings
+  updatedAt?: number   // epoch ms — set on create/update
+  lastAppliedAt?: number // epoch ms — set when playlist is started
 }
 
 // Steam Wallpaper Engine config.json structure

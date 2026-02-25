@@ -84,6 +84,9 @@ export const playlistRouter = trpc.router({
         return { success: false, error: 'Playlist has no wallpapers' }
       }
 
+      // Persist lastAppliedAt so the frontend can sort by recency
+      await playlistService.stampLastApplied(input.playlistName)
+
       // Get target screen
       let targetScreen = input.screen
       if (!targetScreen) {
