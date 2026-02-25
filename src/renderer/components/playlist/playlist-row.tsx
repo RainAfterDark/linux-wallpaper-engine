@@ -45,9 +45,12 @@ export function PlaylistRow({
         .filter(Boolean) as Wallpaper[]
 
     return (
-        <div className={cn(
-            "group glass p-1 rounded-xl min-h-[200px] transition-all overflow-hidden"
-        )}>
+        <div
+            onDoubleClick={onEdit}
+            className={cn(
+                "group glass p-1 rounded-xl min-h-[200px] transition-all overflow-hidden cursor-pointer select-none"
+            )}
+        >
             {/* Header with info */}
             <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-ring/30">
                 <div className="flex flex-col gap-1.5 min-w-0">
