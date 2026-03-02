@@ -102,4 +102,8 @@ docs/react-best-practices-audit.md
 
 docs/commands.txt
 
-/demo-video
+demo-video/
+
+docs/demo-video-tool.md
+
+docs/testing.md
