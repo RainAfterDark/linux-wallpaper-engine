@@ -143,7 +143,7 @@ bun install
 bun start
 ```
 
-You can check out my [react-electron-template](https://github.com/jagrat7/react-electron-template) for a more details on how I setup the app.
+You can check out my [react-electron-template](https://github.com/jagrat7/react-electron-template) for details on how I setup the app.
 
 ## 📄 License
 
