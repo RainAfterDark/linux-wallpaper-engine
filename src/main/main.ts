@@ -4,6 +4,7 @@ import { createIPCHandler } from 'trpc-electron/main'
 import { createTrpcContext } from './trpc/context.ts'
 import { appRouter } from './trpc/router.ts'
 import { settingsService } from './services/settings.ts'
+import { setFlatpakBypass } from './services/flatpak.ts'
 
 // Register the local-file protocol for serving local wallpaper images
 protocol.registerSchemesAsPrivileged([
@@ -57,6 +58,9 @@ const createWindow = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  // Sync flatpak bypass from saved settings
+  setFlatpakBypass(settingsService.getSetting('flatpakBypass'))
+
   // Register protocol handler for local files
   protocol.handle('local-file', (request) => {
     // URL format: local-file:///path/to/file

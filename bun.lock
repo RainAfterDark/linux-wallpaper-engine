@@ -5,7 +5,6 @@
     "": {
       "name": "my-app",
       "dependencies": {
-        "@electron-forge/maker-zip": "^7.11.1",
         "@radix-ui/react-alert-dialog": "^1.1.15",
         "@radix-ui/react-dialog": "^1.1.15",
         "@radix-ui/react-dropdown-menu": "^2.1.16",
@@ -42,6 +41,7 @@
         "@electron-forge/maker-deb": "^7.10.2",
         "@electron-forge/maker-flatpak": "^7.11.1",
         "@electron-forge/maker-rpm": "^7.10.2",
+        "@electron-forge/maker-zip": "^7.11.1",
         "@electron-forge/plugin-auto-unpack-natives": "^7.10.2",
         "@electron-forge/plugin-fuses": "^7.10.2",
         "@electron-forge/plugin-vite": "^7.10.2",

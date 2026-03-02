@@ -174,4 +174,19 @@ export const wallpaperRouter = trpc.router({
     return { success: true }
   }),
 
+  // Get debug logs for a screen
+  getDebugLogs: trpc.procedure
+    .input(z.object({ screen: z.string() }))
+    .query(({ input }) => {
+      return wallpaperService.getDebugLogs(input.screen)
+    }),
+
+  // Clear debug logs for a screen
+  clearDebugLogs: trpc.procedure
+    .input(z.object({ screen: z.string() }))
+    .mutation(({ input }) => {
+      wallpaperService.clearDebugLogs(input.screen)
+      return { success: true }
+    }),
+
 })

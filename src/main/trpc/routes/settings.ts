@@ -3,6 +3,7 @@ import { trpc } from '../trpc'
 import { settingsService, type AppSettings } from '../../services/settings'
 import { wallpaperService } from '../../services/wallpaper/wallpaper'
 import { THEME_OPTIONS, SCALING_OPTIONS, type ThemeOption, type ScalingOption } from '../../../shared/constants'
+import { isFlatpak, setFlatpakBypass } from '../../services/flatpak'
 
 // Keys that affect the wallpaper backend process and require reapply
 const BACKEND_KEYS = new Set([
@@ -42,6 +43,10 @@ const settingsSchema = z.object({
   onboardingComplete: z.boolean().optional(),
   dismissedScanReminder: z.boolean().optional(),
 
+  // Debug & Flatpak
+  debugMode: z.boolean().optional(),
+  flatpakBypass: z.boolean().optional(),
+
   // Persisted filter & sort preferences
   filterType: z.array(z.enum(['all', 'scene', 'video', 'web', 'application'])).optional(),
   filterTags: z.array(z.string()).optional(),
@@ -62,6 +67,11 @@ export const settingsRouter = trpc.router({
     .input(settingsSchema)
     .mutation(async ({ input }) => {
       const updated = await settingsService.saveSettings(input)
+
+      // Sync flatpak bypass state to the module
+      if (input.flatpakBypass !== undefined) {
+        setFlatpakBypass(input.flatpakBypass)
+      }
 
       // Only reapply wallpapers if backend-relevant settings changed
       const needsReapply = Object.keys(input).some(key => BACKEND_KEYS.has(key))
@@ -92,5 +102,10 @@ export const settingsRouter = trpc.router({
   // Get default settings
   defaults: trpc.procedure.query(() => {
     return settingsService.getDefaultSettings()
+  }),
+
+  // Check if running inside Flatpak
+  isFlatpak: trpc.procedure.query(() => {
+    return { isFlatpak: isFlatpak() }
   }),
 })

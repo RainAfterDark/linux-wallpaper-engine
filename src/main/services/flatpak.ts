@@ -32,6 +32,24 @@ const getEnvForwardArgs = (): string[] =>
         return value != null ? [`--env=${key}=${value}`] : []
     })
 
+let flatpakBypass = false
+
+/**
+ * Enable or disable Flatpak bypass mode.
+ * When enabled, commands run directly without flatpak-spawn --host.
+ */
+export const setFlatpakBypass = (enabled: boolean): void => {
+    flatpakBypass = enabled
+}
+
+export const getFlatpakBypass = (): boolean => flatpakBypass
+
+/**
+ * Whether to use flatpak-spawn for this call (inside Flatpak and not bypassed).
+ */
+const shouldUseFlatpakSpawn = (): boolean =>
+    isFlatpak() && !flatpakBypass
+
 /**
  * Spawn a process, routing through `flatpak-spawn --host` when inside a Flatpak.
  */
@@ -40,7 +58,7 @@ export const hostSpawn = (
     args: string[],
     options: SpawnOptions = {},
 ): ChildProcess => {
-    if (isFlatpak()) {
+    if (shouldUseFlatpakSpawn()) {
         return spawn('flatpak-spawn', [...getEnvForwardArgs(), '--host', command, ...args], options)
     }
     return spawn(command, args, options)
@@ -53,7 +71,7 @@ export const hostExecAsync = (
     command: string,
 ): Promise<{ stdout: string; stderr: string }> => {
     const envArgs = getEnvForwardArgs().join(' ')
-    const cmd = isFlatpak()
+    const cmd = shouldUseFlatpakSpawn()
         ? `flatpak-spawn ${envArgs} --host sh -c '${command.replace(/'/g, "'\\''")}'`
         : command
     return execPromise(cmd) as Promise<{ stdout: string; stderr: string }>

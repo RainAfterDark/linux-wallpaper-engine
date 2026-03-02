@@ -14,8 +14,9 @@ import {
 import { Button } from "@/components/ui/button"
 import { X, ScanSearch, AlertTriangle, XCircle, CheckCircle2, HelpCircle, FileText } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { COMPATIBILITY_CONFIG, type CompatibilityStatus } from "../../../shared/constants"
+import { COMPATIBILITY_CONFIG, type AppSettings, type CompatibilityStatus } from "../../../shared/constants"
 import { ScanReportTable } from "./scan-report-table"
+
 
 const STATUS_ICONS: Record<CompatibilityStatus, typeof CheckCircle2> = {
     perfect: CheckCircle2,
@@ -25,7 +26,12 @@ const STATUS_ICONS: Record<CompatibilityStatus, typeof CheckCircle2> = {
     unknown: HelpCircle,
 }
 
-export function CompatibilityScanRow() {
+interface CompatibilityScanRowProps {
+    settings: AppSettings
+    updateSetting: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => void
+}
+
+export function CompatibilityScanRow({ settings, updateSetting }: CompatibilityScanRowProps) {
     const [isScanning, setIsScanning] = useState(false)
     const [dialogOpen, setDialogOpen] = useState(false)
     const [reportOpen, setReportOpen] = useState(false)
@@ -48,6 +54,9 @@ export function CompatibilityScanRow() {
     })
 
     const { data: report } = trpc.wallpaper.getScanReport.useQuery()
+
+    const { data: flatpakData } = trpc.settings.isFlatpak.useQuery()
+    const isFlatpakEnv = flatpakData?.isFlatpak ?? false
 
     const handleStartScan = () => {
         setDialogOpen(false)
@@ -176,6 +185,8 @@ export function CompatibilityScanRow() {
                     </AlertDialogContent>
                 </AlertDialog>
             </div>
+
+   
         </div>
     )
 }

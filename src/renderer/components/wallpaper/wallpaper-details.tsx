@@ -21,6 +21,7 @@ import { formatFileSize } from "@/lib/utils"
 import { WallpaperThumbnail } from "./wallpaper-thumbnail"
 import { COMPATIBILITY_OPTIONS, type CompatibilityStatus, WALLPAPER_TYPE_LABELS } from "../../../shared/constants"
 import { ApplyButton } from "./apply-button"
+import { DebugLogDialog } from "./debug-log-dialog"
 
 interface WallpaperDetailsProps {
     wallpaper: Wallpaper
@@ -31,9 +32,12 @@ interface WallpaperDetailsProps {
 
 export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) {
     const [isApplying, setIsApplying] = useState(false)
+    const [debugScreen, setDebugScreen] = useState<string | null>(null)
     const applyMutation = trpc.wallpaper.setWallpaper.useMutation()
     const stopMutation = trpc.wallpaper.stopWalpaper.useMutation()
     const utils = trpc.useUtils()
+
+    const { data: settings } = trpc.settings.get.useQuery()
 
     const { data: activeWallpapers = [] } = trpc.wallpaper.getActiveWallpaper.useQuery(undefined, {
         refetchInterval: 5000,
@@ -47,12 +51,19 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
         if (!wallpaper.path && !wallpaper.id) return
         setIsApplying(true)
         try {
-            await applyMutation.mutateAsync({
+            const result = await applyMutation.mutateAsync({
                 backgroundId: wallpaper.path || wallpaper.id,
                 screen,
             })
             await utils.wallpaper.getActiveWallpaper.invalidate()
             await utils.playlist.active.invalidate()
+
+            if (settings?.debugMode && result.success) {
+                // Determine the screen key used by the backend
+                const displays = utils.display.list.getData()
+                const primary = displays?.find(d => d.primary) ?? displays?.[0]
+                setDebugScreen(screen ?? primary?.name ?? 'default')
+            }
         } finally {
             setIsApplying(false)
         }
@@ -101,6 +112,14 @@ export function WallpaperDetails({ wallpaper, onClose }: WallpaperDetailsProps) 
                         className="w-full"
                     />
                 </div>
+
+                {debugScreen && (
+                    <DebugLogDialog
+                        open={!!debugScreen}
+                        onClose={() => setDebugScreen(null)}
+                        screen={debugScreen}
+                    />
+                )}
 
                 {/* Details */}
                 <div className="mt-4 space-y-2 border-t border-border pt-4">

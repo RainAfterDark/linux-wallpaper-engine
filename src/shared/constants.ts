@@ -94,6 +94,10 @@ export interface AppSettings {
   onboardingComplete: boolean
   dismissedScanReminder: boolean
 
+  // Debug & Flatpak
+  debugMode: boolean
+  flatpakBypass: boolean
+
   // Persisted filter & sort preferences
   filterType: WallpaperFilterType[]
   filterTags: string[]
@@ -136,6 +140,10 @@ export const DEFAULT_SETTINGS: AppSettings = {
   dynamicBackground: true,
   onboardingComplete: false,
   dismissedScanReminder: false,
+
+  // Debug & Flatpak
+  debugMode: false,
+  flatpakBypass: false,
 
   // Filters & sort
   filterType: [],

@@ -4,7 +4,6 @@ import {
     Volume2,
     Monitor,
     Palette,
-    Info,
     RotateCcw,
     Loader2,
     ScanSearch,
@@ -17,7 +16,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-
 import { SettingsSection } from "@/components/settings/settings-section"
 import { SettingRow } from "@/components/settings/setting-row"
 import { trpc } from "@/lib/trpc"
@@ -55,6 +53,9 @@ function SettingsPage() {
     })
 
     const { mode, setMode } = useTheme()
+
+    const { data: flatpakData } = trpc.settings.isFlatpak.useQuery()
+    const isFlatpakEnv = flatpakData?.isFlatpak ?? false
 
     // Get max refresh rate from displays
     const { data: maxRefreshData } = trpc.display.maxRefreshRate.useQuery()
@@ -157,7 +158,21 @@ function SettingsPage() {
                     description="Test wallpapers for Linux compatibility"
                     id="onboarding-compatibility-scan"
                 >
-                    <CompatibilityScanRow />
+                    <CompatibilityScanRow settings={settings} updateSetting={updateSetting} />
+                    <SettingRow label="Debug mode">
+                        <Switch
+                            checked={settings.debugMode}
+                            onCheckedChange={(v) => updateSetting("debugMode", v)}
+                        />
+                    </SettingRow>
+                    {isFlatpakEnv && (
+                        <SettingRow label="Bypass Flatpak sandbox">
+                            <Switch
+                                checked={settings.flatpakBypass}
+                                onCheckedChange={(v) => updateSetting("flatpakBypass", v)}
+                            />
+                        </SettingRow>
+                    )}
                 </SettingsSection>
 
                 {/* Audio Section */}
@@ -300,4 +315,5 @@ function SettingsPage() {
         </div>
     )
 }
+
 

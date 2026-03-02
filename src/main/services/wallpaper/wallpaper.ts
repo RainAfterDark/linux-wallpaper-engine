@@ -5,7 +5,7 @@ import { glob } from 'glob'
 import { displayService } from '../display'
 import { settingsService } from '../settings'
 import { storeService, type ActivePlaylistInfo } from '../store'
-import { hostSpawn, hostExecAsync } from '../flatpak'
+import { hostSpawn, hostExecAsync, isFlatpak } from '../flatpak'
 import { STEAM_PATHS, CACHE_TTL, type WallpaperOverrides, type Wallpaper, type ApplyWallpaperOptions } from '../../../shared/constants'
 import { CompatibilityService } from '../compatibility'
 import { parseImageHeader } from './wallpaper.utils'
@@ -27,6 +27,8 @@ class WallpaperService {
   private activeWallpapers: Map<string, ApplyWallpaperOptions> = new Map()
   private store = storeService.activeWallpapers
   private overridesStore = storeService.wallpaperOverrides
+  private debugLogs: Map<string, string[]> = new Map()
+  private debugCommands: Map<string, string> = new Map()
 
   private constructor() {
     this.restoreActiveWallpapers()
@@ -405,9 +407,13 @@ class WallpaperService {
       // Small delay to ensure cleanup
       await new Promise(resolve => setTimeout(resolve, 100))
 
+      const debugMode = settingsService.getSetting('debugMode')
+
       const proc = hostSpawn('linux-wallpaperengine', args, {
         detached: true,
-        stdio: ['ignore', 'ignore', 'pipe'],
+        stdio: debugMode
+          ? ['ignore', 'pipe', 'pipe']
+          : ['ignore', 'ignore', 'pipe'],
       })
 
       proc.unref()
@@ -416,6 +422,33 @@ class WallpaperService {
       this.activeWallpapers.set(screenKey, options)
       this.clearActivePlaylist() // single wallpaper overrides any playlist
       this.saveActiveWallpapers()
+
+      if (debugMode) {
+        const commandStr = isFlatpak()
+          ? `flatpak-spawn --host linux-wallpaperengine ${args.join(' ')}`
+          : `linux-wallpaperengine ${args.join(' ')}`
+        this.debugCommands.set(screenKey, commandStr)
+        this.debugLogs.set(screenKey, [])
+        const logs = this.debugLogs.get(screenKey)!
+
+        const appendLog = (stream: string, chunk: Buffer) => {
+          const lines = chunk.toString().split('\n').filter(l => l.trim())
+          for (const line of lines) {
+            logs.push(`[${stream}] ${line}`)
+          }
+        }
+
+        if (proc.stdout) {
+          proc.stdout.on('data', (chunk: Buffer) => appendLog('stdout', chunk))
+        }
+        if (proc.stderr) {
+          proc.stderr.on('data', (chunk: Buffer) => appendLog('stderr', chunk))
+        }
+
+        proc.on('exit', (code, signal) => {
+          logs.push(`[process] Exited with code ${code}${signal ? ` (signal: ${signal})` : ''}`)
+        })
+      }
 
       return { success: true }
     } catch (error) {
@@ -588,6 +621,18 @@ class WallpaperService {
       success: errors.length === 0,
       errors: errors.length > 0 ? errors : undefined,
     }
+  }
+
+  getDebugLogs(screen: string): { command: string; logs: string[] } {
+    return {
+      command: this.debugCommands.get(screen) ?? '',
+      logs: this.debugLogs.get(screen) ?? [],
+    }
+  }
+
+  clearDebugLogs(screen: string): void {
+    this.debugLogs.delete(screen)
+    this.debugCommands.delete(screen)
   }
 
   async takeScreenshot(
