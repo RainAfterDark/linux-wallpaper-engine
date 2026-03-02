@@ -92,10 +92,13 @@ cd linux-wallpaper-engine-linux-x64
 
 <br />
 
-- **Compatibility/Errors Tags** —  You can manually tag the wallpapers as compatible or not from the settings or run the compatibility scanner to bulk-tag them, it's not 100% accurate but it will get you close. You can filter out wallpapers with errors or compatibility issues so you don't see them in the gallery.
+- **Compatibility/Errors tracking** —  You can manually tag the wallpapers as compatible or not from the settings or run the compatibility scanner to bulk-tag them, it's not 100% accurate but it will get you close. You can filter out wallpapers with errors or compatibility issues so you don't see them in the gallery.
 ![Compatibility Tag](docs/comp-tag.png)
 ![Compatibility Scanner](docs/comp-scan.png)
 
+  - Wouldn't be a linux experience without it not working on your system. Enter **debug mode** when applying a wallpaper to see what's happening:
+![Debug Mode](docs/debug-mode.png)
+![Flatpak Compatibility Settings](docs/comp-add.png)
 <br />
 
 - **Multi-Monitor Support** — Detect all connected displays, apply different wallpapers per screen, and view your monitor layout at a glance
