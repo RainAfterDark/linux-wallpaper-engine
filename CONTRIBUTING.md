@@ -20,7 +20,7 @@ Thanks for your interest in contributing! For bug reports and feature requests, 
 - [Wallpaper Engine](https://store.steampowered.com/app/431960/Wallpaper_Engine/) installed on Steam with wallpapers downloaded
 
 
-### Setup
+### Development Setup
 
 ```bash
 git clone https://github.com/jagrat7/linux-wallpaper-engine.git
