@@ -28,7 +28,8 @@ If applicable, add screenshots to help explain your problem.
 
 **Desktop (please complete the following information):**
  - OS: [e.g. iOS]
-- DE: [e.g. GNOME]
+ - DE: [e.g. GNOME]
+ - Compositor: [e.g. Wayland, X11]
 
 **Additional context**
 Add any other context about the problem here.

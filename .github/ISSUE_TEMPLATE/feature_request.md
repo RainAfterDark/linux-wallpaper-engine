@@ -15,3 +15,6 @@ A clear and concise description of what you want to happen.
 
 **Describe alternatives you've considered**
 A clear and concise description of any alternative solutions or features you've considered.
+
+**Technical implementation**
+If you have ideas on how this could be implemented, please share them. For example, relevant APIs, libraries, system calls, or architectural approaches that could be used.
