@@ -20,12 +20,15 @@ Steps to reproduce the behavior:
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
+**Debug Mode Logs**
+Please turn on debug mode from settings and apply a wallpaper to see the logs.
+
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
 **Desktop (please complete the following information):**
  - OS: [e.g. iOS]
-
+- DE: [e.g. GNOME]
 
 **Additional context**
 Add any other context about the problem here.
