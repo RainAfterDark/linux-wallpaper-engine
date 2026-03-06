@@ -7,6 +7,7 @@ import {
   DEFAULT_SCAN_PROGRESS,
   BROKEN_PATTERNS,
   MINOR_PATTERNS,
+  COMPAT_IGNORE_PATTERNS,
 } from '../../shared/constants'
 import { storeService } from './store'
 
@@ -24,7 +25,13 @@ class CompatibilityService {
 
   parseStderrToStatus(stderr: string, processExitedEarly: boolean): { status: CompatibilityStatus; errors: string[] } {
     const errors: string[] = []
-    const lines = stderr.split('\n').filter(l => l.trim())
+    const lines = stderr.split('\n').filter(l => {
+      const trimmed = l.trim()
+      if (!trimmed) return false
+      // Skip known harmless messages (e.g. Wayland GLFW warnings)
+      if (COMPAT_IGNORE_PATTERNS.some(p => p.test(trimmed))) return false
+      return true
+    })
 
     for (const line of lines) {
       if (BROKEN_PATTERNS.some(p => p.test(line))) {

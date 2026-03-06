@@ -260,6 +260,13 @@ export const MINOR_PATTERNS = [
   /failed to load/i,
 ]
 
+// Known harmless messages that should be ignored during compatibility scanning
+// (e.g. Wayland GLFW warnings that don't affect wallpaper functionality)
+export const COMPAT_IGNORE_PATTERNS = [
+  /the platform does not provide the window position/i,
+  /the platform does not support setting the window position/i,
+]
+
 // Playlist settings
 export const PLAYLIST_ORDER_OPTIONS = [
   { label: 'Sequential', value: 'sequential' },

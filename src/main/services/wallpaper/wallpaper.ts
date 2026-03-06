@@ -25,6 +25,8 @@ class WallpaperService {
   private cacheTimestamp: number | null = null
   private runningProcesses: Map<string, ChildProcess> = new Map()
   private activeWallpapers: Map<string, ApplyWallpaperOptions> = new Map()
+  // Maps a process to the set of screen names it manages (for shared multi-screen processes)
+  private processScreenGroups: Map<ChildProcess, Set<string>> = new Map()
   private store = storeService.activeWallpapers
   private overridesStore = storeService.wallpaperOverrides
   private debugLogs: Map<string, string[]> = new Map()
@@ -335,10 +337,8 @@ class WallpaperService {
     return filtered
   }
 
-  async applyWallpaper(options: ApplyWallpaperOptions): Promise<{ success: boolean; error?: string }> {
+  private buildGlobalArgs(options: ApplyWallpaperOptions): string[] {
     const args: string[] = []
-
-    // Per-wallpaper overrides take priority over options (which already have global settings merged)
     const overrides = this.getWallpaperOverrides(options.backgroundId)
     const volume = overrides.volume ?? options.volume
     const noAudioProcessing = overrides.audioProcessing !== undefined
@@ -347,29 +347,6 @@ class WallpaperService {
     const disableMouse = overrides.disableMouse ?? options.disableMouse
     const disableParallax = overrides.disableParallax ?? options.disableParallax
     const scaling = overrides.scaling ?? options.scaling
-
-    let targetScreen = options.screen
-    if (options.windowed) {
-      const { x, y, width, height } = options.windowed
-      args.push('--window', `${x}x${y}x${width}x${height}`)
-    } else {
-      if (!targetScreen) {
-        try {
-          const displays = await displayService.detectDisplays()
-          const primary = displays.find((d) => d.primary) ?? displays[0]
-          if (primary) {
-            targetScreen = primary.name
-          }
-        } catch {
-          targetScreen = 'eDP-1'
-        }
-      }
-      if (targetScreen) {
-        args.push('--screen-root', targetScreen)
-      }
-    }
-
-    args.push('--bg', options.backgroundId)
 
     if (options.silent) {
       args.push('--silent')
@@ -385,23 +362,85 @@ class WallpaperService {
     if (options.noFullscreenPause) args.push('--no-fullscreen-pause')
     if (scaling && scaling !== 'default') args.push('--scaling', scaling)
 
-    try {
-      const screenKey = targetScreen ?? 'default'
+    return args
+  }
 
-      // Kill existing process for this screen
-      const existing = this.runningProcesses.get(screenKey)
-      if (existing) {
-        existing.kill('SIGKILL')
-        this.runningProcesses.delete(screenKey)
-      }
-
-      // Also kill any orphaned linux-wallpaperengine processes for this screen
-      try {
-        if (targetScreen) {
-          await hostExecAsync(`pkill -9 -f "linux-wallpaperengine.*--screen-root.*${targetScreen}"`)
+  // Kill a shared process and remove its screen group tracking
+  private killSharedProcess(proc: ChildProcess): void {
+    proc.kill('SIGKILL')
+    const group = this.processScreenGroups.get(proc)
+    if (group) {
+      for (const s of group) {
+        if (this.runningProcesses.get(s) === proc) {
+          this.runningProcesses.delete(s)
         }
-      } catch {
-        // pkill returns error if no process found, that's ok
+      }
+      this.processScreenGroups.delete(proc)
+    }
+  }
+
+  // Detach a single screen from its shared process, respawning remaining screens if needed
+  private async detachScreenFromGroup(screen: string): Promise<void> {
+    const proc = this.runningProcesses.get(screen)
+    if (!proc) return
+
+    const group = this.processScreenGroups.get(proc)
+    if (!group || group.size <= 1) {
+      // Not a shared process, just kill it normally
+      proc.kill('SIGKILL')
+      this.runningProcesses.delete(screen)
+      if (group) this.processScreenGroups.delete(proc)
+      return
+    }
+
+    // Collect remaining screens and their options before killing
+    const remainingScreens = [...group].filter(s => s !== screen)
+    const remainingOptions = remainingScreens
+      .map(s => ({ screen: s, options: this.activeWallpapers.get(s) }))
+      .filter((e): e is { screen: string; options: ApplyWallpaperOptions } => !!e.options)
+
+    // Kill the shared process
+    this.killSharedProcess(proc)
+
+    // Respawn remaining screens grouped by backgroundId
+    const grouped = new Map<string, { screens: string[]; options: ApplyWallpaperOptions }>()
+    for (const { screen: s, options } of remainingOptions) {
+      const key = options.backgroundId
+      const existing = grouped.get(key)
+      if (existing) {
+        existing.screens.push(s)
+      } else {
+        grouped.set(key, { screens: [s], options })
+      }
+    }
+
+    for (const { screens, options } of grouped.values()) {
+      await this.spawnForScreens(screens, options)
+    }
+  }
+
+  // Spawn a single process for one or more screens sharing the same wallpaper
+  private async spawnForScreens(
+    screens: string[],
+    options: ApplyWallpaperOptions,
+  ): Promise<{ success: boolean; error?: string }> {
+    const args: string[] = []
+
+    // Add --screen-root for each screen, then --bg with the wallpaper path
+    for (const screen of screens) {
+      args.push('--screen-root', screen)
+    }
+    args.push('--bg', options.backgroundId)
+    args.push(...this.buildGlobalArgs(options))
+
+    try {
+      // Kill any orphaned processes for these screens
+      for (const screen of screens) {
+        try {
+          await hostExecAsync(`pkill -9 -f "linux-wallpaperengine.*--screen-root.*${screen}"`)
+        } catch {
+          // pkill returns error if no process found, that's ok
+        }
       }
 
       // Small delay to ensure cleanup
@@ -418,18 +457,26 @@ class WallpaperService {
 
       proc.unref()
       CompatibilityService.getInstance().monitorProcess(proc, options.backgroundId)
-      this.runningProcesses.set(screenKey, proc)
-      this.activeWallpapers.set(screenKey, options)
-      this.clearActivePlaylist() // single wallpaper overrides any playlist
+
+      // Track process for all screens in the group
+      const screenSet = new Set(screens)
+      this.processScreenGroups.set(proc, screenSet)
+      for (const screen of screens) {
+        this.runningProcesses.set(screen, proc)
+        this.activeWallpapers.set(screen, { ...options, screen })
+      }
+      this.clearActivePlaylist()
       this.saveActiveWallpapers()
 
       if (debugMode) {
         const commandStr = isFlatpak()
           ? `flatpak-spawn --host linux-wallpaperengine ${args.join(' ')}`
           : `linux-wallpaperengine ${args.join(' ')}`
-        this.debugCommands.set(screenKey, commandStr)
-        this.debugLogs.set(screenKey, [])
-        const logs = this.debugLogs.get(screenKey)!
+        // Store debug info under first screen key
+        const debugKey = screens[0]
+        this.debugCommands.set(debugKey, commandStr)
+        const logs: string[] = []
+        this.debugLogs.set(debugKey, logs)
 
         const appendLog = (stream: string, chunk: Buffer) => {
           const lines = chunk.toString().split('\n').filter(l => l.trim())
@@ -459,13 +506,69 @@ class WallpaperService {
     }
   }
 
+  async applyWallpaper(options: ApplyWallpaperOptions): Promise<{ success: boolean; error?: string }> {
+    if (options.windowed) {
+      const { x, y, width, height } = options.windowed
+      const args = ['--window', `${x}x${y}x${width}x${height}`, '--bg', options.backgroundId, ...this.buildGlobalArgs(options)]
+
+      try {
+        const screenKey = 'default'
+        const existing = this.runningProcesses.get(screenKey)
+        if (existing) {
+          this.killSharedProcess(existing)
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 100))
+
+        const debugMode = settingsService.getSetting('debugMode')
+        const proc = hostSpawn('linux-wallpaperengine', args, {
+          detached: true,
+          stdio: debugMode
+            ? ['ignore', 'pipe', 'pipe']
+            : ['ignore', 'ignore', 'pipe'],
+        })
+        proc.unref()
+        CompatibilityService.getInstance().monitorProcess(proc, options.backgroundId)
+        this.runningProcesses.set(screenKey, proc)
+        this.activeWallpapers.set(screenKey, options)
+        this.clearActivePlaylist()
+        this.saveActiveWallpapers()
+        return { success: true }
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to apply wallpaper',
+        }
+      }
+    }
+
+    // Determine target screens
+    let targetScreens: string[]
+
+    if (options.screen) {
+      targetScreens = [options.screen]
+    } else {
+      // No screen specified → apply to all displays
+      try {
+        const displays = await displayService.detectDisplays()
+        targetScreens = displays.map(d => d.name)
+      } catch {
+        targetScreens = ['eDP-1']
+      }
+    }
+
+    // If this screen is part of a shared process, detach it first
+    for (const screen of targetScreens) {
+      await this.detachScreenFromGroup(screen)
+    }
+
+    return this.spawnForScreens(targetScreens, options)
+  }
+
   async stopWallpaper(screen?: string): Promise<{ success: boolean }> {
     if (screen) {
-      const proc = this.runningProcesses.get(screen)
-      if (proc) {
-        proc.kill('SIGKILL')
-      }
-      this.runningProcesses.delete(screen)
+      // Detach this screen from its shared process (respawns remaining screens)
+      await this.detachScreenFromGroup(screen)
       this.activeWallpapers.delete(screen)
       this.clearActivePlaylistForScreen(screen)
       this.saveActiveWallpapers()
@@ -477,7 +580,11 @@ class WallpaperService {
         // No process found is ok
       }
     } else {
-      // Clear all tracking state first
+      // Kill all shared processes and clear group tracking
+      for (const proc of this.processScreenGroups.keys()) {
+        try { proc.kill('SIGKILL') } catch { /* already dead */ }
+      }
+      this.processScreenGroups.clear()
       this.runningProcesses.clear()
       this.activeWallpapers.clear()
       this.clearActivePlaylist()
@@ -503,12 +610,12 @@ class WallpaperService {
     // Kill any existing process for this screen first
     const existing = this.runningProcesses.get(screenKey)
     if (existing) {
-      existing.kill('SIGKILL')
-      this.runningProcesses.delete(screenKey)
+      this.killSharedProcess(existing)
     }
 
     proc.unref()
     this.runningProcesses.set(screenKey, proc)
+    this.processScreenGroups.set(proc, new Set([screenKey]))
     this.activeWallpapers.set(screenKey, options)
     this.saveActiveWallpapers()
   }
@@ -594,26 +701,37 @@ class WallpaperService {
     const errors: string[] = []
     const settings = await settingsService.loadSettings()
 
+    // Group screens by backgroundId so shared wallpapers use a single process
+    const grouped = new Map<string, { screens: string[]; options: ApplyWallpaperOptions }>()
+
     for (const [screenKey, baseOptions] of this.activeWallpapers.entries()) {
       const options: ApplyWallpaperOptions = {
         ...baseOptions,
-        // Ensure we target the correct screen that this wallpaper is assigned to
         screen: screenKey !== 'default' ? screenKey : baseOptions.screen,
         fps: settings.fps,
         volume: settings.volume,
         silent: settings.silent,
         noAutomute: settings.noAutomute,
         noAudioProcessing: !settings.audioProcessing,
-        // Respect per-wallpaper scaling if set, otherwise use default
         scaling: baseOptions.scaling && baseOptions.scaling !== 'default' ? baseOptions.scaling : settings.defaultScaling,
         disableMouse: settings.disableMouse,
         disableParallax: settings.disableParallax,
         noFullscreenPause: !settings.pauseOnFullscreen,
       }
 
-      const result = await this.applyWallpaper(options)
+      const key = options.backgroundId
+      const existing = grouped.get(key)
+      if (existing) {
+        existing.screens.push(screenKey)
+      } else {
+        grouped.set(key, { screens: [screenKey], options })
+      }
+    }
+
+    for (const { screens, options } of grouped.values()) {
+      const result = await this.spawnForScreens(screens, options)
       if (!result.success && result.error) {
-        errors.push(`${screenKey}: ${result.error}`)
+        errors.push(`${screens.join(',')}: ${result.error}`)
       }
     }
 
