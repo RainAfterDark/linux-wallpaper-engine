@@ -70,7 +70,7 @@ TLDR: UI React stuff is in `renderer/` and the "backend" logic is in `main/`.
 
 ## Development Guide
 
-Make your best effort to keep it DRY and organized. Before writing new code, check if something reusable already exists. Here's where things go:
+Make your best effort to keep it DRY and organized. Before writing new code, check if something reusable already exists. If feel this is not most optimial way to do things do let me know. Here's where things go:
 
 ### Shared
 
