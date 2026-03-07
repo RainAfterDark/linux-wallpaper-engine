@@ -16,9 +16,7 @@ let
   inherit (deps) electron appRuntime;
   electronZipDir = # for Forge offline hack
     runCommand "electron-v${electron.version}-zip-dir"
-      {
-        nativeBuildInputs = [ zip ];
-      }
+      { nativeBuildInputs = [ zip ]; }
       ''
         # bash
         mkdir -p $out
@@ -35,9 +33,7 @@ bun2nix.mkDerivation rec {
   module = package.main;
   inherit src;
 
-  bunDeps = bun2nix.fetchBunDeps {
-    bunNix = ./bun.nix;
-  };
+  bunDeps = bun2nix.fetchBunDeps { bunNix = ./bun.nix; };
 
   bunInstallFlags =
     if stdenv.hostPlatform.isDarwin then
@@ -112,7 +108,7 @@ bun2nix.mkDerivation rec {
     description = package.description;
     homepage = package.homepage;
     license = licenses.mit;
-    platforms = platforms.linux;
+    platforms = platforms.all;
     mainProgram = pname;
   };
 }
