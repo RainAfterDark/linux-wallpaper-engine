@@ -1,4 +1,6 @@
 {
+  lib,
+  getent,
   buildFHSEnv,
   writeShellScript,
   package,
@@ -23,7 +25,7 @@
   runScript = writeShellScript "${name}-entry" ''
     # bash
     # Run the user's preferred shell or default to bash
-    USER_SHELL=$(getent passwd "$USER" | cut -d: -f7)
+    USER_SHELL=$(${lib.getExe getent} passwd "$USER" | cut -d: -f7)
     exec "''${USER_SHELL:-bash}"
   '';
 }).env
