@@ -91,6 +91,9 @@ typings/
 # Electron-Forge
 out/
 
+# Nix build output symlink
+result*
+
 # CLAUDE.md
 CLAUDE.md
 
