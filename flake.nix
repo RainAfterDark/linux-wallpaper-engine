@@ -22,16 +22,16 @@
         ] ./.;
 
         package = pkgs.lib.importJSON ./package.json;
-        deps = import ./nix/deps.nix { inherit pkgs; };
+        deps = import ./distro/nix/deps.nix { inherit pkgs; };
       in
       {
-        devShells.default = pkgs.callPackage ./nix/shell.nix {
-          inherit package deps;
-        };
+        devShells.default =
+          pkgs.callPackage ./distro/nix/shell.nix
+            { inherit package deps; };
 
-        packages.default = pkgs.callPackage ./nix/package.nix {
-          inherit src package deps;
-        };
+        packages.default =
+          pkgs.callPackage ./distro/nix/package.nix
+            { inherit src package deps; };
       }
     );
 }
