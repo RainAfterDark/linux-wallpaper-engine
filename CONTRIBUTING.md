@@ -27,7 +27,7 @@ git clone https://github.com/jagrat7/linux-wallpaper-engine.git
 cd linux-wallpaper-engine
 ```
 
-For Nix, you can enter the dev shell that will set up bun + electron for you (in a FHS environment):
+(Optional) For Nix ONLY, you can enter the dev shell that will set up bun + electron for you (in a FHS environment):
 
 ```bash
 nix develop
@@ -48,7 +48,7 @@ bun run make
 
 Builds packages for your current platform using Electron Forge. Build configuration is in `forge.config.ts`. The results will be in the `out/` directory.
 
-For Nix, the rpm and flatpak makers fail to build inside the FHS environment. To build for Nix, you can run:
+For Nix , the rpm and flatpak makers fail to build inside the FHS environment. To build for Nix, you can run:
 
 ```bash
 # Build the flake package for Nix
