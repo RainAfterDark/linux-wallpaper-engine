@@ -5,22 +5,24 @@ import { cn } from "@/lib/utils"
 interface SettingRowProps {
     label: string
     children: React.ReactNode
+    disabled?: boolean
     changed?: boolean
     onClear?: () => void
 }
 
-export function SettingRow({ label, children, changed, onClear }: SettingRowProps) {
+export function SettingRow({ label, children, disabled, changed, onClear }: SettingRowProps) {
     return (
         <div
             className={cn(
                 "flex items-center justify-between px-4 py-3 transition-colors rounded-md",
+                disabled && "opacity-50 grayscale-[0.5] cursor-not-allowed select-none",
                 changed && "bg-primary/10 ring-1 ring-primary/30"
             )}
         >
             <span className="text-sm">{label}</span>
             <div className="flex items-center gap-2">
                 {children}
-                {changed && onClear && (
+                {changed && onClear && !disabled && (
                     <button
                         onClick={onClear}
                         className="text-muted-foreground hover:text-foreground transition-colors"

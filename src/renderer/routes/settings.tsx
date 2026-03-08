@@ -143,12 +143,30 @@ function SettingsPage() {
                             onCheckedChange={(checked) => updateSetting("launchOnLogin", checked)}
                         />
                     </SettingRow>
-                    {/* <SettingRow label="Minimize on close">
+                    <SettingRow label="Enable system tray">
+                        <Switch
+                            checked={settings.enableSystemTray}
+                            onCheckedChange={(checked) => updateSetting("enableSystemTray", checked)}
+                        />
+                    </SettingRow>
+                    <SettingRow
+                        label="Minimize on startup"
+                        disabled={!settings.launchOnLogin || !settings.enableSystemTray}
+                    >
+                        <Switch
+                            checked={settings.minimizeOnStartup}
+                            onCheckedChange={(checked) => updateSetting("minimizeOnStartup", checked)}
+                        />
+                    </SettingRow>
+                    <SettingRow
+                        label="Minimize on close"
+                        disabled={!settings.enableSystemTray}
+                    >
                         <Switch
                             checked={settings.minimizeOnClose}
                             onCheckedChange={(checked) => updateSetting("minimizeOnClose", checked)}
                         />
-                    </SettingRow> */}
+                    </SettingRow>
                 </SettingsSection>
 
                 {/* Compatibility Scan Section */}

@@ -84,6 +84,8 @@ export interface AppSettings {
   // App settings (not backend, managed by our app)
   theme: ThemeOption
   launchOnLogin: boolean
+  enableSystemTray: boolean
+  minimizeOnStartup: boolean
   minimizeOnClose: boolean
   restoreLastWallpaper: boolean
   lastWallpaperId: string | null
@@ -131,6 +133,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   // App
   theme: 'system',
   launchOnLogin: false,
+  enableSystemTray: false,
+  minimizeOnStartup: false,
   minimizeOnClose: false,
   restoreLastWallpaper: true,
   lastWallpaperId: null,
