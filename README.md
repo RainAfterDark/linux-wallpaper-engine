@@ -173,23 +173,8 @@ Then simply consume the package:
 
 ## 🤝 Contributing & Feedback
 
-Contributions and feedback are welcome! Open an [issue](https://github.com/jagrat7/linux-wallpaper-engine/issues) or submit a pull request.
+Contributions and feedback are welcome! Open an [issue](https://github.com/jagrat7/linux-wallpaper-engine/issues) or submit a pull request. Check out CONTRIBUTING.md for more info.
 
-### 🛠️ Development
-
-```bash
-# Clone the repo
-git clone https://github.com/jagrat7/linux-wallpaper-engine.git
-cd linux-wallpaper-engine
-
-# Install dependencies
-bun install
-
-# Start the app
-bun start
-```
-
-You can check out my [react-electron-template](https://github.com/jagrat7/react-electron-template) for details on how I setup the app.
 
 ## 📄 License
 
