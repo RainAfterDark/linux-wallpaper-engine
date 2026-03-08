@@ -27,7 +27,7 @@ git clone https://github.com/jagrat7/linux-wallpaper-engine.git
 cd linux-wallpaper-engine
 ```
 
-For Nix, you can enter the dev shell that will set up bun + electron for you:
+(Optional) For Nix ONLY, you can enter the dev shell that will set up bun + electron for you:
 
 ```bash
 nix develop
@@ -87,7 +87,7 @@ vite.preload.config.mts    # Vite config for preload script
 
 Each Vite config has `@` and `~` aliases pointing to its respective `src/` subdirectory.
 
-The renderer communicates with the main process through tRPC — no manual IPC. This gives full type safety across process boundaries.
+The renderer communicates with the main process through tRPC — no manual IPC. This gives full type safety across process boundaries. You can check out my [react-electron-template](https://github.com/jagrat7/react-electron-template) for details on how I setup the app.
 
 TLDR: UI React stuff is in `renderer/` and the "backend" logic is in `main/`.
 
