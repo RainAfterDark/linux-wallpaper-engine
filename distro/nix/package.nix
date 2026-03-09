@@ -2,19 +2,43 @@
   lib,
   stdenv,
   runCommand,
+
   bun2nix,
   zip,
   nodejs,
   makeWrapper,
   copyDesktopItems,
   makeDesktopItem,
+
+  linux-wallpaperengine,
+  xrandr,
+  wlr-randr,
+  gnome-randr,
+  ffmpeg-headless,
+  coreutils,
+  procps,
+  which,
+  file,
+
   src,
-  deps,
   package,
+  electron,
 }:
 let
-  inherit (deps) electron appRuntime;
-  electronZipDir = # for Forge offline hack
+  appRuntime = [
+    linux-wallpaperengine
+    xrandr
+    wlr-randr
+    gnome-randr
+    ffmpeg-headless
+    coreutils
+    procps
+    which
+    file
+  ];
+
+  # for Forge offline hack
+  electronZipDir =
     runCommand "electron-v${electron.version}-zip-dir"
       { nativeBuildInputs = [ zip ]; }
       ''

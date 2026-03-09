@@ -1,10 +1,12 @@
 {
   lib,
   mkShell,
+
   bun,
   nodejs,
   bun2nix,
   nix-output-monitor,
+
   rpm,
   zip,
   dpkg,
@@ -12,11 +14,32 @@
   flatpak,
   flatpak-builder,
   elfutils,
+
+  linux-wallpaperengine,
+  xrandr,
+  wlr-randr,
+  gnome-randr,
+  ffmpeg-headless,
+  coreutils,
+  procps,
+  which,
+  file,
+
   package,
-  deps,
+  electron,
 }:
 let
-  inherit (deps) electron appRuntime;
+  appRuntime = [
+    linux-wallpaperengine
+    xrandr
+    wlr-randr
+    gnome-randr
+    ffmpeg-headless
+    coreutils
+    procps
+    which
+    file
+  ];
 in
 mkShell {
   name = "${package.name}-dev";
