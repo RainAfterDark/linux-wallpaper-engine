@@ -21,17 +21,20 @@
           ./.gitignore
         ] ./.;
 
+        # Specific Electron version (should match the project's package.json)
+        # (for minor version bumps, flake lock needs to be bumped)
+        electron = pkgs.electron_39; # v39.7.0
+
         package = pkgs.lib.importJSON ./package.json;
-        deps = import ./distro/nix/deps.nix { inherit pkgs; };
       in
       {
         devShells.default =
           pkgs.callPackage ./distro/nix/shell.nix
-            { inherit package deps; };
+            { inherit package electron; };
 
         packages.default =
           pkgs.callPackage ./distro/nix/package.nix
-            { inherit src package deps; };
+            { inherit src package electron; };
       }
     );
 }
