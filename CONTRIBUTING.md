@@ -25,6 +25,17 @@ Thanks for your interest in contributing! For bug reports and feature requests, 
 ```bash
 git clone https://github.com/jagrat7/linux-wallpaper-engine.git
 cd linux-wallpaper-engine
+```
+
+(Optional) For Nix ONLY, you can enter the dev shell that will set up bun + electron for you (in a FHS environment):
+
+```bash
+nix develop
+```
+
+Then, on any distro, proceed to:
+
+```bash
 bun install
 bun start
 ```
@@ -36,6 +47,19 @@ bun run make
 ```
 
 Builds packages for your current platform using Electron Forge. Build configuration is in `forge.config.ts`. The results will be in the `out/` directory.
+
+For Nix , the rpm and flatpak makers fail to build inside the FHS environment. To build for Nix, you can run:
+
+```bash
+# Build the flake package for Nix
+nix build # or nom build, for better output logs
+
+# Run the binary
+./result/bin/linux-wallpaper-engine
+
+# Inside the dev shell, you can also use bun
+bun run package
+```
 
 
 ## Project Structure
@@ -64,7 +88,7 @@ vite.preload.config.mts    # Vite config for preload script
 
 Each Vite config has `@` and `~` aliases pointing to its respective `src/` subdirectory.
 
-The renderer communicates with the main process through tRPC — no manual IPC. This gives full type safety across process boundaries.
+The renderer communicates with the main process through tRPC — no manual IPC. This gives full type safety across process boundaries. You can check out my [react-electron-template](https://github.com/jagrat7/react-electron-template) for details on how I setup the app.
 
 TLDR: UI React stuff is in `renderer/` and the "backend" logic is in `main/`.
 

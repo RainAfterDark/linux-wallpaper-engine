@@ -78,6 +78,49 @@ cd linux-wallpaper-engine-linux-x64
 ./linux-wallpaper-engine
 ```
 
+#### Nix / NixOS (Flakes)
+
+Run the app without installing (flakes must be enabled):
+
+```bash
+nix run github:jagrat7/linux-wallpaper-engine
+```
+
+On NixOS, add the flake as an input:
+
+```nix
+# flake.nix
+{
+  inputs = {
+    linux-wallpaper-engine.url = "github:jagrat7/linux-wallpaper-engine";
+    # ...
+  }
+  # your system outputs...
+}
+```
+
+Then simply consume the package:
+
+```nix
+# in a NixOS system module...
+{ inputs, pkgs, ... }:
+{
+  environment.systemPackages = [
+    inputs.linux-wallpaper-engine.packages.${pkgs.stdenv.hostPlatform.system}.default
+    # ...
+  ];
+}
+
+# or in a home-manager module...
+{ inputs, pkgs, ... }:
+{
+  home.packages = [
+    inputs.linux-wallpaper-engine.packages.${pkgs.stdenv.hostPlatform.system}.default
+    # ...
+  ];
+}
+```
+
 
 
 ## ✨ Features
@@ -130,23 +173,8 @@ cd linux-wallpaper-engine-linux-x64
 
 ## 🤝 Contributing & Feedback
 
-Contributions and feedback are welcome! Open an [issue](https://github.com/jagrat7/linux-wallpaper-engine/issues) or submit a pull request.
+Contributions and feedback are welcome! Open an [issue](https://github.com/jagrat7/linux-wallpaper-engine/issues) or submit a pull request. Check out CONTRIBUTING.md for more info.
 
-### 🛠️ Development
-
-```bash
-# Clone the repo
-git clone https://github.com/jagrat7/linux-wallpaper-engine.git
-cd linux-wallpaper-engine
-
-# Install dependencies
-bun install
-
-# Start the app
-bun start
-```
-
-You can check out my [react-electron-template](https://github.com/jagrat7/react-electron-template) for details on how I setup the app.
 
 ## 📄 License
 
