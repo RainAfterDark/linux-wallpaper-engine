@@ -1,10 +1,24 @@
-import { app, BrowserWindow, protocol, net } from 'electron'
+import { app, protocol, net, BrowserWindow, Tray, Menu } from 'electron'
 import path from 'node:path'
 import { createIPCHandler } from 'trpc-electron/main'
 import { createTrpcContext } from './trpc/context.ts'
 import { appRouter } from './trpc/router.ts'
 import { settingsService } from './services/settings.ts'
 import { setFlatpakBypass } from './services/flatpak.ts'
+
+// Global ref to tray to avoid GC
+let tray: Tray | null = null
+let isQuitting: boolean = false
+
+const iconPath: string = path.join(__dirname, '../../assests/transperent-logo.png')
+
+const shouldMinimizeOnClose = (): boolean => {
+  return settingsService.getSetting('enableSystemTray') && settingsService.getSetting('minimizeOnClose')
+}
+
+const shouldMinimizeOnStartup = (): boolean => {
+  return settingsService.getSetting('enableSystemTray') && settingsService.getSetting('minimizeOnStartup')
+}
 
 // Register the local-file protocol for serving local wallpaper images
 protocol.registerSchemesAsPrivileged([
@@ -27,7 +41,7 @@ const createWindow = () => {
     show: false,
     backgroundColor: '#09090b',
     autoHideMenuBar: true,
-    icon: path.join(__dirname, '../../assests/transperent-logo.png'),
+    icon: iconPath,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -36,7 +50,7 @@ const createWindow = () => {
   })
 
   mainWindow.once('ready-to-show', () => {
-    mainWindow.show()
+    if (!shouldMinimizeOnStartup()) mainWindow.show()
   })
 
   // and load the index.html of the app.
@@ -52,6 +66,38 @@ const createWindow = () => {
   // mainWindow.webContents.openDevTools()
 
   return mainWindow
+}
+
+// Initialize the system tray with context menu
+const initializeTray = (mainWindow: BrowserWindow): void => {
+  if (tray !== null) return
+  tray = new Tray(iconPath)
+
+  const toggleMainWindow = (): void => {
+    if (!mainWindow.isVisible()) {
+      mainWindow.show()
+    } else if (!mainWindow.isFocused()) {
+      mainWindow.focus()
+    }
+  }
+
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Toggle App',
+      click: toggleMainWindow
+    },
+    { type: 'separator' },
+    {
+      label: 'Quit',
+      click: () => {
+        app.quit()
+      }
+    }
+  ])
+
+  tray.setToolTip(mainWindow.title)
+  tray.setContextMenu(contextMenu)
+  tray.on('click', toggleMainWindow)
 }
 
 // This method will be called when Electron has finished
@@ -70,11 +116,15 @@ app.whenReady().then(() => {
 
   const mainWindow = createWindow()
 
+  if (settingsService.getSetting('enableSystemTray'))
+    initializeTray(mainWindow)
+
   mainWindow.on('close', (e) => {
-    const minimizeOnClose = settingsService.getSetting('minimizeOnClose')
-    if (minimizeOnClose) {
+    if (shouldMinimizeOnClose() && !isQuitting) {
       e.preventDefault()
       mainWindow.hide()
+      if (tray === null)
+        initializeTray(mainWindow)
     }
   })
 
@@ -85,12 +135,20 @@ app.whenReady().then(() => {
   })
 })
 
+// Dispose tray before quitting
+app.on('before-quit', () => {
+  isQuitting = true
+  if (tray) {
+    tray.destroy()
+    tray = null
+  }
+})
+
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-  const minimizeOnClose = settingsService.getSetting('minimizeOnClose')
-  if (process.platform !== 'darwin' && !minimizeOnClose) {
+  if (process.platform !== 'darwin' && !shouldMinimizeOnClose()) {
     app.quit()
   }
 })

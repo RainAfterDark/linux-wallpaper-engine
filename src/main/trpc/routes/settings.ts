@@ -33,6 +33,8 @@ const settingsSchema = z.object({
   // App
   theme: z.enum(THEME_OPTIONS.map(o => o.value) as [ThemeOption, ...ThemeOption[]]).optional(),
   launchOnLogin: z.boolean().optional(),
+  enableSystemTray: z.boolean().optional(),
+  minimizeOnStartup: z.boolean().optional(),
   minimizeOnClose: z.boolean().optional(),
   restoreLastWallpaper: z.boolean().optional(),
   lastWallpaperId: z.string().nullable().optional(),
