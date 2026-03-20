@@ -8,7 +8,7 @@ import { setFlatpakBypass } from './services/flatpak.ts'
 
 // Global ref to tray to avoid GC
 let tray: Tray | null = null
-let isQuitting: boolean = false
+let isQuitting = false
 
 const iconPath: string = path.join(__dirname, '../../assests/transperent-logo.png')
 

@@ -173,7 +173,7 @@ Then simply consume the package:
 
 ## 🤝 Contributing & Feedback
 
-Contributions and feedback are welcome! Open an [issue](https://github.com/jagrat7/linux-wallpaper-engine/issues) or submit a pull request. Check out CONTRIBUTING.md for more info.
+Contributions and feedback are welcome! Checkout [Discussions](https://github.com/jagrat7/linux-wallpaper-engine/discussions) to vote on features, share ideas, or ask questions. You can also open an [issue](https://github.com/jagrat7/linux-wallpaper-engine/issues) or submit a pull request. See [CONTRIBUTING.md](CONTRIBUTING.md) for more info.
 
 
 ## 📄 License
