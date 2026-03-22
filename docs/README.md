@@ -5,7 +5,7 @@
 
 This is a modern UI wrapper for [linux-wallpaperengine](https://github.com/Almamu/linux-wallpaperengine). This app has most features of [linux-wallpaperengine](https://github.com/Almamu/linux-wallpaperengine) plus some additional features(like compatibility tagging for wallpapers) for a better user experience. Also a shoutout to [simple-linux-wallpaperengine-gui](https://github.com/Maxnights/simple-linux-wallpaperengine-gui), which I referenced for CLI commands.
 
-![Overview](docs/preview.gif)
+![Overview](preview.gif)
 
 ---
 
@@ -125,33 +125,33 @@ Then simply consume the package:
 ## ✨ Features
 
 - **Wallpaper Gallery** — Browse all your Steam Workshop wallpapers in a responsive, animated grid with thumbnails. You can add filters and sorts to make it easier to find the wallpapers you want.
-![Wallpaper Gallery](docs/grid.png)
+![Wallpaper Gallery](grid.png)
 
 <br />
 
 - **Playlists (NEW!)** —  You can create and apply playlists to group wallpapers together and apply them to your monitors.
-![Playlist Support](docs/playlists.png)
+![Playlist Support](playlists.png)
 
 <br />
 
 - **Compatibility/Errors tracking** —  You can manually tag the wallpapers as compatible or not from the settings or run the compatibility scanner to bulk-tag them, it's not 100% accurate but it will get you close. You can filter out wallpapers with errors or compatibility issues so you don't see them in the gallery.
-![Compatibility Tag](docs/comp-tag.png)
-![Compatibility Scanner](docs/comp-scan.png)
+![Compatibility Tag](comp-tag.png)
+![Compatibility Scanner](comp-scan.png)
 
   - Wouldn't be a linux experience without it not working on your system. Enter **debug mode** when applying a wallpaper to see what's happening:
-![Debug Mode](docs/debug-mode.png)
-![Flatpak Compatibility Settings](docs/comp-add.png)
+![Debug Mode](debug-mode.png)
+![Flatpak Compatibility Settings](comp-add.png)
 <br />
 
 - **Multi-Monitor Support** — Detect all connected displays, apply different wallpapers per screen, and view your monitor layout at a glance
-![Multi-Monitor Support](docs/displays.png)
+![Multi-Monitor Support](displays.png)
 
 <br />
 
 - **Theming** — Choose from Light, Dark, Steam, Hard Light, or System themes
-![Theming](docs/dark.png)
-![Theming](docs/steam.png)
-![Theming](docs/light-mode.png)
+![Theming](dark.png)
+![Theming](steam.png)
+![Theming](light-mode.png)
 
 <br />
 
@@ -162,7 +162,7 @@ Then simply consume the package:
   - **Display**: Adjust default scaling, toggle mouse interactions, and manage parallax effects.
   - **Appearance**: Switch themes (Light, Dark, Steam-like) and customize UI elements like the status bar.
   
-![Settings](docs/settings.png)
+![Settings](settings.png)
 
 ## 🔮 Future Features
 
@@ -172,4 +172,4 @@ Then simply consume the package:
 
 ## 🤝 Contributing & Feedback
 
-Contributions and feedback are welcome! Checkout [Discussions](https://github.com/jagrat7/linux-wallpaper-engine/discussions) to vote on features, share ideas, or ask questions. You can also open an [issue](https://github.com/jagrat7/linux-wallpaper-engine/issues) or submit a pull request. See [CONTRIBUTING.md](CONTRIBUTING.md) for more info.
+Contributions and feedback are welcome! Checkout [Discussions](https://github.com/jagrat7/linux-wallpaper-engine/discussions) to vote on features, share ideas, or ask questions. You can also open an [issue](https://github.com/jagrat7/linux-wallpaper-engine/issues) or submit a pull request. See [CONTRIBUTING.md](../.github/CONTRIBUTING.md) for more info.
