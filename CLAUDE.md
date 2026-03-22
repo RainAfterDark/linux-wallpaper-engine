@@ -1,0 +1,1 @@
+- When creating PRs, always target the `dev` branch.
