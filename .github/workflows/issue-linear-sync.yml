@@ -8,6 +8,20 @@ jobs:
   create-linear-issue:
     runs-on: ubuntu-latest
     steps:
+      - name: Map GitHub labels to Linear label IDs
+        id: labels
+        run: |
+          GITHUB_LABELS='${{ toJSON(github.event.issue.labels.*.name) }}'
+          LABEL_IDS=""
+
+          if echo "$GITHUB_LABELS" | grep -qi '"bug"'; then
+            LABEL_IDS="3978d176-52ad-4e8c-8ac3-29666e4cbca6"
+          elif echo "$GITHUB_LABELS" | grep -qi '"enhancement"'; then
+            LABEL_IDS="654323d7-0042-4dd8-bb3b-c6cf4e6052da"
+          fi
+
+          echo "ids=$LABEL_IDS" >> "$GITHUB_OUTPUT"
+
       - name: Create Linear issue in project
         env:
           LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
@@ -16,20 +30,53 @@ jobs:
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_BODY: ${{ github.event.issue.body }}
           ISSUE_URL: ${{ github.event.issue.html_url }}
+          LABEL_ID: ${{ steps.labels.outputs.ids }}
         run: |
-          RESPONSE=$(curl -s -X POST https://api.linear.app/graphql \
-            -H "Authorization: ${LINEAR_API_KEY}" \
-            -H "Content-Type: application/json" \
-            -d "$(jq -n \
-              --arg teamId "$LINEAR_TEAM_ID" \
-              --arg projectId "$LINEAR_PROJECT_ID" \
-              --arg title "$ISSUE_TITLE" \
-              --arg description "$ISSUE_BODY" \
-              '{
-                query: "mutation CreateIssue($teamId: String!, $projectId: String!, $title: String!, $description: String!) { issueCreate(input: { teamId: $teamId, projectId: $projectId, title: $title, description: $description }) { success issue { id identifier url } } }",
-                variables: { teamId: $teamId, projectId: $projectId, title: $title, description: $description }
-              }'
-            )")
+          # Build the label array for the mutation
+          if [ -n "$LABEL_ID" ]; then
+            LABEL_ARG="--arg labelId \"$LABEL_ID\""
+            LABEL_VAR=', $labelId: String!'
+            LABEL_INPUT=', labelIds: [$labelId]'
+            LABEL_VARS=', labelId: $labelId'
+          else
+            LABEL_ARG=""
+            LABEL_VAR=""
+            LABEL_INPUT=""
+            LABEL_VARS=""
+          fi
+
+          if [ -n "$LABEL_ID" ]; then
+            RESPONSE=$(curl -s -X POST https://api.linear.app/graphql \
+              -H "Authorization: ${LINEAR_API_KEY}" \
+              -H "Content-Type: application/json" \
+              -d "$(jq -n \
+                --arg teamId "$LINEAR_TEAM_ID" \
+                --arg projectId "$LINEAR_PROJECT_ID" \
+                --arg title "$ISSUE_TITLE" \
+                --arg description "$ISSUE_BODY" \
+                --arg stateId "2d7ef87e-c24b-4443-909e-603c399ce09a" \
+                --arg labelId "$LABEL_ID" \
+                '{
+                  query: "mutation CreateIssue($teamId: String!, $projectId: String!, $title: String!, $description: String!, $stateId: String!, $labelId: String!) { issueCreate(input: { teamId: $teamId, projectId: $projectId, title: $title, description: $description, stateId: $stateId, labelIds: [$labelId] }) { success issue { id identifier url } } }",
+                  variables: { teamId: $teamId, projectId: $projectId, title: $title, description: $description, stateId: $stateId, labelId: $labelId }
+                }'
+              )")
+          else
+            RESPONSE=$(curl -s -X POST https://api.linear.app/graphql \
+              -H "Authorization: ${LINEAR_API_KEY}" \
+              -H "Content-Type: application/json" \
+              -d "$(jq -n \
+                --arg teamId "$LINEAR_TEAM_ID" \
+                --arg projectId "$LINEAR_PROJECT_ID" \
+                --arg title "$ISSUE_TITLE" \
+                --arg description "$ISSUE_BODY" \
+                --arg stateId "2d7ef87e-c24b-4443-909e-603c399ce09a" \
+                '{
+                  query: "mutation CreateIssue($teamId: String!, $projectId: String!, $title: String!, $description: String!, $stateId: String!) { issueCreate(input: { teamId: $teamId, projectId: $projectId, title: $title, description: $description, stateId: $stateId }) { success issue { id identifier url } } }",
+                  variables: { teamId: $teamId, projectId: $projectId, title: $title, description: $description, stateId: $stateId }
+                }'
+              )")
+          fi
 
           echo "Response: $RESPONSE"
 
