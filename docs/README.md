@@ -15,7 +15,6 @@ This is a modern UI wrapper for [linux-wallpaperengine](https://github.com/Almam
 - [Features](#-features)
 - [Future Features](#-future-features)
 - [Contributing & Feedback](#-contributing--feedback)
-- [License](#-license)
 
 ---
 
@@ -174,8 +173,3 @@ Then simply consume the package:
 ## 🤝 Contributing & Feedback
 
 Contributions and feedback are welcome! Checkout [Discussions](https://github.com/jagrat7/linux-wallpaper-engine/discussions) to vote on features, share ideas, or ask questions. You can also open an [issue](https://github.com/jagrat7/linux-wallpaper-engine/issues) or submit a pull request. See [CONTRIBUTING.md](CONTRIBUTING.md) for more info.
-
-
-## 📄 License
-
-[MIT](LICENSE) do whatever you want with it.
