@@ -1,0 +1,94 @@
+name: Sync Closed Issue to Linear
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  close-linear-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if a branch exists for this issue
+        id: check-branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_NUMBER="${{ github.event.issue.number }}"
+
+          # Check if any remote branch contains this issue number
+          BRANCHES=$(git branch -r | grep -i "#${ISSUE_NUMBER}\|issue-${ISSUE_NUMBER}\|-${ISSUE_NUMBER}-" || true)
+
+          if [ -n "$BRANCHES" ]; then
+            echo "has_branch=true" >> "$GITHUB_OUTPUT"
+            echo "Found branch(es) for issue #${ISSUE_NUMBER}: $BRANCHES"
+          else
+            echo "has_branch=false" >> "$GITHUB_OUTPUT"
+            echo "No branch found for issue #${ISSUE_NUMBER}"
+          fi
+
+      - name: Mark Linear issue as Done
+        if: steps.check-branch.outputs.has_branch == 'false'
+        env:
+          LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+          LINEAR_TEAM_ID: ${{ secrets.LINEAR_TEAM_ID }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+        run: |
+          # Find the Linear issue by GitHub URL attachment
+          RESPONSE=$(curl -s -X POST https://api.linear.app/graphql \
+            -H "Authorization: ${LINEAR_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg url "$ISSUE_URL" \
+              '{
+                query: "query FindIssue($url: String!) { attachmentsForURL(url: $url) { nodes { issue { id identifier } } } }",
+                variables: { url: $url }
+              }'
+            )")
+
+          ISSUE_ID=$(echo "$RESPONSE" | jq -r '.data.attachmentsForURL.nodes[0].issue.id // empty')
+
+          if [ -z "$ISSUE_ID" ]; then
+            echo "::warning::No Linear issue found for this GitHub issue"
+            exit 0
+          fi
+
+          IDENTIFIER=$(echo "$RESPONSE" | jq -r '.data.attachmentsForURL.nodes[0].issue.identifier')
+          echo "Found Linear issue: $IDENTIFIER"
+
+          # Get the "Done" state ID for the team
+          STATES_RESPONSE=$(curl -s -X POST https://api.linear.app/graphql \
+            -H "Authorization: ${LINEAR_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg teamId "$LINEAR_TEAM_ID" \
+              '{
+                query: "query GetDoneState($teamId: String!) { team(id: $teamId) { states { nodes { id name type } } } }",
+                variables: { teamId: $teamId }
+              }'
+            )")
+
+          DONE_STATE_ID=$(echo "$STATES_RESPONSE" | jq -r '.data.team.states.nodes[] | select(.type == "completed") | .id' | head -1)
+
+          if [ -z "$DONE_STATE_ID" ]; then
+            echo "::error::Could not find a 'completed' state for the team"
+            exit 1
+          fi
+
+          # Update the Linear issue to Done
+          curl -s -X POST https://api.linear.app/graphql \
+            -H "Authorization: ${LINEAR_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg issueId "$ISSUE_ID" \
+              --arg stateId "$DONE_STATE_ID" \
+              '{
+                query: "mutation UpdateIssue($issueId: String!, $stateId: String!) { issueUpdate(id: $issueId, input: { stateId: $stateId }) { success } }",
+                variables: { issueId: $issueId, stateId: $stateId }
+              }'
+            )"
+
+          echo "Marked $IDENTIFIER as Done"
