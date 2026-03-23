@@ -4,6 +4,7 @@
 
   bun,
   nodejs,
+  imagemagick,
   bun2nix,
   nix-output-monitor,
 
@@ -49,6 +50,7 @@ mkShell {
     bun
     nodejs
     electron
+    imagemagick
 
     # Nix
     bun2nix
@@ -153,8 +155,8 @@ mkShell {
           USER_SHELL=$(grep "^$USER:" /etc/passwd | cut -d: -f7)
         fi
 
-        # Run preferred shell if found
-        if [ -n "$USER_SHELL" ] && [[ "$USER_SHELL" != *"bash"* ]]; then
+        # Run preferred shell if found and in interactive mode
+        if [[ -n "$USER_SHELL" && "$USER_SHELL" != *"bash"* && $- == *i* ]]; then
           "$USER_SHELL"
           eval "$CLEANUP_CMD"
           exit
